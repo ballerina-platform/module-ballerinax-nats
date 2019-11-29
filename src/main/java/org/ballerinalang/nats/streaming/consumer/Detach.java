@@ -15,32 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.nats.streaming.consumer;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import io.nats.streaming.Subscription;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
-
 /**
- * Create a listener and attach service.
+ * Unsubscribe from a subject.
  *
- * @since 1.0.0
+ * @since 1.0.4
  */
-public class Attach {
-
-    public static void streamingAttach(ObjectValue streamingListener, ObjectValue service,
-                              Object connection) {
-        List<ObjectValue> serviceList = (List<ObjectValue>) ((ObjectValue) connection)
-                .getNativeData(Constants.SERVICE_LIST);
-        serviceList.add(service);
+public class Detach {
+    public static void streamingDetach(ObjectValue streamingListener, ObjectValue service) {
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
-                        .getNativeData(STREAMING_DISPATCHER_LIST);
-        serviceListenerMap.put(service, new StreamingListener(service, Scheduler.getStrand().scheduler));
+                        .getNativeData(Constants.STREAMING_DISPATCHER_LIST);
+        ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap =
+                (ConcurrentHashMap<ObjectValue, Subscription>) streamingListener
+                        .getNativeData(Constants.STREAMING_SUBSCRIPTION_LIST);
+        Subscription subscription = subscriptionsMap.get(service);
+        try {
+            if (subscription == null) {
+                return;
+            }
+            subscription.unsubscribe();
+            subscriptionsMap.remove(service);
+            serviceListenerMap.remove(service);
+        } catch (IOException e) {
+            throw Utils.createNatsError("Error occurred while un-subscribing: " + e.getMessage());
+        }
     }
 }
