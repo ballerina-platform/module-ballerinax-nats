@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,23 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/nats;
 import ballerina/io;
+import ballerina/nats;
 
-nats:Connection conn = new("localhost:4222");
+nats:Connection conn = new("/localhost:4222");
 
-listener nats:StreamingListener lis = new(conn);
+listener nats:Listener lis = new(conn);
 
-@nats:StreamingSubscriptionConfig {
+@nats:SubscriptionConfig {
     subject: "demo"
 }
-service testService on lis {
-     resource function onMessage(nats:StreamingMessage message, int[] data) {
-        io:println("Received Message");
+service demo on lis {
+    resource function onMessage(nats:Message msg, string data) {
+        io:println(data);
     }
 
-    resource function onError(nats:StreamingMessage message, error errorVal) {
-        io:println("Error occurred!");
+    resource function onError(nats:Message msg, nats:Error err) {
+        io:println(err);
     }
 }
-
