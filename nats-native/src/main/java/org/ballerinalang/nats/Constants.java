@@ -53,7 +53,7 @@ public class Constants {
     public static final String CLOSING = "closing";
 
     public static final String NATS = "nats";
-    public static final String ORG_NAME = "ballerina";
+    public static final String ORG_NAME = "ballerinax";
     public static final String VERSION = "1.0.0";
 
     // Represents nats package.
