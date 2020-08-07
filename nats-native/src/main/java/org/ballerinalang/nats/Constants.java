@@ -59,7 +59,7 @@ public class Constants {
     // Represents nats package.
     public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS + ":" + VERSION;
 
-    public static final BPackage NATS_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "nats", VERSION);
+    public static final BPackage NATS_PACKAGE_ID = new BPackage(ORG_NAME, "nats", VERSION);
 
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
