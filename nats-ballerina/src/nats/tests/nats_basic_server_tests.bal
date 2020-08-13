@@ -93,7 +93,7 @@ service {
     }
 };
 
-@test:AfterSuite
+@test:AfterSuite {}
 function cleanUp() {
     var dockerStopResult = system:exec("docker", {}, "/", "stop", "nats-tests");
     var dockerRmResult = system:exec("docker", {}, "/", "rm", "nats-tests");
