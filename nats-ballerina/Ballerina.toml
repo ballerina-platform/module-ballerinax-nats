@@ -2,6 +2,14 @@
 org-name = "ballerinax"
 version = "@toml.version@"
 
+[dependencies]
+"ballerina/crypto" = "@stdlib.crypto.version@"
+"ballerina/log" = "@stdlib.log.version@"
+"ballerina/time" = "@stdlib.time.version@"
+"ballerina/system" = "@stdlib.system.version@"
+"ballerina/runtime" = "@stdlib.runtime.version@"
+"ballerina/io" = "@stdlib.io.version@"
+
 [platform]
 target = "java8"
 
