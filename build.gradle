@@ -30,6 +30,12 @@ ext.natsVersion = "2.6.0"
 ext.natsStreamingVersion = "2.2.3"
 ext.protobufVersion = "3.9.1"
 ext.ballerinaTomlParserVersion = project.ballerinaTomlParserVersion
+ext.stdlibCryptoVersion = project.stdlibCryptoVersion
+ext.stdlibLogVersion = project.stdlibLogVersion
+ext.stdlibTimeVersion = project.stdlibTimeVersion
+ext.stdlibRuntimeVersion = project.stdlibRuntimeVersion
+ext.stdlibSystemVersion = project.stdlibSystemVersion
+ext.stdlibIoVersion = project.stdlibIoVersion
 
 allprojects {
     group = 'org.ballerinalang'
@@ -62,12 +68,77 @@ allprojects {
 
         maven {
             url = 'https://maven.pkg.github.com/ballerina-platform/module-ballerinax-nats'
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+
+        maven {
+            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-log"
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+
+        maven {
+            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-crypto"
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+
+        maven {
+            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-time"
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+
+        maven {
+            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-runtime"
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+
+        maven {
+            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-io"
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+
+        maven {
+            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-system"
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
         }
     }
 }
 
 subprojects {
     apply plugin: 'java'
+
+    configurations {
+        ballerinaStdLibs
+    }
+    dependencies {
+        /* Standard libraries */
+        ballerinaStdLibs "org.ballerinalang:log-ballerina:${stdlibLogVersion}"
+        ballerinaStdLibs "org.ballerinalang:crypto-ballerina:${stdlibCryptoVersion}"
+        ballerinaStdLibs "org.ballerinalang:time-ballerina:${stdlibTimeVersion}"
+        ballerinaStdLibs "org.ballerinalang:runtime-api-ballerina:${stdlibRuntimeVersion}"
+        ballerinaStdLibs "org.ballerinalang:system-ballerina:${stdlibSystemVersion}"
+        ballerinaStdLibs "org.ballerinalang:io-ballerina:${stdlibIoVersion}"
+    }
 
     release {
         // Disable check snapshots temporarily
