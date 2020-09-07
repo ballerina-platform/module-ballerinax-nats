@@ -3,7 +3,7 @@ Ballerina NATS Library
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-nats/workflows/Build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions?query=workflow%3ABuild)
 [![Daily build](https://github.com/ballerina-platform/module-ballerinax-nats/workflows/Daily%20build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions?query=workflow%3A%22Daily+build)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-sql.svg)](https://github.com/ballerina-platform/module-ballerina-sql/commits/master)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-nats.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The NATS library is one of the standard library modules of the<a target="_blank" href="https://ballerina.io/"> Ballerina
