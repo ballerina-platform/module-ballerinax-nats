@@ -155,6 +155,11 @@ task ballerinaBuild {
             additionalBuildParams = "--skip-tests"
         }
 
+        if (project.hasProperty("debugBallerina")) {
+            def port = project.getProperty("debugBallerina").toString();
+            additionalBuildParams += "--debug ${port}"
+        }
+
         // Build and populate caches
         exec {
             workingDir project.projectDir

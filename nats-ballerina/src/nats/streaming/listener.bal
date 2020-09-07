@@ -35,8 +35,8 @@ public type StreamingListener object {
     # + clientId - The unique identifier of the client. The `clientId` should be unique across all the subscriptions.
     #              Therefore, multilpe subscription services cannot be bound to a single listener
     # + streamingConfig - The configuration related to the NATS streaming connectivity
-    public function init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
-    public StreamingConfig? streamingConfig = ()) {
+    public function init(Connection connection, string? clientId = (), string clusterId = "test-cluster",
+    StreamingConfig? streamingConfig = ()) {
         self.connection = connection;
         self.clusterId = clusterId;
         self.clientId = clientId;
