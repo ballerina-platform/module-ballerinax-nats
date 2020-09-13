@@ -19,7 +19,7 @@ import ballerina/java;
 
 # The producer provides the capability to publish messages to the NATS server.
 # The `nats:Producer` needs the `nats:Connection` to be initialized.
-public type Producer client object {
+public client class Producer {
 
     private Connection? conn = ();
 
@@ -79,24 +79,24 @@ public type Producer client object {
         }
 
     }
-};
+}
 
 function producerInit(Connection c) =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.producer.Init"
+    'class: "org.ballerinalang.nats.basic.producer.Init"
 } external;
 
 function closeConnection(Producer producer) =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.producer.CloseConnection"
+    'class: "org.ballerinalang.nats.basic.producer.CloseConnection"
 } external;
 
 function externRequest(Producer producer, string subject, Content data, int? duration = ()) returns Message | Error =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.producer.Request"
+    'class: "org.ballerinalang.nats.basic.producer.Request"
 } external;
 
 function externPublish(Producer producer, string subject, string | byte[] data, (string | service)? replyTo = ())
 returns Error? = @java:Method {
-    class: "org.ballerinalang.nats.basic.producer.Publish"
+    'class: "org.ballerinalang.nats.basic.producer.Publish"
 } external;

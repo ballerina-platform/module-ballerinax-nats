@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents the message, which a NATS server sends to its subscribed services.
-public type Message object {
+public class Message {
     byte[] content;
     string? replyTo;
     string subject;
@@ -46,4 +46,4 @@ public type Message object {
     public function getSubject() returns string {
         return self.subject;
     }
-};
+}
