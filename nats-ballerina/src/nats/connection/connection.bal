@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents a single network connection to the NATS server.
-public type Connection object {
+public class Connection {
 
     private ConnectionConfig config = {};
     private string[] url;
@@ -40,14 +40,14 @@ public type Connection object {
     public function close(boolean forceful = false) returns Error? {
         return externClose(self, forceful);
     }
-};
+}
 
 function externInit(Connection connection, string[] url, ConnectionConfig config) =
 @java:Method {
-    class: "org.ballerinalang.nats.connection.Init"
+    'class: "org.ballerinalang.nats.connection.Init"
 } external;
 
 function externClose(Connection connection, boolean forceful = false) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.nats.connection.Close"
+    'class: "org.ballerinalang.nats.connection.Close"
 } external;

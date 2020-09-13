@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represents the message a NATS Streaming Server sends to its subscribed services.
-public type StreamingMessage client object {
+public client class StreamingMessage {
    private byte[] content;
    private string subject;
 
@@ -46,9 +46,9 @@ public type StreamingMessage client object {
    public remote function ack() returns Error? {
        return externAck(self);
    }
-};
+}
 
 function externAck(StreamingMessage message) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.message.Ack"
+    'class: "org.ballerinalang.nats.streaming.message.Ack"
 } external;
