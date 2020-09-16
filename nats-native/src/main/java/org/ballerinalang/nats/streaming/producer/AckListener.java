@@ -18,8 +18,8 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.AckHandler;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -46,10 +46,10 @@ public class AckListener implements AckHandler {
     public void onAck(String nuid, Exception ex) {
         if (ex == null) {
             natsMetricsReporter.reportAcknowledgement(subject);
-            nonBlockingCallback.setReturnValues(StringUtils.fromString(nuid));
+            nonBlockingCallback.setReturnValues(BStringUtils.fromString(nuid));
         } else {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
-            ErrorValue error = Utils.createNatsError("NUID: " + nuid + "; " + ex.getMessage());
+            BError error = Utils.createNatsError("NUID: " + nuid + "; " + ex.getMessage());
             nonBlockingCallback.setReturnValues(error);
         }
         nonBlockingCallback.notifySuccess();

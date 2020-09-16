@@ -20,8 +20,8 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -48,9 +48,9 @@ public class ImmediateStop {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
 
-    public static void basicImmediateStop(ObjectValue listenerObject) {
+    public static void basicImmediateStop(BObject listenerObject) {
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), listenerObject);
-        ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
+        BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         if (connectionObject == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             LOG.debug("Connection object reference does not exist. Possibly the connection is already closed.");

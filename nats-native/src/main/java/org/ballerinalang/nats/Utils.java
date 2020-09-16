@@ -19,13 +19,17 @@
 package org.ballerinalang.nats;
 
 import io.nats.client.Message;
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
@@ -34,10 +38,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.nio.charset.StandardCharsets;
 
@@ -46,9 +46,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class Utils {
 
-    public static ErrorValue createNatsError(String detailedErrorMessage) {
-        return BallerinaErrors.createDistinctError(Constants.NATS_ERROR, Constants.NATS_PACKAGE_ID,
-                                                   detailedErrorMessage);
+    public static BError createNatsError(String detailedErrorMessage) {
+        return BErrorCreator.createDistinctError(Constants.NATS_ERROR, Constants.NATS_PACKAGE_ID,
+                                                   BStringUtils.fromString(detailedErrorMessage));
     }
 
     public static Object bindDataToIntendedType(byte[] data, BType intendedType) {
@@ -56,12 +56,12 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
             case TypeTags.STRING_TAG:
-                dispatchedData = StringUtils.fromString(new String(data, StandardCharsets.UTF_8));
+                dispatchedData = BStringUtils.fromString(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.JSON_TAG:
                 try {
                     Object json = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
-                    dispatchedData = json instanceof String ? StringUtils.fromString((String) json) : json;
+                    dispatchedData = json instanceof String ? BStringUtils.fromString((String) json) : json;
                 } catch (BallerinaException e) {
                     throw createNatsError("Error occurred in converting message content to json: " +
                             e.getMessage());
@@ -95,17 +95,17 @@ public class Utils {
         return dispatchedData;
     }
 
-    public static ObjectValue getMessageObject(Message message) {
-        ObjectValue msgObj;
+    public static BObject getMessageObject(Message message) {
+        BObject msgObj;
         if (message != null) {
             ArrayValue msgData = new ArrayValueImpl(message.getData());
-            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
+            msgObj = BValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
                                                        Constants.NATS_MESSAGE_OBJ_NAME,
-                                                       StringUtils.fromString(message.getSubject()), msgData,
-                                                       StringUtils.fromString(message.getReplyTo()));
+                                                       BStringUtils.fromString(message.getSubject()), msgData,
+                                                       BStringUtils.fromString(message.getReplyTo()));
         } else {
             ArrayValue msgData = new ArrayValueImpl(new byte[0]);
-            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
+            msgObj = BValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
         }
         return msgObj;
@@ -121,7 +121,7 @@ public class Utils {
         }
     }
 
-    public static AttachedFunction getAttachedFunction(ObjectValue serviceObject, String functionName) {
+    public static AttachedFunction getAttachedFunction(BObject serviceObject, String functionName) {
         AttachedFunction function = null;
         AttachedFunction[] resourceFunctions = serviceObject.getType().getAttachedFunctions();
         for (AttachedFunction resourceFunction : resourceFunctions) {
@@ -134,15 +134,15 @@ public class Utils {
     }
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, Object> getSubscriptionConfig(Object annotationData) {
-        MapValue annotationRecord = null;
+    public static BMap<BString, Object> getSubscriptionConfig(Object annotationData) {
+        BMap annotationRecord = null;
         if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
-            annotationRecord = (MapValue) annotationData;
+            annotationRecord = (BMap) annotationData;
         }
         return annotationRecord;
     }
 
-    public static String getCommaSeparatedUrl(ObjectValue connectionObject) {
+    public static String getCommaSeparatedUrl(BObject connectionObject) {
         return String.join(", ", connectionObject.getArrayValue(Constants.URL).getStringArray());
     }
 }

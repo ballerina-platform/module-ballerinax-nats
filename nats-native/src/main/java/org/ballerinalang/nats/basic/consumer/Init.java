@@ -19,7 +19,7 @@
 package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  */
 public class Init {
 
-    public static void consumerInit(ObjectValue listenerObject, ObjectValue connectionObject) {
+    public static void consumerInit(BObject listenerObject, BObject connectionObject) {
         // This is to add listener to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
         // Initialize dispatcher list to use in service register and listener close.

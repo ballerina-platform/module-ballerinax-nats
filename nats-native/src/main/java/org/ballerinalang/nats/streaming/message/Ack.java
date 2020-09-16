@@ -18,7 +18,7 @@
 package org.ballerinalang.nats.streaming.message;
 
 import io.nats.streaming.Message;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 public class Ack {
 
-    public static Object externAck(ObjectValue message) {
+    public static Object externAck(BObject message) {
         Message streamingMessage = (Message) message.getNativeData(Constants.NATS_STREAMING_MSG);
         boolean manualAck = (Boolean) message.getNativeData(Constants.NATS_STREAMING_MANUAL_ACK.getValue());
         try {

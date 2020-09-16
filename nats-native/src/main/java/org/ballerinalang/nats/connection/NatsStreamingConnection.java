@@ -19,10 +19,10 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import io.nats.streaming.StreamingConnection;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -40,14 +40,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NatsStreamingConnection {
 
-    public static void createConnection(ObjectValue streamingClientObject, ObjectValue connectionObject,
+    public static void createConnection(BObject streamingClientObject, BObject connectionObject,
                                         String clusterId, Object clientIdNillable, Object streamingConfig) {
         Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         String clientId = clientIdNillable == null ? UUID.randomUUID().toString() :
                 ((BString) clientIdNillable).getValue();
         BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
                 new BallerinaNatsStreamingConnectionFactory(
-                        natsConnection, clusterId, clientId, (MapValue<BString, Object>) streamingConfig);
+                        natsConnection, clusterId, clientId, (BMap<BString, Object>) streamingConfig);
         try {
             io.nats.streaming.StreamingConnection streamingConnection = streamingConnectionFactory.createConnection();
             streamingClientObject.addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);
@@ -63,7 +63,7 @@ public class NatsStreamingConnection {
         }
     }
 
-    public static Object closeConnection(ObjectValue streamingClientObject, ObjectValue natsConnection) {
+    public static Object closeConnection(BObject streamingClientObject, BObject natsConnection) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),

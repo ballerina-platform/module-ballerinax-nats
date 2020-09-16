@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
@@ -36,17 +36,17 @@ import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
  */
 public class Attach {
 
-    public static void streamingAttach(ObjectValue streamingListener, ObjectValue service,
-                                       ObjectValue connectionObject) {
-        List<ObjectValue> serviceList = (List<ObjectValue>) connectionObject.getNativeData(Constants.SERVICE_LIST);
+    public static void streamingAttach(BObject streamingListener, BObject service,
+                                       BObject connectionObject) {
+        List<BObject> serviceList = (List<BObject>) connectionObject.getNativeData(Constants.SERVICE_LIST);
         serviceList.add(service);
-        ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
-                (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
+        ConcurrentHashMap<BObject, StreamingListener> serviceListenerMap =
+                (ConcurrentHashMap<BObject, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
         boolean manualAck = getAckMode(service);
         String streamingConnectionUrl =
-                streamingListener.getObjectValue(StringUtils.fromString("connection"))
-                        .get(StringUtils.fromString("url")).toString();
+                streamingListener.getObjectValue(BStringUtils.fromString("connection"))
+                        .get(BStringUtils.fromString("url")).toString();
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
@@ -54,8 +54,8 @@ public class Attach {
                                                               natsMetricsReporter));
     }
 
-    private static boolean getAckMode(ObjectValue service) {
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(Constants.NATS_PACKAGE,
+    private static boolean getAckMode(BObject service) {
+        BMap serviceConfig = (BMap) service.getType().getAnnotation(Constants.NATS_PACKAGE,
                 Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION);
         return serviceConfig.getBooleanValue(Constants.NATS_STREAMING_MANUAL_ACK);
     }

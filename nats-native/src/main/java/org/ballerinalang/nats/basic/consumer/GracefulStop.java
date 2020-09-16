@@ -20,8 +20,8 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -50,9 +50,9 @@ public class GracefulStop {
 
     private static final Logger LOG = LoggerFactory.getLogger(GracefulStop.class);
 
-    public static void basicGracefulStop(ObjectValue listenerObject) {
+    public static void basicGracefulStop(BObject listenerObject) {
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), listenerObject);
-        ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
+        BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Connection natsConnection =
