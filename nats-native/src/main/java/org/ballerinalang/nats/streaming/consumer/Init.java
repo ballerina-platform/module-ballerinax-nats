@@ -18,7 +18,7 @@
 package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.Subscription;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Init {
 
-    public static void streamingListenerInit(ObjectValue streamingListener) {
-        ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap = new ConcurrentHashMap<>();
+    public static void streamingListenerInit(BObject streamingListener) {
+        ConcurrentHashMap<BObject, StreamingListener> serviceListenerMap = new ConcurrentHashMap<>();
         streamingListener.addNativeData(Constants.STREAMING_DISPATCHER_LIST, serviceListenerMap);
-        ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<BObject, Subscription> subscriptionsMap = new ConcurrentHashMap<>();
         streamingListener.addNativeData(Constants.STREAMING_SUBSCRIPTION_LIST, subscriptionsMap);
     }
 }

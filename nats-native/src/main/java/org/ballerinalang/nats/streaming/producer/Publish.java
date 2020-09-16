@@ -18,10 +18,10 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
@@ -39,8 +39,8 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externStreamingPublish(ObjectValue publisher, BString subject, Object data,
-                                                ObjectValue connectionObject) {
+    public static Object externStreamingPublish(BObject publisher, BString subject, Object data,
+                                                BObject connectionObject) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
@@ -53,7 +53,7 @@ public class Publish {
             NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
             AckListener ackListener = new AckListener(nonBlockingCallback, subject.getValue(), natsMetricsReporter);
             natsMetricsReporter.reportPublish(subject.getValue(), byteData.length);
-            return StringUtils.fromString(streamingConnection.publish(subject.getValue(), byteData, ackListener));
+            return BStringUtils.fromString(streamingConnection.publish(subject.getValue(), byteData, ackListener));
         } catch (InterruptedException e) {
             natsMetricsReporter.reportProducerError(subject.getValue(), NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError("Failed to publish due to an internal error");

@@ -20,9 +20,9 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -39,14 +39,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Detach {
     private static final PrintStream console;
 
-    public static Object basicDetach(ObjectValue listener, ObjectValue service) {
-        ObjectValue connectionObject = (ObjectValue) listener.get(Constants.CONNECTION_OBJ);
+    public static Object basicDetach(BObject listener, BObject service) {
+        BObject connectionObject = (BObject) listener.get(Constants.CONNECTION_OBJ);
         @SuppressWarnings("unchecked")
-        List<ObjectValue> serviceList =
-                (List<ObjectValue>) connectionObject.getNativeData(Constants.SERVICE_LIST);
+        List<BObject> serviceList =
+                (List<BObject>) connectionObject.getNativeData(Constants.SERVICE_LIST);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        MapValue<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
+        BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             return Utils.createNatsError(
@@ -65,7 +65,7 @@ public class Detach {
         console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + subject);
         serviceList.remove(service);
         dispatcherList.remove(service.getType().getName());
-        Connection natsConnection = (Connection) ((ObjectValue) listener.get(Constants.CONNECTION_OBJ))
+        Connection natsConnection = (Connection) ((BObject) listener.get(Constants.CONNECTION_OBJ))
                 .getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection != null) {
             natsMetricsReporter.reportUnsubscription(subject);

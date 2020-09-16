@@ -20,11 +20,11 @@ package org.ballerinalang.nats.basic.producer;
 
 import io.nats.client.Connection;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -40,11 +40,11 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externPublish(ObjectValue producerObject, BString subject, Object data, Object replyTo) {
+    public static Object externPublish(BObject producerObject, BString subject, Object data, Object replyTo) {
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject.getValue());
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            ObjectValue connectionObject = (ObjectValue) connection;
+            BObject connectionObject = (BObject) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             NatsMetricsReporter natsMetricsReporter =
                     (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
@@ -59,8 +59,8 @@ public class Publish {
                 if (TypeChecker.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
                     natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
                 } else if (TypeChecker.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
-                    MapValue<BString, Object> subscriptionConfig =
-                            getSubscriptionConfig(((ObjectValue) replyTo).getType().getAnnotation(
+                    BMap<BString, Object> subscriptionConfig =
+                            getSubscriptionConfig(((BObject) replyTo).getType().getAnnotation(
                                     Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
                     if (subscriptionConfig == null) {
                         natsMetricsReporter.reportProducerError(subject.getValue(),
@@ -88,10 +88,10 @@ public class Publish {
     }
 
     @SuppressWarnings("unchecked")
-    private static MapValue<BString, Object> getSubscriptionConfig(Object annotationData) {
-        MapValue annotationRecord = null;
+    private static BMap<BString, Object> getSubscriptionConfig(Object annotationData) {
+        BMap annotationRecord = null;
         if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
-            annotationRecord = (MapValue) annotationData;
+            annotationRecord = (BMap) annotationData;
         }
         return annotationRecord;
     }

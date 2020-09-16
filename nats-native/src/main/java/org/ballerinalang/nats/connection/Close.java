@@ -19,7 +19,7 @@
 package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class Close {
     private static final Logger LOG = LoggerFactory.getLogger(Close.class);
     private static PrintStream console = System.out;
 
-    public static Object externClose(ObjectValue connectionObject, boolean forceful) {
+    public static Object externClose(BObject connectionObject, boolean forceful) {
         int clientCount = ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).get();
         if (clientCount == 0 || forceful) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);

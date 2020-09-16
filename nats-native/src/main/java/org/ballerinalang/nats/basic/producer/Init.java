@@ -18,7 +18,7 @@
 
 package org.ballerinalang.nats.basic.producer;
 
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
@@ -33,7 +33,7 @@ import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
  */
 public class Init {
 
-    public static void producerInit(ObjectValue connectionObject) {
+    public static void producerInit(BObject connectionObject) {
         // This is to add producer to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
         ((NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportNewProducer();

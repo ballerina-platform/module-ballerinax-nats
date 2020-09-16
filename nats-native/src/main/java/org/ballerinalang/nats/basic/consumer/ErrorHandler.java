@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -44,12 +44,12 @@ public class ErrorHandler {
     /**
      * Dispatch errors to the onError resource, if the onError resource is available.
      *
-     * @param serviceObject   ObjectValue service
+     * @param serviceObject   BObject service
      * @param msgObj          Message object
-     * @param e               ErrorValue
+     * @param e               BError
      * @param natsMetricsReporter Nats Metrics Util
      */
-    static void dispatchError(ObjectValue serviceObject, ObjectValue msgObj, ErrorValue e, BRuntime runtime,
+    static void dispatchError(BObject serviceObject, BObject msgObj, BError e, BRuntime runtime,
                               NatsMetricsReporter natsMetricsReporter) {
         boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
@@ -98,7 +98,7 @@ public class ErrorHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifyFailure(ErrorValue error) {
+        public void notifyFailure(org.ballerinalang.jvm.api.values.BError error) {
             ErrorHandlerUtils.printError(error);
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_ON_ERROR);
             countDownLatch.countDown();

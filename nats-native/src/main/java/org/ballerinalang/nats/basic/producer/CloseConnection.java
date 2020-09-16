@@ -19,9 +19,9 @@
 package org.ballerinalang.nats.basic.producer;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CloseConnection {
 
-    public static void closeConnection(ObjectValue producerObject) {
+    public static void closeConnection(BObject producerObject) {
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject);
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            ObjectValue connectionObject = (ObjectValue) connection;
+            BObject connectionObject = (BObject) connection;
             ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
             ((NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportProducerClose();
         }

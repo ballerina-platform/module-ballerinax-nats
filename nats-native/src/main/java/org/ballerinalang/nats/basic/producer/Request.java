@@ -20,14 +20,14 @@ package org.ballerinalang.nats.basic.producer;
 
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -49,11 +49,11 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 public class Request {
 
     @SuppressWarnings("unused")
-    public static Object externRequest(ObjectValue producerObject, BString subject, Object data, Object duration) {
+    public static Object externRequest(BObject producerObject, BString subject, Object data, Object duration) {
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject.getValue());
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            ObjectValue connectionObject = (ObjectValue) connection;
+            BObject connectionObject = (BObject) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
 
             if (natsConnection == null) {
@@ -75,8 +75,9 @@ public class Request {
                 }
                 ArrayValue msgData = new ArrayValueImpl(reply.getData());
                 natsMetricsReporter.reportResponse(subject.getValue());
-                ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
-                        Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
+                BObject msgObj = BValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
+                                                                 Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(),
+                                                                 msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
             } catch (TimeoutException ex) {

@@ -20,9 +20,12 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
@@ -30,9 +33,6 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -56,12 +56,12 @@ import static org.ballerinalang.nats.Utils.getAttachedFunction;
 public class DefaultMessageHandler implements MessageHandler {
 
     // Resource which the message should be dispatched.
-    private ObjectValue serviceObject;
+    private BObject serviceObject;
     private String connectedUrl;
     private BRuntime runtime;
     private NatsMetricsReporter natsMetricsReporter;
 
-    DefaultMessageHandler(ObjectValue serviceObject, BRuntime runtime, String connectedUrl,
+    DefaultMessageHandler(BObject serviceObject, BRuntime runtime, String connectedUrl,
                           NatsMetricsReporter natsMetricsReporter) {
         this.serviceObject = serviceObject;
         this.runtime = runtime;
@@ -76,10 +76,10 @@ public class DefaultMessageHandler implements MessageHandler {
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         ArrayValue msgData = new ArrayValueImpl(message.getData());
-        ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
-                                                               Constants.NATS_MESSAGE_OBJ_NAME,
-                                                               StringUtils.fromString(message.getSubject()),
-                                                               msgData, StringUtils.fromString(message.getReplyTo()));
+        BObject msgObj = BValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
+                                                         Constants.NATS_MESSAGE_OBJ_NAME,
+                                                         BStringUtils.fromString(message.getSubject()),
+                                                         msgData, BStringUtils.fromString(message.getReplyTo()));
         AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);
         BType[] parameterTypes = onMessage.getParameterType();
         if (parameterTypes.length == 1) {
@@ -95,7 +95,7 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatch(ObjectValue msgObj) {
+    private void dispatch(BObject msgObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         executeResource(msgObj, countDownLatch);
         try {
@@ -115,17 +115,17 @@ public class DefaultMessageHandler implements MessageHandler {
      * @param intendedType Message type for data binding
      * @param data         Message data
      */
-    private void dispatchWithDataBinding(ObjectValue msgObj, BType intendedType, byte[] data) {
+    private void dispatchWithDataBinding(BObject msgObj, BType intendedType, byte[] data) {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             executeResource(msgObj, countDownLatch, typeBoundData);
             countDownLatch.await();
         } catch (NumberFormatException e) {
-            ErrorValue dataBindError = Utils
+            BError dataBindError = Utils
                     .createNatsError("The received message is unsupported by the resource signature");
             ErrorHandler.dispatchError(serviceObject, msgObj, dataBindError, runtime, natsMetricsReporter);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             ErrorHandler.dispatchError(serviceObject, msgObj, e, runtime, natsMetricsReporter);
         } catch (InterruptedException e) {
             natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
@@ -135,7 +135,7 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeResource(ObjectValue msgObj, CountDownLatch countDownLatch) {
+    private void executeResource(BObject msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
@@ -153,7 +153,7 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeResource(ObjectValue msgObj, CountDownLatch countDownLatch, Object typeBoundData) {
+    private void executeResource(BObject msgObj, CountDownLatch countDownLatch, Object typeBoundData) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
@@ -199,7 +199,7 @@ public class DefaultMessageHandler implements MessageHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifyFailure(ErrorValue error) {
+        public void notifyFailure(org.ballerinalang.jvm.api.values.BError error) {
             ErrorHandlerUtils.printError(error);
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             countDownLatch.countDown();

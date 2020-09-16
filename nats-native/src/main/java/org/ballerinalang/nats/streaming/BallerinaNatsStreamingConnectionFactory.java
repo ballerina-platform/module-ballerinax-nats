@@ -20,9 +20,9 @@ package org.ballerinalang.nats.streaming;
 import io.nats.client.Connection;
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.StreamingConnectionFactory;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -31,18 +31,18 @@ import java.util.concurrent.TimeUnit;
  * Wraps {@link StreamingConnectionFactory}.
  */
 public class BallerinaNatsStreamingConnectionFactory {
-    private final MapValue<BString, Object> streamingConfig;
+    private final BMap<BString, Object> streamingConfig;
     private final Connection natsConnection;
     private final String clusterId;
     private final String clientId;
 
-    private static final BString ACK_TIMEOUT = StringUtils.fromString("ackTimeoutInSeconds");
-    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
-    private static final BString MAX_PUB_ACKS_IN_FLIGHT = StringUtils.fromString("maxPubAcksInFlight");
-    private static final BString DISCOVERY_PREFIX = StringUtils.fromString("discoverPrefix");
+    private static final BString ACK_TIMEOUT = BStringUtils.fromString("ackTimeoutInSeconds");
+    private static final BString CONNECTION_TIMEOUT = BStringUtils.fromString("connectionTimeoutInSeconds");
+    private static final BString MAX_PUB_ACKS_IN_FLIGHT = BStringUtils.fromString("maxPubAcksInFlight");
+    private static final BString DISCOVERY_PREFIX = BStringUtils.fromString("discoverPrefix");
 
     public BallerinaNatsStreamingConnectionFactory(Connection natsConnection, String clusterId, String clientId,
-                                                   MapValue<BString, Object> streamingConfig) {
+                                                   BMap<BString, Object> streamingConfig) {
         this.streamingConfig = streamingConfig;
         this.natsConnection = natsConnection;
         this.clusterId = clusterId;

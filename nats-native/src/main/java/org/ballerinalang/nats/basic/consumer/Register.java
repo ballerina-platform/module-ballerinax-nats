@@ -20,10 +20,10 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -45,16 +45,16 @@ public class Register {
 
     private static final PrintStream console;
 
-    public static Object basicRegister(ObjectValue listenerObject, ObjectValue service, Object annotationData) {
+    public static Object basicRegister(BObject listenerObject, BObject service, Object annotationData) {
         String errorMessage = "Error while registering the subscriber. ";
         Connection natsConnection =
-                (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
+                (Connection) ((BObject) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.NATS_CONNECTION);
         @SuppressWarnings("unchecked")
-        List<ObjectValue> serviceList =
-                (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
+        List<BObject> serviceList =
+                (List<BObject>) ((BObject) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<BString, Object> subscriptionConfig =
+        BMap<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(service.getType().getAnnotation(Constants.NATS_PACKAGE,
                                                                             Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
@@ -67,7 +67,7 @@ public class Register {
         }
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         BRuntime runtime = BRuntime.getCurrentRuntime();
-        ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
+        BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(
@@ -105,7 +105,7 @@ public class Register {
 
     // Set limits on the maximum number of messages, or maximum size of messages this consumer will
     // hold before it starts to drop new messages waiting for the resource functions to drain the queue.
-    private static void setPendingLimits(Dispatcher dispatcher, MapValue pendingLimits) {
+    private static void setPendingLimits(Dispatcher dispatcher, BMap pendingLimits) {
         long maxMessages = pendingLimits.getIntValue(Constants.MAX_MESSAGES);
         long maxBytes = pendingLimits.getIntValue(Constants.MAX_BYTES);
         dispatcher.setPendingLimits(maxMessages, maxBytes);

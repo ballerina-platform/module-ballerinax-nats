@@ -19,11 +19,11 @@
 package org.ballerinalang.nats.observability;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -66,26 +66,26 @@ public class NatsTracingUtil {
         setTags(observerContext, url);
     }
 
-    public static void traceResourceInvocation(Strand strand, ObjectValue producerObject, String subject) {
+    public static void traceResourceInvocation(Strand strand, BObject producerObject, String subject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            ObjectValue connectionObject = (ObjectValue) connection;
+            BObject connectionObject = (BObject) connection;
             traceResourceInvocation(strand, Utils.getCommaSeparatedUrl(connectionObject), subject);
         } else {
             traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN, subject);
         }
     }
 
-    public static void traceResourceInvocation(Strand strand, ObjectValue listenerOrProducerObject) {
+    public static void traceResourceInvocation(Strand strand, BObject listenerOrProducerObject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
         Object connection = listenerOrProducerObject.get(Constants.CONNECTION_OBJ);
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            ObjectValue connectionObject = (ObjectValue) connection;
+            BObject connectionObject = (BObject) connection;
             traceResourceInvocation(strand, Utils.getCommaSeparatedUrl(connectionObject));
         } else {
             traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN);

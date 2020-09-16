@@ -20,7 +20,7 @@ package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -34,12 +34,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0.4
  */
 public class Detach {
-    public static void streamingDetach(ObjectValue streamingListener, ObjectValue service) {
-        ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
-                (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
+    public static void streamingDetach(BObject streamingListener, BObject service) {
+        ConcurrentHashMap<BObject, StreamingListener> serviceListenerMap =
+                (ConcurrentHashMap<BObject, StreamingListener>) streamingListener
                         .getNativeData(Constants.STREAMING_DISPATCHER_LIST);
-        ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap =
-                (ConcurrentHashMap<ObjectValue, Subscription>) streamingListener
+        ConcurrentHashMap<BObject, Subscription> subscriptionsMap =
+                (ConcurrentHashMap<BObject, Subscription>) streamingListener
                         .getNativeData(Constants.STREAMING_SUBSCRIPTION_LIST);
         Subscription subscription = subscriptionsMap.get(service);
         try {

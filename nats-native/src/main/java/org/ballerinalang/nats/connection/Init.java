@@ -22,11 +22,11 @@ import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -58,18 +58,18 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class Init {
 
-    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
+    private static final BString RECONNECT_WAIT = BStringUtils.fromString("reconnectWaitInSeconds");
     private static final String SERVER_URL_SEPARATOR = ",";
-    private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
-    private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
-    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
-    private static final BString PING_INTERVAL = StringUtils.fromString("pingIntervalInMinutes");
-    private static final BString MAX_PINGS_OUT = StringUtils.fromString("maxPingsOut");
-    private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
-    private static final BString NO_ECHO = StringUtils.fromString("noEcho");
-    private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
+    private static final BString CONNECTION_NAME = BStringUtils.fromString("connectionName");
+    private static final BString MAX_RECONNECT = BStringUtils.fromString("maxReconnect");
+    private static final BString CONNECTION_TIMEOUT = BStringUtils.fromString("connectionTimeoutInSeconds");
+    private static final BString PING_INTERVAL = BStringUtils.fromString("pingIntervalInMinutes");
+    private static final BString MAX_PINGS_OUT = BStringUtils.fromString("maxPingsOut");
+    private static final BString INBOX_PREFIX = BStringUtils.fromString("inboxPrefix");
+    private static final BString NO_ECHO = BStringUtils.fromString("noEcho");
+    private static final BString ENABLE_ERROR_LISTENER = BStringUtils.fromString("enableErrorListener");
 
-    public static void externInit(ObjectValue connectionObject, ArrayValueImpl urlString, MapValue connectionConfig) {
+    public static void externInit(BObject connectionObject, ArrayValueImpl urlString, BMap connectionConfig) {
         Options.Builder opts = new Options.Builder();
         try {
             String[] serverUrls = urlString.getStringArray();
@@ -96,7 +96,7 @@ public class Init {
             // Add inbox prefix.
             opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX).getValue());
 
-            List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
+            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
 
             // Add NATS connection listener.
             opts.connectionListener(new DefaultConnectionListener());
@@ -112,7 +112,7 @@ public class Init {
                 opts.noEcho();
             }
 
-            MapValue secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
+            BMap secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
             if (secureSocket != null) {
                 SSLContext sslContext = getSSLContext(secureSocket);
                 opts.sslContext(sslContext);
@@ -142,9 +142,9 @@ public class Init {
      * @param secureSocket secureSocket record.
      * @return Initialized SSLContext.
      */
-    private static SSLContext getSSLContext(MapValue secureSocket) {
+    private static SSLContext getSSLContext(BMap secureSocket) {
         try {
-            MapValue cryptoKeyStore = secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
+            BMap cryptoKeyStore = secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
             KeyManagerFactory keyManagerFactory = null;
             if (cryptoKeyStore != null) {
                 char[] keyPassphrase = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PASS).getValue().toCharArray();
@@ -163,7 +163,7 @@ public class Init {
                 keyManagerFactory.init(keyStore, keyPassphrase);
             }
 
-            MapValue cryptoTrustStore = secureSocket.getMapValue(Constants.CONNECTION_TRUSTORE);
+            BMap cryptoTrustStore = secureSocket.getMapValue(Constants.CONNECTION_TRUSTORE);
             TrustManagerFactory trustManagerFactory = null;
             if (cryptoTrustStore != null) {
                 KeyStore trustStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
