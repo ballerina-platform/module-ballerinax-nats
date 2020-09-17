@@ -27,7 +27,7 @@ public client class StreamingProducer {
     # + clientId - A unique identifier of the client
     # + clusterId - The unique identifier of the cluster configured in the NATS server
     # + streamingConfig - The configuration related to the NATS streaming connectivity
-    public function init(Connection connection, string? clientId = (), string clusterId = "test-cluster",
+    public isolated function init(Connection connection, string? clientId = (), string clusterId = "test-cluster",
     StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
         streamingProducerInit(self, connection, clusterId, clientId, streamingConfig);
@@ -44,7 +44,7 @@ public client class StreamingProducer {
     #            elapses while waiting for the acknowledgement, or else
     #            a `nats:Error` only with the `message` field in case an error occurs even before publishing
     #            is completed
-    public remote function publish(string subject,@untainted Content data) returns string|Error {
+    public isolated remote function publish(string subject,@untainted Content data) returns string|Error {
         Connection? natsConnection = self.conn;
         if (natsConnection is ()) {
             return NatsError("NATS Streaming Client has been closed.");
@@ -61,7 +61,7 @@ public client class StreamingProducer {
     # Close the producer.
     #
     # + return - `()` or else a `nats:Error` if unable to complete the close operation.
-    public function close() returns error? {
+    public isolated function close() returns error? {
         Connection? natsConnection = self.conn;
         if (natsConnection is Connection) {
             self.conn = ();
@@ -70,18 +70,18 @@ public client class StreamingProducer {
     }
 }
 
-function streamingProducerInit(StreamingProducer streamingClient, Connection conn,
+isolated function streamingProducerInit(StreamingProducer streamingClient, Connection conn,
     string clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.producer.Init"
 } external;
 
-function streamingProducerClose(StreamingProducer streamingClient, Connection natsConnection) returns error? =
+isolated function streamingProducerClose(StreamingProducer streamingClient, Connection natsConnection) returns error? =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.producer.Close"
 } external;
 
-function externStreamingPublish(StreamingProducer producer, string subject, string|byte[] data,
+isolated function externStreamingPublish(StreamingProducer producer, string subject, string|byte[] data,
     Connection connection) returns string|Error =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.producer.Publish"

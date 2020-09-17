@@ -26,7 +26,7 @@ public client class Producer {
     # Creates a new `nats:Producer`.
     #
     # + connection - An established NATS connection
-    public function init(Connection connection) {
+    public isolated function init(Connection connection) {
         self.conn = connection;
         producerInit(connection);
     }
@@ -40,7 +40,7 @@ public client class Producer {
     # + data - Data to publish
     # + replyTo - The subject or the callback service to which the receiver should send the response
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
-    public remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
+    public isolated remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
                     returns Error? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -59,7 +59,8 @@ public client class Producer {
     # + data - Data to publish
     # + duration - The time (in milliseconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
+    public isolated remote function request(string subject, @untainted Content data, int? duration = ())
+    returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", converted);
@@ -71,7 +72,7 @@ public client class Producer {
     # Closes a given connection.
     #
     # + return - `()` or else a `nats:Error` if unable to complete the close the operation
-    public function close() returns Error? {
+    public isolated function close() returns Error? {
         closeConnection(self);
         if (self.conn is Connection) {
             self.conn = ();
@@ -81,22 +82,22 @@ public client class Producer {
     }
 }
 
-function producerInit(Connection c) =
+isolated function producerInit(Connection c) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.producer.Init"
 } external;
 
-function closeConnection(Producer producer) =
+isolated function closeConnection(Producer producer) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.producer.CloseConnection"
 } external;
 
-function externRequest(Producer producer, string subject, Content data, int? duration = ()) returns Message | Error =
-@java:Method {
+isolated function externRequest(Producer producer, string subject, Content data, int? duration = ())
+returns Message | Error = @java:Method {
     'class: "org.ballerinalang.nats.basic.producer.Request"
 } external;
 
-function externPublish(Producer producer, string subject, string | byte[] data, (string | service)? replyTo = ())
-returns Error? = @java:Method {
+isolated function externPublish(Producer producer, string subject, string | byte[] data, (string | service) ? replyTo
+= ()) returns Error? = @java:Method {
     'class: "org.ballerinalang.nats.basic.producer.Publish"
 } external;

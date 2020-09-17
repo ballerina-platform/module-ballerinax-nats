@@ -20,7 +20,7 @@ public class Message {
     string? replyTo;
     string subject;
 
-    function init(string subject, byte[] content, string? replyTo = ()) {
+    isolated function init(string subject, byte[] content, string? replyTo = ()) {
         self.content = content;
         self.subject = subject;
         self.replyTo = replyTo;
@@ -29,21 +29,21 @@ public class Message {
     # Gets the message content.
     #
     # + return - The data returned from the message as a 'byte[]'
-    public function getData() returns byte[] {
+    public isolated function getData() returns byte[] {
         return self.content;
     }
 
     # Gets the `replyTo` subject of the message.
     #
     # + return - The subject to which the client is expected to send a reply message 
-    public function getReplyTo() returns string? {
+    public isolated function getReplyTo() returns string? {
         return self.replyTo;
     }
 
     # Gets the subject to which the message was sent to.
     #
     # + return - The subject that this message was sent to.
-    public function getSubject() returns string {
+    public isolated function getSubject() returns string {
         return self.subject;
     }
 }

@@ -35,7 +35,7 @@ public class StreamingListener {
     # + clientId - The unique identifier of the client. The `clientId` should be unique across all the subscriptions.
     #              Therefore, multilpe subscription services cannot be bound to a single listener
     # + streamingConfig - The configuration related to the NATS streaming connectivity
-    public function init(Connection connection, string? clientId = (), string clusterId = "test-cluster",
+    public isolated function init(Connection connection, string? clientId = (), string clusterId = "test-cluster",
     StreamingConfig? streamingConfig = ()) {
         self.connection = connection;
         self.clusterId = clusterId;
@@ -49,7 +49,7 @@ public class StreamingListener {
     # + s - Type descriptor of the service
     # + name - Name of the service
     # + return - `()` or else a `nats:Error` upon failure to register the listener
-    public function __attach(service s, string? name = ()) returns error? {
+    public isolated function __attach(service s, string? name = ()) returns error? {
         streamingAttach(self, s, self.connection);
     }
 
@@ -57,58 +57,58 @@ public class StreamingListener {
     #
     # + s - Type descriptor of the service
     # + return - `()` or else a `nats:Error` upon failure to detach the service
-    public function __detach(service s) returns error? {
+    public isolated function __detach(service s) returns error? {
         streamingDetach(self, s);
     }
 
     # Starts the `nats:StreamingListener`.
     #
     # + return - `()` or else a `nats:Error` upon failure to start the listener
-    public function __start() returns error? {
+    public isolated function __start() returns error? {
          streamingSubscribe(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);
     }
 
     # Stops the `nats:StreamingListener` gracefully.
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
-    public function __gracefulStop() returns error? {
+    public isolated function __gracefulStop() returns error? {
         return ();
     }
 
     # Stops the `nats:StreamingListener` forcefully.
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
-    public function __immediateStop() returns error? {
+    public isolated function __immediateStop() returns error? {
         return self.close();
     }
 
-    function close() returns error? {
+    isolated function close() returns error? {
         return streamingListenerClose(self, self.connection);
     }
 }
 
-function streamingListenerInit(StreamingListener lis) =
+isolated function streamingListenerInit(StreamingListener lis) =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.consumer.Init"
 } external;
 
-function streamingSubscribe(StreamingListener streamingClient, Connection conn,
+isolated function streamingSubscribe(StreamingListener streamingClient, Connection conn,
                             string clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
 } external;
 
-function streamingAttach(StreamingListener lis, service serviceType, Connection conn) =
+isolated function streamingAttach(StreamingListener lis, service serviceType, Connection conn) =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.consumer.Attach"
 } external;
 
-function streamingDetach(StreamingListener lis, service serviceType) =
+isolated function streamingDetach(StreamingListener lis, service serviceType) =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.consumer.Detach"
 } external;
 
-function streamingListenerClose(StreamingListener lis,  Connection natsConnection) returns error? =
+isolated function streamingListenerClose(StreamingListener lis,  Connection natsConnection) returns error? =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.consumer.Close"
 } external;

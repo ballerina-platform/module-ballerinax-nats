@@ -21,7 +21,7 @@ public client class StreamingMessage {
    private byte[] content;
    private string subject;
 
-   function init(string subject, byte[] content) {
+   isolated function init(string subject, byte[] content) {
        self.subject = subject;
        self.content = content;
    }
@@ -29,26 +29,26 @@ public client class StreamingMessage {
    # Gets the message content.
    #
    # + return - The data from the message as a 'byte[]'
-   public function getData() returns byte[] {
+   public isolated function getData() returns byte[] {
        return self.content;
    }
 
    # Gets the subject that the message was sent to.
    #
    # + return - The subject, to which the message was sent 
-   public function getSubject() returns string {
+   public isolated function getSubject() returns string {
        return self.subject;
    }
 
    # Acknowledges the NATS streaming server upon the receipt of the message.
    #
    # + return - `()` or else a `nats:Error` upon failure to acknowledge the server
-   public remote function ack() returns Error? {
+   public isolated remote function ack() returns Error? {
        return externAck(self);
    }
 }
 
-function externAck(StreamingMessage message) returns Error? =
+isolated function externAck(StreamingMessage message) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.streaming.message.Ack"
 } external;
