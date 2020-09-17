@@ -97,7 +97,7 @@ returns Message | Error = @java:Method {
     'class: "org.ballerinalang.nats.basic.producer.Request"
 } external;
 
-isolated function externPublish(Producer producer, string subject, string | byte[] data, (string | service) ? replyTo
-= ()) returns Error? = @java:Method {
+isolated function externPublish(Producer producer, string subject, string | byte[] data, 
+(string | service) ? replyTo = ()) returns Error? = @java:Method {
     'class: "org.ballerinalang.nats.basic.producer.Publish"
 } external;
