@@ -20,7 +20,7 @@ package org.ballerinalang.nats.streaming.producer;
 import io.nats.streaming.AckHandler;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.jvm.api.BalFuture;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
@@ -29,12 +29,12 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
  * {@link AckHandler} implementation to listen to message acknowledgements from NATS streaming server.
  */
 public class AckListener implements AckHandler {
-    private NonBlockingCallback nonBlockingCallback;
+    private BalFuture balFuture;
     private String subject;
     private NatsMetricsReporter natsMetricsReporter;
 
-    AckListener(NonBlockingCallback nonBlockingCallback, String subject, NatsMetricsReporter natsMetricsReporter) {
-        this.nonBlockingCallback = nonBlockingCallback;
+    AckListener(BalFuture BalFuture, String subject, NatsMetricsReporter natsMetricsReporter) {
+        this.balFuture = BalFuture;
         this.subject = subject;
         this.natsMetricsReporter = natsMetricsReporter;
     }
@@ -46,12 +46,11 @@ public class AckListener implements AckHandler {
     public void onAck(String nuid, Exception ex) {
         if (ex == null) {
             natsMetricsReporter.reportAcknowledgement(subject);
-            nonBlockingCallback.setReturnValues(BStringUtils.fromString(nuid));
+            balFuture.complete(BStringUtils.fromString(nuid));
         } else {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
             BError error = Utils.createNatsError("NUID: " + nuid + "; " + ex.getMessage());
-            nonBlockingCallback.setReturnValues(error);
+            balFuture.complete(error);
         }
-        nonBlockingCallback.notifySuccess();
     }
 }

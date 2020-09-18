@@ -19,10 +19,11 @@ package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.jvm.api.BalFuture;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -39,7 +40,7 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externStreamingPublish(BObject publisher, BString subject, Object data,
+    public static Object externStreamingPublish(BalEnv env, BObject publisher, BString subject, Object data,
                                                 BObject connectionObject) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
@@ -50,8 +51,8 @@ public class Publish {
                                                 subject.getValue());
         byte[] byteData = convertDataIntoByteArray(data);
         try {
-            NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
-            AckListener ackListener = new AckListener(nonBlockingCallback, subject.getValue(), natsMetricsReporter);
+            BalFuture balFuture = env.markAsync();
+            AckListener ackListener = new AckListener(balFuture, subject.getValue(), natsMetricsReporter);
             natsMetricsReporter.reportPublish(subject.getValue(), byteData.length);
             return BStringUtils.fromString(streamingConnection.publish(subject.getValue(), byteData, ackListener));
         } catch (InterruptedException e) {
