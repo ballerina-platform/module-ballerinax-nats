@@ -26,7 +26,7 @@ public class Connection {
     #
     # + url - The NATS Broker URL. For a clustered use case, pass the URLs as a string array
     # + config - Configurations associated with the NATS client to establish a connection with the server
-    public function init(string[] url = [DEFAULT_URL], ConnectionConfig? config = ()) {
+    public isolated function init(string[] url = [DEFAULT_URL], ConnectionConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
         externInit(self, self.url, self.config);
@@ -37,17 +37,17 @@ public class Connection {
     # + forceful - The graceful shutdown flag. If `true`, the connection closes immediately.
     #              The default value is `false`.
     # + return - `()` or else a `nats:Error` if unable to complete the close operation.
-    public function close(boolean forceful = false) returns Error? {
+    public isolated function close(boolean forceful = false) returns Error? {
         return externClose(self, forceful);
     }
 }
 
-function externInit(Connection connection, string[] url, ConnectionConfig config) =
+isolated function externInit(Connection connection, string[] url, ConnectionConfig config) =
 @java:Method {
     'class: "org.ballerinalang.nats.connection.Init"
 } external;
 
-function externClose(Connection connection, boolean forceful = false) returns Error? =
+isolated function externClose(Connection connection, boolean forceful = false) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.connection.Close"
 } external;

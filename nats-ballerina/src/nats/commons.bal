@@ -20,7 +20,7 @@ public const string DEFAULT_URL = "nats://localhost:4222";
 # Data types supported when publishing and consuming messages.
 public type Content byte[] | boolean | string | int | float | decimal | xml | json | record {};
 
-function convertData(Content data) returns string | byte[] | error {
+isolated function convertData(Content data) returns string | byte[] | error {
     string | byte[] | error converted;
     if (data is byte[]) {
         converted = data;

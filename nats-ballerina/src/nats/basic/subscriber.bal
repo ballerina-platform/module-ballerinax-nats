@@ -27,7 +27,7 @@ public class Listener {
     # Creates a new NATS Listener.
     #
     # + connection - An established NATS connection.
-    public function init(Connection connection) {
+    public isolated function init(Connection connection) {
         self.conn = connection;
         consumerInit(self, connection);
     }
@@ -37,7 +37,7 @@ public class Listener {
     # + s - Type descriptor of the service
     # + name - Name of the service
     # + return - `()` or else a `nats:Error` upon failure to register the listener
-    public function __attach(service s, string? name = ()) returns error? {
+    public isolated function __attach(service s, string? name = ()) returns error? {
         return basicRegister(self, s, name);
     }
 
@@ -45,58 +45,58 @@ public class Listener {
     #
     # + s - Type descriptor of the service
     # + return - `()` or else a `nats:Error` upon failure to detach the service
-    public function __detach(service s) returns error? {
+    public isolated function __detach(service s) returns error? {
         return basicDetach(self, s);
     }
 
     # Starts the `nats:Listener`.
     #
     # + return - `()` or else a `nats:Error` upon failure to start the listener
-    public function __start() returns error? {
+    public isolated function __start() returns error? {
         return basicStart(self);
     }
 
     # Stops the `nats:Listener` gracefully.
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
-    public function __gracefulStop() returns error? {
+    public isolated function __gracefulStop() returns error? {
         return basicGracefulStop(self);
     }
 
     # Stops the `nats:Listener` forcefully.
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
-    public function __immediateStop() returns error? {
+    public isolated function __immediateStop() returns error? {
         return basicImmediateStop(self);
     }
 }
 
-function basicRegister(Listener lis, service serviceType, string? name) returns error? =
+isolated function basicRegister(Listener lis, service serviceType, string? name) returns error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Register"
 } external;
 
-function basicDetach(Listener lis, service serviceType) returns error? =
+isolated function basicDetach(Listener lis, service serviceType) returns error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Detach"
 } external;
 
-function basicStart(Listener lis) =
+isolated function basicStart(Listener lis) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Start"
 } external;
 
-function basicGracefulStop(Listener lis) =
+isolated function basicGracefulStop(Listener lis) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.GracefulStop"
 } external;
 
-function basicImmediateStop(Listener lis) =
+isolated function basicImmediateStop(Listener lis) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
 } external;
 
-function consumerInit(Listener lis, Connection c) =
+isolated function consumerInit(Listener lis, Connection c) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Init"
 } external;

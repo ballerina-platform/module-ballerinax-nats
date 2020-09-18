@@ -25,7 +25,7 @@ public type Error NatsError;
 # + message - The error message
 # + err - The `error` instance
 # + return - Prepared `nats:Error` instance
-function prepareError(string message, error? err = ()) returns Error {
+isolated function prepareError(string message, error? err = ()) returns Error {
     NatsError natsError;
     if (err is error) {
         natsError = NatsError(message, err);
