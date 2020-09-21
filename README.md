@@ -52,11 +52,11 @@ Execute the commands below to build from source.
 
 2. To debug the tests:
 
-        ./gradlew clean build -PdebugBallerina=<port>
+        ./gradlew clean build -Pdebug=<port>
         
 3. To build the module without the tests:
         
-        ./gradlew clean build -PskipBallerinaTests
+        ./gradlew clean build -x test
 
 ## Contributing to Ballerina
 
