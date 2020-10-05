@@ -16,7 +16,6 @@
 
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/system;
 import ballerina/test;
 
 Connection? basicConnection = ();
@@ -26,7 +25,6 @@ string receivedConsumerMessage = "";
 
 @test:BeforeSuite
 function setup() {
-    startDockerContainer();
     log:printInfo("Creating a ballerina NATS connection.");
     Connection newConnection = new(["nats://localhost:4222"]);
     basicConnection = newConnection;
@@ -92,16 +90,3 @@ service {
     resource function onError(Message msg, Error err) {
     }
 };
-
-@test:AfterSuite {}
-function cleanUp() {
-    var dockerStopResult = system:exec("docker", {}, "/", "stop", "nats-tests");
-    var dockerRmResult = system:exec("docker", {}, "/", "rm", "nats-tests");
-}
-
-function startDockerContainer() {
-    log:printInfo("Starting NATS Docker Container.");
-    var dockerStartResult = system:exec("docker", {}, "/", "run", "-d", "--name", "nats-tests", "-p", "4222:4222",
-        "nats:latest");
-    runtime:sleep(20000);
-}
