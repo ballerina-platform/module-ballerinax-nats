@@ -41,3 +41,12 @@ dependencies {
     compile group: 'org.ballerinalang', name: 'annotations', version: "${ballerinaLangVersion}"
     compile group: 'org.ballerinalang', name: 'toml-parser', version: "${ballerinaTomlParserVersion}"
 }
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
