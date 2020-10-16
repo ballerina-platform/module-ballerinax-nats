@@ -171,6 +171,52 @@ test {
     dependsOn(ballerinaTest)
 }
 
+task startNatsServer() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=my-nats"
+                standardOutput = stdOut
+            }
+            if (!stdOut.toString().contains("my-nats")) {
+                println "Starting NATS Basic server."
+                exec {
+                    commandLine 'sh', '-c', "docker run --rm -d --name my-nats -p 4222:4222 nats:latest"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "NATS Basic server is already started."
+            }
+        }
+    }
+}
+
+task stopNatsServer() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=my-nats"
+                standardOutput = stdOut
+            }
+            if (stdOut.toString().contains("my-nats")) {
+                println "Stopping NATS server."
+                exec {
+                    commandLine 'sh', '-c', "docker stop my-nats"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "NATS server is not started."
+            }
+        }
+    }
+}
+
 task ballerinaBuild {
     inputs.dir file(project.projectDir)
     finalizedBy(revertTomlFile)
@@ -291,5 +337,7 @@ unpackStdLibs.dependsOn unpackJballerinaTools
 copyStdlibs.dependsOn unpackStdLibs
 updateTomlVersions.dependsOn copyStdlibs
 ballerinaBuild.dependsOn updateTomlVersions
+ballerinaBuild.dependsOn startNatsServer
 ballerinaBuild.dependsOn ":nats-native:build"
+build.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
