@@ -339,5 +339,5 @@ updateTomlVersions.dependsOn copyStdlibs
 ballerinaBuild.dependsOn updateTomlVersions
 ballerinaBuild.dependsOn startNatsServer
 ballerinaBuild.dependsOn ":nats-native:build"
-ballerinaBuild.finalizedBy stopNatsServer
+build.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
