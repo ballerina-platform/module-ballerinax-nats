@@ -19,7 +19,7 @@
 module io.ballerina.stdlib.nats {
     requires jnats;
     requires java.nats.streaming;
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     requires org.slf4j;
     requires io.ballerina.lang;
     exports org.ballerinalang.nats.basic.consumer;

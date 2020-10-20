@@ -18,11 +18,12 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BAnnotatableType;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -46,7 +47,8 @@ public class Detach {
                 (List<BObject>) connectionObject.getNativeData(Constants.SERVICE_LIST);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
+        BMap<BString, Object> subscriptionConfig = Utils
+                .getSubscriptionConfig(((BAnnotatableType)service.getType())
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             return Utils.createNatsError(

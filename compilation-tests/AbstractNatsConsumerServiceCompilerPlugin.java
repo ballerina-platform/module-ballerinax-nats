@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.Type;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -97,10 +97,10 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
 
     private void validateDataTypeParameter(BLangSimpleVariable secondParameter, BLangFunction resourceFunction,
             String errorMessage) {
-        BType secondParamType = secondParameter.getTypeNode().type;
+        Type secondParamType = secondParameter.getTypeNode().type;
         int secondParamTypeTag = secondParamType.tag;
         if ((secondParamTypeTag == TypeTags.ARRAY)) {
-            BType elementType = ((BArrayType) secondParamType).getElementType();
+            Type elementType = ((BArrayType) secondParamType).getElementType();
             if (elementType.tag != TypeTags.BYTE) {
                 logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);
             }
@@ -128,7 +128,7 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
 
     private void validateErrorParameter(BLangSimpleVariable parameterUnderValidation, BLangFunction resourceFunction,
             String errorMessage) {
-        BType parameterType = parameterUnderValidation.getTypeNode().type;
+        Type parameterType = parameterUnderValidation.getTypeNode().type;
         int parameterTypeTag = parameterType.tag;
         if (parameterTypeTag != TypeTags.ERROR) {
             logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);

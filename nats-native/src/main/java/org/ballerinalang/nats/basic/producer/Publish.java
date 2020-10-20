@@ -18,13 +18,14 @@
 
 package org.ballerinalang.nats.basic.producer;
 
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.types.BAnnotatableType;
 import io.nats.client.Connection;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -60,7 +61,7 @@ public class Publish {
                     natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
                 } else if (TypeChecker.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
                     BMap<BString, Object> subscriptionConfig =
-                            getSubscriptionConfig(((BObject) replyTo).getType().getAnnotation(
+                            getSubscriptionConfig(((BAnnotatableType) ((BObject) replyTo).getType()).getAnnotation(
                                     Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
                     if (subscriptionConfig == null) {
                         natsMetricsReporter.reportProducerError(subject.getValue(),

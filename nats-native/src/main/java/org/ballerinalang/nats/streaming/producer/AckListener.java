@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.nats.streaming.producer;
 
+import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.nats.streaming.AckHandler;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.BalFuture;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
@@ -29,12 +29,12 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
  * {@link AckHandler} implementation to listen to message acknowledgements from NATS streaming server.
  */
 public class AckListener implements AckHandler {
-    private BalFuture balFuture;
+    private Future balFuture;
     private String subject;
     private NatsMetricsReporter natsMetricsReporter;
 
-    AckListener(BalFuture BalFuture, String subject, NatsMetricsReporter natsMetricsReporter) {
-        this.balFuture = BalFuture;
+    AckListener(Future Future, String subject, NatsMetricsReporter natsMetricsReporter) {
+        this.balFuture = Future;
         this.subject = subject;
         this.natsMetricsReporter = natsMetricsReporter;
     }
@@ -46,7 +46,7 @@ public class AckListener implements AckHandler {
     public void onAck(String nuid, Exception ex) {
         if (ex == null) {
             natsMetricsReporter.reportAcknowledgement(subject);
-            balFuture.complete(BStringUtils.fromString(nuid));
+            balFuture.complete(StringUtils.fromString(nuid));
         } else {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
             BError error = Utils.createNatsError("NUID: " + nuid + "; " + ex.getMessage());

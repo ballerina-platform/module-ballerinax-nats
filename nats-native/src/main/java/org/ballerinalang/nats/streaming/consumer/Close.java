@@ -18,9 +18,9 @@
 
 package org.ballerinalang.nats.streaming.consumer;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.connection.NatsStreamingConnection;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;

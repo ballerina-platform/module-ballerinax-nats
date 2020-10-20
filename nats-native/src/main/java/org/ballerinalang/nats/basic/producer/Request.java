@@ -18,16 +18,16 @@
 
 package org.ballerinalang.nats.basic.producer;
 
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValueImpl;
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -75,7 +75,7 @@ public class Request {
                 }
                 ArrayValue msgData = new ArrayValueImpl(reply.getData());
                 natsMetricsReporter.reportResponse(subject.getValue());
-                BObject msgObj = BValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
+                BObject msgObj = ValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
                                                                  Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(),
                                                                  msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);

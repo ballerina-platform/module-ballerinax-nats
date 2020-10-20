@@ -18,21 +18,21 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValueImpl;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -46,7 +46,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.nats.Utils.bindDataToIntendedType;
-import static org.ballerinalang.nats.Utils.getAttachedFunction;
+import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
 /**
  * Handles incoming message for a given subscription.
@@ -58,10 +58,10 @@ public class DefaultMessageHandler implements MessageHandler {
     // Resource which the message should be dispatched.
     private BObject serviceObject;
     private String connectedUrl;
-    private BRuntime runtime;
+    private Runtime runtime;
     private NatsMetricsReporter natsMetricsReporter;
 
-    DefaultMessageHandler(BObject serviceObject, BRuntime runtime, String connectedUrl,
+    DefaultMessageHandler(BObject serviceObject, Runtime runtime, String connectedUrl,
                           NatsMetricsReporter natsMetricsReporter) {
         this.serviceObject = serviceObject;
         this.runtime = runtime;
@@ -76,16 +76,16 @@ public class DefaultMessageHandler implements MessageHandler {
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         ArrayValue msgData = new ArrayValueImpl(message.getData());
-        BObject msgObj = BValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
+        BObject msgObj = ValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
                                                          Constants.NATS_MESSAGE_OBJ_NAME,
-                                                         BStringUtils.fromString(message.getSubject()),
-                                                         msgData, BStringUtils.fromString(message.getReplyTo()));
-        AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);
-        BType[] parameterTypes = onMessage.getParameterType();
+                                                         StringUtils.fromString(message.getSubject()),
+                                                         msgData, StringUtils.fromString(message.getReplyTo()));
+        AttachedFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
+        Type[] parameterTypes = onMessage.getParameterTypes();
         if (parameterTypes.length == 1) {
             dispatch(msgObj);
         } else {
-            BType intendedTypeForData = parameterTypes[1];
+            Type intendedTypeForData = parameterTypes[1];
             dispatchWithDataBinding(msgObj, intendedTypeForData, message.getData());
         }
     }
@@ -115,7 +115,7 @@ public class DefaultMessageHandler implements MessageHandler {
      * @param intendedType Message type for data binding
      * @param data         Message data
      */
-    private void dispatchWithDataBinding(BObject msgObj, BType intendedType, byte[] data) {
+    private void dispatchWithDataBinding(BObject msgObj, Type intendedType, byte[] data) {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -175,7 +175,7 @@ public class DefaultMessageHandler implements MessageHandler {
     /**
      * Represents the callback which will be triggered upon submitting to resource.
      */
-    public static class ResponseCallback implements CallableUnitCallback {
+    public static class ResponseCallback implements Callback {
         private CountDownLatch countDownLatch;
         private String subject;
         private NatsMetricsReporter natsMetricsReporter;
@@ -199,7 +199,7 @@ public class DefaultMessageHandler implements MessageHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifyFailure(org.ballerinalang.jvm.api.values.BError error) {
+        public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
             ErrorHandlerUtils.printError(error);
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             countDownLatch.countDown();

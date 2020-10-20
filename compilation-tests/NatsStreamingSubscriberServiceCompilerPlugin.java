@@ -25,7 +25,7 @@ import org.ballerinalang.nats.Constants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.Type;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -62,7 +62,7 @@ public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsCo
 
     public void validateMessageParameter(BLangSimpleVariable firstParameter, BLangFunction resourceFunction,
             String errorMessage) {
-        BType firstParamType = firstParameter.getTypeNode().type;
+        Type firstParamType = firstParameter.getTypeNode().type;
         if (firstParamType.tag != TypeTags.OBJECT) {
             logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);
         } else {

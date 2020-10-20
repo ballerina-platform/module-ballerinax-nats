@@ -18,10 +18,10 @@
 
 package org.ballerinalang.nats.basic.producer;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.TypeTags;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsTracingUtil;

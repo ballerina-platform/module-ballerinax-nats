@@ -17,19 +17,19 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -44,19 +44,19 @@ import static org.ballerinalang.nats.Constants.ON_ERROR_METADATA;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
-import static org.ballerinalang.nats.Utils.getAttachedFunction;
+import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
 /**
  * {@link MessageHandler} implementation to listen to Messages of the subscribed subject from NATS streaming server.
  */
 public class StreamingListener implements MessageHandler {
     private BObject service;
-    private BRuntime runtime;
+    private Runtime runtime;
     private String connectedUrl;
     private boolean manualAck;
     private NatsMetricsReporter natsMetricsReporter;
 
-    public StreamingListener(BObject service, boolean manualAck, BRuntime runtime,
+    public StreamingListener(BObject service, boolean manualAck, Runtime runtime,
                              String connectedUrl, NatsMetricsReporter natsMetricsReporter) {
         this.service = service;
         this.runtime = runtime;
@@ -71,17 +71,17 @@ public class StreamingListener implements MessageHandler {
     @Override
     public void onMessage(Message msg) {
         natsMetricsReporter.reportConsume(msg.getSubject(), msg.getData().length);
-        BObject ballerinaNatsMessage = BValueCreator.createObjectValue(
-                Constants.NATS_PACKAGE_ID, NATS_STREAMING_MESSAGE_OBJ_NAME, BStringUtils.fromString(msg.getSubject()),
-                BValueCreator.createArrayValue(msg.getData()), BStringUtils.fromString(msg.getReplyTo()));
+        BObject ballerinaNatsMessage = ValueCreator.createObjectValue(
+                Constants.NATS_PACKAGE_ID, NATS_STREAMING_MESSAGE_OBJ_NAME, StringUtils.fromString(msg.getSubject()),
+                ValueCreator.createArrayValue(msg.getData()), StringUtils.fromString(msg.getReplyTo()));
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MANUAL_ACK.getValue(), manualAck);
-        AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
-        BType[] parameterTypes = onMessageResource.getParameterType();
+        AttachedFunctionType onMessageResource = getAttachedFunctionType(service, "onMessage");
+        Type[] parameterTypes = onMessageResource.getParameterTypes();
         if (parameterTypes.length == 1) {
             dispatch(ballerinaNatsMessage, msg.getSubject());
         } else {
-            BType intendedTypeForData = parameterTypes[1];
+            Type intendedTypeForData = parameterTypes[1];
             dispatch(ballerinaNatsMessage, intendedTypeForData, msg.getData(), msg.getSubject());
         }
     }
@@ -90,7 +90,7 @@ public class StreamingListener implements MessageHandler {
         executeResource(subject, ballerinaNatsMessage);
     }
 
-    private void dispatch(BObject ballerinaNatsMessage, BType intendedTypeForData, byte[] data, String subject) {
+    private void dispatch(BObject ballerinaNatsMessage, Type intendedTypeForData, byte[] data, String subject) {
         try {
             Object typeBoundData = Utils.bindDataToIntendedType(data, intendedTypeForData);
             executeResource(subject, ballerinaNatsMessage, typeBoundData);
@@ -154,7 +154,7 @@ public class StreamingListener implements MessageHandler {
     }
 
 
-    private static class DispatcherCallback implements CallableUnitCallback {
+    private static class DispatcherCallback implements Callback {
 
         private String subject;
         private NatsMetricsReporter natsMetricsReporter;
@@ -170,7 +170,7 @@ public class StreamingListener implements MessageHandler {
         }
 
         @Override
-        public void notifyFailure(org.ballerinalang.jvm.api.values.BError error) {
+        public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             ErrorHandlerUtils.printError(error);
         }

@@ -17,16 +17,17 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BAnnotatableType;
+import io.ballerina.runtime.values.ArrayValue;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.connection.NatsStreamingConnection;
@@ -51,15 +52,15 @@ import static org.ballerinalang.nats.Constants.STREAMING_SUBSCRIPTION_LIST;
 public class Subscribe {
     private static final PrintStream console;
     private static final String STREAMING_SUBSCRIPTION_CONFIG = "StreamingSubscriptionConfig";
-    private static final BString SUBJECT_ANNOTATION_FIELD = BStringUtils.fromString("subject");
-    private static final BString QUEUE_NAME_ANNOTATION_FIELD = BStringUtils.fromString("queueName");
-    private static final BString DURABLE_NAME_ANNOTATION_FIELD = BStringUtils.fromString("durableName");
-    private static final BString MAX_IN_FLIGHT_ANNOTATION_FIELD = BStringUtils.fromString("maxInFlight");
-    private static final BString ACK_WAIT_ANNOTATION_FIELD = BStringUtils.fromString("ackWaitInSeconds");
-    private static final BString SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD = BStringUtils.fromString(
+    private static final BString SUBJECT_ANNOTATION_FIELD = StringUtils.fromString("subject");
+    private static final BString QUEUE_NAME_ANNOTATION_FIELD = StringUtils.fromString("queueName");
+    private static final BString DURABLE_NAME_ANNOTATION_FIELD = StringUtils.fromString("durableName");
+    private static final BString MAX_IN_FLIGHT_ANNOTATION_FIELD = StringUtils.fromString("maxInFlight");
+    private static final BString ACK_WAIT_ANNOTATION_FIELD = StringUtils.fromString("ackWaitInSeconds");
+    private static final BString SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD = StringUtils.fromString(
             "subscriptionTimeoutInSeconds");
-    private static final BString MANUAL_ACK_ANNOTATION_FIELD = BStringUtils.fromString("manualAck");
-    private static final BString START_POSITION_ANNOTATION_FIELD = BStringUtils.fromString("startPosition");
+    private static final BString MANUAL_ACK_ANNOTATION_FIELD = StringUtils.fromString("manualAck");
+    private static final BString START_POSITION_ANNOTATION_FIELD = StringUtils.fromString("startPosition");
 
     public static void streamingSubscribe(BObject streamingListener, BObject connectionObject,
                                           BString clusterId, Object clientIdNillable, Object streamingConfig) {
@@ -90,7 +91,7 @@ public class Subscribe {
     private static Subscription createSubscription(BObject service, StreamingListener messageHandler,
                                                    io.nats.streaming.StreamingConnection streamingConnection,
                                                    NatsMetricsReporter natsMetricsReporter) {
-        BMap<BString, Object> annotation = (BMap<BString, Object>) service.getType()
+        BMap<BString, Object> annotation = (BMap<BString, Object>) ((BAnnotatableType)service.getType())
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
         assertNull(annotation, "Streaming configuration annotation not present.");
         String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD).getValue();
@@ -138,7 +139,7 @@ public class Subscribe {
     }
 
     private static void setStartPositionInBuilder(SubscriptionOptions.Builder builder, Object startPosition) {
-        BType type = TypeChecker.getType(startPosition);
+        Type type = TypeChecker.getType(startPosition);
         int startPositionType = type.getTag();
         switch (startPositionType) {
             case TypeTags.STRING_TAG:
