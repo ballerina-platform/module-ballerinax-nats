@@ -18,12 +18,12 @@
 
 package org.ballerinalang.nats.observability;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.TypeTags;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 

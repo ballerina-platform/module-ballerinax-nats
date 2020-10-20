@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nats.streaming.message;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.nats.streaming.Message;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 

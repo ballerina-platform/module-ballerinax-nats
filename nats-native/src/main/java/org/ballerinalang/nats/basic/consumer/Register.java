@@ -18,12 +18,13 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BAnnotatableType;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -55,8 +56,9 @@ public class Register {
                 (List<BObject>) ((BObject) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
-                Utils.getSubscriptionConfig(service.getType().getAnnotation(Constants.NATS_PACKAGE,
-                                                                            Constants.SUBSCRIPTION_CONFIG));
+                Utils.getSubscriptionConfig(((BAnnotatableType) service.getType())
+                                                    .getAnnotation(Constants.NATS_PACKAGE,
+                                                                   Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return Utils.createNatsError(errorMessage + " Cannot find subscription configuration.");
@@ -66,7 +68,7 @@ public class Register {
             queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
         }
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
-        BRuntime runtime = BRuntime.getCurrentRuntime();
+        Runtime runtime = Runtime.getCurrentRuntime();
         BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);

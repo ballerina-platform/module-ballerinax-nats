@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.nats.streaming.producer;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.api.BalFuture;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -40,7 +40,7 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externStreamingPublish(BalEnv env, BObject publisher, BString subject, Object data,
+    public static Object externStreamingPublish(Environment env, BObject publisher, BString subject, Object data,
                                                 BObject connectionObject) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
@@ -51,10 +51,10 @@ public class Publish {
                                                 subject.getValue());
         byte[] byteData = convertDataIntoByteArray(data);
         try {
-            BalFuture balFuture = env.markAsync();
+            Future balFuture = env.markAsync();
             AckListener ackListener = new AckListener(balFuture, subject.getValue(), natsMetricsReporter);
             natsMetricsReporter.reportPublish(subject.getValue(), byteData.length);
-            return BStringUtils.fromString(streamingConnection.publish(subject.getValue(), byteData, ackListener));
+            return StringUtils.fromString(streamingConnection.publish(subject.getValue(), byteData, ackListener));
         } catch (InterruptedException e) {
             natsMetricsReporter.reportProducerError(subject.getValue(), NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError("Failed to publish due to an internal error");

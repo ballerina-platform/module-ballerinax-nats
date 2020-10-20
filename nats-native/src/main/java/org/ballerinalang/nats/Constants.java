@@ -18,12 +18,12 @@
 
 package org.ballerinalang.nats;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BPackage;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Represents the constants which will be used for NATS.
@@ -58,7 +58,7 @@ public class Constants {
     // Represents nats package.
     public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS + ":" + VERSION;
 
-    public static final BPackage NATS_PACKAGE_ID = new BPackage(ORG_NAME, "nats", VERSION);
+    public static final Module NATS_PACKAGE_ID = new Module(ORG_NAME, "nats", VERSION);
 
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
@@ -73,10 +73,10 @@ public class Constants {
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";
 
     // Represents the object which holds the connection.
-    public static final BString CONNECTION_OBJ = BStringUtils.fromString("conn");
+    public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
 
     // Represents the connection url
-    public static final BString URL = BStringUtils.fromString("url");
+    public static final BString URL = StringUtils.fromString("url");
 
     // Represents the NATS Streaming message.
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
@@ -84,7 +84,7 @@ public class Constants {
     public static final String NATS_BASIC_CONSUMER_ANNOTATION = "SubscriptionConfig";
 
     public static final String NATS_STREAMING_SUBSCRIPTION_ANNOTATION = "StreamingSubscriptionConfig";
-    public static final BString NATS_STREAMING_MANUAL_ACK = BStringUtils.fromString("manualAck");
+    public static final BString NATS_STREAMING_MANUAL_ACK = StringUtils.fromString("manualAck");
 
     public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
 
@@ -104,13 +104,13 @@ public class Constants {
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
     public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from subject ";
 
-    public static final BString CONNECTION_CONFIG_SECURE_SOCKET = BStringUtils.fromString("secureSocket");
-    public static final BString CONNECTION_KEYSTORE = BStringUtils.fromString("keyStore");
-    public static final BString CONNECTION_TRUSTORE = BStringUtils.fromString("trustStore");
-    public static final BString CONNECTION_PROTOCOL = BStringUtils.fromString("protocol");
+    public static final BString CONNECTION_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
+    public static final BString CONNECTION_KEYSTORE = StringUtils.fromString("keyStore");
+    public static final BString CONNECTION_TRUSTORE = StringUtils.fromString("trustStore");
+    public static final BString CONNECTION_PROTOCOL = StringUtils.fromString("protocol");
     public static final String KEY_STORE_TYPE = "PKCS12";
-    public static final BString KEY_STORE_PASS = BStringUtils.fromString("password");
-    public static final BString KEY_STORE_PATH = BStringUtils.fromString("path");
+    public static final BString KEY_STORE_PASS = StringUtils.fromString("password");
+    public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
     public static final String MODULE = "[ballerina/nats] ";
@@ -121,11 +121,11 @@ public class Constants {
 
     // Service annotation fields.
     public static final String SUBSCRIPTION_CONFIG = "SubscriptionConfig";
-    public static final BString QUEUE_NAME = BStringUtils.fromString("queueName");
-    public static final BString SUBJECT = BStringUtils.fromString("subject");
-    public static final BString PENDING_LIMITS = BStringUtils.fromString("pendingLimits");
-    public static final BString MAX_MESSAGES = BStringUtils.fromString("maxMessages");
-    public static final BString MAX_BYTES = BStringUtils.fromString("maxBytes");
+    public static final BString QUEUE_NAME = StringUtils.fromString("queueName");
+    public static final BString SUBJECT = StringUtils.fromString("subject");
+    public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");
+    public static final BString MAX_MESSAGES = StringUtils.fromString("maxMessages");
+    public static final BString MAX_BYTES = StringUtils.fromString("maxBytes");
 
     // Strand meta data
     public static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(ORG_NAME, NATS, VERSION,

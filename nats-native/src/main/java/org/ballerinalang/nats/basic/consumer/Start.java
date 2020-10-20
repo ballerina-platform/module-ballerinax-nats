@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
 import java.util.concurrent.CountDownLatch;

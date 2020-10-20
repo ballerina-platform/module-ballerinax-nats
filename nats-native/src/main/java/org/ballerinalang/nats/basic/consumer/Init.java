@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 
 import java.util.ArrayList;

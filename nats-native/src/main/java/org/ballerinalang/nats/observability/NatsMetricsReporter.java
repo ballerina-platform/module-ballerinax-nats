@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nats.observability;
 
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.runtime.observability.metrics.MetricId;
+import io.ballerina.runtime.observability.metrics.MetricRegistry;
 import io.nats.client.Connection;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
-import org.ballerinalang.jvm.observability.metrics.MetricId;
-import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
 
 import java.util.ArrayList;
 

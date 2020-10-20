@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -49,7 +49,7 @@ public class ErrorHandler {
      * @param e               BError
      * @param natsMetricsReporter Nats Metrics Util
      */
-    static void dispatchError(BObject serviceObject, BObject msgObj, BError e, BRuntime runtime,
+    static void dispatchError(BObject serviceObject, BObject msgObj, BError e, Runtime runtime,
                               NatsMetricsReporter natsMetricsReporter) {
         boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
@@ -73,7 +73,7 @@ public class ErrorHandler {
     /**
      * Represents the callback which will be triggered upon submitting to resource.
      */
-    public static class ResponseCallback implements CallableUnitCallback {
+    public static class ResponseCallback implements Callback {
         private CountDownLatch countDownLatch;
         private String subject;
         private NatsMetricsReporter natsMetricsReporter;
@@ -98,7 +98,7 @@ public class ErrorHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifyFailure(org.ballerinalang.jvm.api.values.BError error) {
+        public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
             ErrorHandlerUtils.printError(error);
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_ON_ERROR);
             countDownLatch.countDown();

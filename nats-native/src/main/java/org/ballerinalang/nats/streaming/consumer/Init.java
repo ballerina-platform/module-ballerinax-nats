@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.nats.streaming.Subscription;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.ConcurrentHashMap;

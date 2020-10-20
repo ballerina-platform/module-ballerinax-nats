@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.types.BAnnotatableType;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
@@ -45,18 +46,18 @@ public class Attach {
                         .getNativeData(STREAMING_DISPATCHER_LIST);
         boolean manualAck = getAckMode(service);
         String streamingConnectionUrl =
-                streamingListener.getObjectValue(BStringUtils.fromString("connection"))
-                        .get(BStringUtils.fromString("url")).toString();
+                streamingListener.getObjectValue(StringUtils.fromString("connection"))
+                        .get(StringUtils.fromString("url")).toString();
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
+        serviceListenerMap.put(service, new StreamingListener(service, manualAck, Runtime.getCurrentRuntime(),
                                                               streamingConnectionUrl,
                                                               natsMetricsReporter));
     }
 
     private static boolean getAckMode(BObject service) {
-        BMap serviceConfig = (BMap) service.getType().getAnnotation(Constants.NATS_PACKAGE,
-                Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION);
+        BMap serviceConfig = (BMap) ((BAnnotatableType) service.getType())
+                .getAnnotation(Constants.NATS_PACKAGE, Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION);
         return serviceConfig.getBooleanValue(Constants.NATS_STREAMING_MANUAL_ACK);
     }
 }

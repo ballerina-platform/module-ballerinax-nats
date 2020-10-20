@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nats.connection;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.nats.client.Connection;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;

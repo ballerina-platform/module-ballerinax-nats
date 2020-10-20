@@ -18,15 +18,15 @@
 
 package org.ballerinalang.nats.connection;
 
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.values.ArrayValueImpl;
 import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -58,16 +58,16 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class Init {
 
-    private static final BString RECONNECT_WAIT = BStringUtils.fromString("reconnectWaitInSeconds");
+    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
     private static final String SERVER_URL_SEPARATOR = ",";
-    private static final BString CONNECTION_NAME = BStringUtils.fromString("connectionName");
-    private static final BString MAX_RECONNECT = BStringUtils.fromString("maxReconnect");
-    private static final BString CONNECTION_TIMEOUT = BStringUtils.fromString("connectionTimeoutInSeconds");
-    private static final BString PING_INTERVAL = BStringUtils.fromString("pingIntervalInMinutes");
-    private static final BString MAX_PINGS_OUT = BStringUtils.fromString("maxPingsOut");
-    private static final BString INBOX_PREFIX = BStringUtils.fromString("inboxPrefix");
-    private static final BString NO_ECHO = BStringUtils.fromString("noEcho");
-    private static final BString ENABLE_ERROR_LISTENER = BStringUtils.fromString("enableErrorListener");
+    private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
+    private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
+    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
+    private static final BString PING_INTERVAL = StringUtils.fromString("pingIntervalInMinutes");
+    private static final BString MAX_PINGS_OUT = StringUtils.fromString("maxPingsOut");
+    private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
+    private static final BString NO_ECHO = StringUtils.fromString("noEcho");
+    private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
 
     public static void externInit(BObject connectionObject, ArrayValueImpl urlString, BMap connectionConfig) {
         Options.Builder opts = new Options.Builder();
