@@ -2,7 +2,6 @@ Ballerina NATS Library
 ===================
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-nats/workflows/Build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions?query=workflow%3ABuild)
-[![Daily build](https://github.com/ballerina-platform/module-ballerinax-nats/workflows/Daily%20build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions?query=workflow%3A%22Daily+build)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-nats.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -17,7 +16,7 @@ For more information on the operations supported by the module, which include th
 
 For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/swan-lake/learn/by-example/nats-basic-client.html).
 
-## `Issues` and `Projects` 
+## Issues and Projects Tabs
 
 `Issues` and `Project` tabs are disabled for this repository as this is one of the Ballerina Standard Libraries. To report bugs, request new features, start new discussions, view project boards, etc. please visit Ballerina Standard Library [parent repository](https://github.com/ballerina-platform/ballerina-standard-library). 
 
