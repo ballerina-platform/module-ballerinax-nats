@@ -27,19 +27,7 @@ dependencies {
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: "${protobufVersion}"
     compile group: 'org.ballerinalang', name: 'ballerina-lang', version: "${ballerinaLangVersion}"
     compile group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-runtime-api', version: "${ballerinaLangVersion}"
     compile group: 'org.slf4j', name: 'slf4j-jdk14', version: "${slf4jVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-tool', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-http', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-crypto', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-java', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-time', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-system', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'ballerina-io', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'value', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'typedesc', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'annotations', version: "${ballerinaLangVersion}"
-    compile group: 'org.ballerinalang', name: 'toml-parser', version: "${ballerinaTomlParserVersion}"
 }
 
 compileJava {

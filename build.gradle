@@ -29,7 +29,6 @@ ext.slf4jVersion = "1.7.30"
 ext.natsVersion = "2.6.0"
 ext.natsStreamingVersion = "2.2.3"
 ext.protobufVersion = "3.9.1"
-ext.ballerinaTomlParserVersion = project.ballerinaTomlParserVersion
 ext.stdlibCryptoVersion = project.stdlibCryptoVersion
 ext.stdlibLogVersion = project.stdlibLogVersion
 ext.stdlibTimeVersion = project.stdlibTimeVersion
