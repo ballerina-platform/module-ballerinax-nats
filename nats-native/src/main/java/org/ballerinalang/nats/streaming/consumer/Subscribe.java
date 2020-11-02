@@ -91,7 +91,7 @@ public class Subscribe {
     private static Subscription createSubscription(BObject service, StreamingListener messageHandler,
                                                    io.nats.streaming.StreamingConnection streamingConnection,
                                                    NatsMetricsReporter natsMetricsReporter) {
-        BMap<BString, Object> annotation = (BMap<BString, Object>) ((BAnnotatableType)service.getType())
+        BMap<BString, Object> annotation = (BMap<BString, Object>) ((BAnnotatableType) service.getType())
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
         assertNull(annotation, "Streaming configuration annotation not present.");
         String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD).getValue();
