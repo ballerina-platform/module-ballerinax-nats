@@ -48,7 +48,7 @@ public class Detach {
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         BMap<BString, Object> subscriptionConfig = Utils
-                .getSubscriptionConfig(((BAnnotatableType)service.getType())
+                .getSubscriptionConfig(((BAnnotatableType) service.getType())
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             return Utils.createNatsError(
