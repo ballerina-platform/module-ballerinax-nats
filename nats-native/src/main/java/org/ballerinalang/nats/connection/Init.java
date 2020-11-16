@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nats.connection;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.values.ArrayValueImpl;
 import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
@@ -69,7 +69,7 @@ public class Init {
     private static final BString NO_ECHO = StringUtils.fromString("noEcho");
     private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
 
-    public static void externInit(BObject connectionObject, ArrayValueImpl urlString, BMap connectionConfig) {
+    public static void externInit(BObject connectionObject, BArray urlString, BMap connectionConfig) {
         Options.Builder opts = new Options.Builder();
         try {
             String[] serverUrls = urlString.getStringArray();

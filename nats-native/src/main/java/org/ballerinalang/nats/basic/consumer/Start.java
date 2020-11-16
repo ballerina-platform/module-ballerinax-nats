@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.scheduling.Scheduler;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
 import java.util.concurrent.CountDownLatch;
@@ -34,8 +34,8 @@ import static org.ballerinalang.nats.Constants.COUNTDOWN_LATCH;
 public class Start {
     private static CountDownLatch countDownLatch = new CountDownLatch(1);
 
-    public static void basicStart(BObject listenerObject) {
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), listenerObject);
+    public static void basicStart(Environment environment, BObject listenerObject) {
+        NatsTracingUtil.traceResourceInvocation(environment, listenerObject);
         listenerObject.addNativeData(COUNTDOWN_LATCH, countDownLatch);
         // It is essential to keep a non-daemon thread running in order to avoid the java program or the
         // Ballerina service from exiting

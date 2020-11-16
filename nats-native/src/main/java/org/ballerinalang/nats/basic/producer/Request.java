@@ -18,14 +18,13 @@
 
 package org.ballerinalang.nats.basic.producer;
 
-import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import org.ballerinalang.nats.Constants;
@@ -49,10 +48,11 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 public class Request {
 
     @SuppressWarnings("unused")
-    public static Object externRequest(BObject producerObject, BString subject, Object data, Object duration) {
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject.getValue());
+    public static Object externRequest(Environment environment, BObject producerObject, BString subject, Object data,
+                                       Object duration) {
+        NatsTracingUtil.traceResourceInvocation(environment, producerObject, subject.getValue());
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject connectionObject = (BObject) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
 
@@ -68,12 +68,12 @@ public class Request {
                 Message reply;
                 Future<Message> incoming = natsConnection.request(subject.getValue(), byteContent);
                 natsMetricsReporter.reportRequest(subject.getValue(), byteContent.length);
-                if (TypeChecker.getType(duration).getTag() == TypeTags.INT_TAG) {
+                if (TypeUtils.getType(duration).getTag() == TypeTags.INT_TAG) {
                     reply = incoming.get((Long) duration, TimeUnit.MILLISECONDS);
                 } else {
                     reply = incoming.get();
                 }
-                ArrayValue msgData = new ArrayValueImpl(reply.getData());
+                BArray msgData = ValueCreator.createArrayValue(reply.getData());
                 natsMetricsReporter.reportResponse(subject.getValue());
                 BObject msgObj = ValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
                                                                  Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(),

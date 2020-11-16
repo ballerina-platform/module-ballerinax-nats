@@ -17,15 +17,14 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BAnnotatableType;
-import io.ballerina.runtime.values.ArrayValue;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 import org.ballerinalang.nats.Constants;
@@ -91,8 +90,9 @@ public class Subscribe {
     private static Subscription createSubscription(BObject service, StreamingListener messageHandler,
                                                    io.nats.streaming.StreamingConnection streamingConnection,
                                                    NatsMetricsReporter natsMetricsReporter) {
-        BMap<BString, Object> annotation = (BMap<BString, Object>) ((BAnnotatableType)service.getType())
-                .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
+        BMap<BString, Object> annotation = (BMap<BString, Object>) service.getType()
+                .getAnnotation(StringUtils.fromString(Constants.NATS_PACKAGE +
+                                                              ":" + STREAMING_SUBSCRIPTION_CONFIG));
         assertNull(annotation, "Streaming configuration annotation not present.");
         String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD).getValue();
         assertNull(subject, "`Subject` annotation field is mandatory");
@@ -139,7 +139,7 @@ public class Subscribe {
     }
 
     private static void setStartPositionInBuilder(SubscriptionOptions.Builder builder, Object startPosition) {
-        Type type = TypeChecker.getType(startPosition);
+        Type type = TypeUtils.getType(startPosition);
         int startPositionType = type.getTag();
         switch (startPositionType) {
             case TypeTags.STRING_TAG:
@@ -153,7 +153,7 @@ public class Subscribe {
                 // to the builder since this is the default.
                 break;
             case TypeTags.TUPLE_TAG:
-                ArrayValue tupleValue = (ArrayValue) startPosition;
+                BArray tupleValue = (BArray) startPosition;
                 String startPositionKind = tupleValue.getRefValue(0).toString();
                 long timeOrSequenceNo = (Long) tupleValue.getRefValue(1);
                 if (startPositionKind.equals(BallerinaStartPosition.TIME_DELTA_START.name())) {

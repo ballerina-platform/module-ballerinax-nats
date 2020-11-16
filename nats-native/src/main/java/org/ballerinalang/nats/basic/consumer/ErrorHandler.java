@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.services.ErrorHandlerUtils;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -99,7 +98,7 @@ public class ErrorHandler {
          */
         @Override
         public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
-            ErrorHandlerUtils.printError(error);
+            error.printStackTrace();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_ON_ERROR);
             countDownLatch.countDown();
         }

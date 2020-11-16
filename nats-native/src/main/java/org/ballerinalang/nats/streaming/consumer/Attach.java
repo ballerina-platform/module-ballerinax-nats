@@ -18,10 +18,9 @@
 package org.ballerinalang.nats.streaming.consumer;
 
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.types.BAnnotatableType;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
@@ -56,8 +55,9 @@ public class Attach {
     }
 
     private static boolean getAckMode(BObject service) {
-        BMap serviceConfig = (BMap) ((BAnnotatableType) service.getType())
-                .getAnnotation(Constants.NATS_PACKAGE, Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION);
+        BMap serviceConfig = (BMap) service.getType()
+                .getAnnotation(StringUtils.fromString(Constants.NATS_PACKAGE +
+                                                              ":" + Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION));
         return serviceConfig.getBooleanValue(Constants.NATS_STREAMING_MANUAL_ACK);
     }
 }

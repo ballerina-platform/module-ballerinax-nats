@@ -18,7 +18,7 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.nats.streaming.AckHandler;
 import org.ballerinalang.nats.Utils;

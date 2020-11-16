@@ -19,10 +19,11 @@
 package org.ballerinalang.nats.basic.consumer;
 
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BAnnotatableType;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.nats.Constants;
@@ -56,9 +57,9 @@ public class Register {
                 (List<BObject>) ((BObject) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
-                Utils.getSubscriptionConfig(((BAnnotatableType) service.getType())
-                                                    .getAnnotation(Constants.NATS_PACKAGE,
-                                                                   Constants.SUBSCRIPTION_CONFIG));
+                Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
+                                                    .getAnnotation(StringUtils.fromString(Constants.NATS_PACKAGE
+                                                                   + ":" + Constants.SUBSCRIPTION_CONFIG)));
         if (subscriptionConfig == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return Utils.createNatsError(errorMessage + " Cannot find subscription configuration.");

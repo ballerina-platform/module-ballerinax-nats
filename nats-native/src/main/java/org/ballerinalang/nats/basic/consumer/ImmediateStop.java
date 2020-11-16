@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.scheduling.Scheduler;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.nats.Constants;
@@ -48,8 +48,8 @@ public class ImmediateStop {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
 
-    public static void basicImmediateStop(BObject listenerObject) {
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), listenerObject);
+    public static void basicImmediateStop(Environment environment, BObject listenerObject) {
+        NatsTracingUtil.traceResourceInvocation(environment, listenerObject);
         BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         if (connectionObject == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
