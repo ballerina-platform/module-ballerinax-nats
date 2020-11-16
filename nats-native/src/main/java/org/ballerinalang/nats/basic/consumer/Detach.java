@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;

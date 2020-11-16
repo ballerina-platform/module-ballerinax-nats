@@ -33,8 +33,8 @@ public class AckListener implements AckHandler {
     private String subject;
     private NatsMetricsReporter natsMetricsReporter;
 
-    AckListener(Future Future, String subject, NatsMetricsReporter natsMetricsReporter) {
-        this.balFuture = Future;
+    AckListener(Future balFuture, String subject, NatsMetricsReporter natsMetricsReporter) {
+        this.balFuture = balFuture;
         this.subject = subject;
         this.natsMetricsReporter = natsMetricsReporter;
     }

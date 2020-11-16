@@ -17,17 +17,52 @@
 
 plugins {
     id 'java'
+    id 'checkstyle'
+    id 'com.github.spotbugs'
 }
 
 description = 'Ballerina - NATS Java Utils'
 
 dependencies {
+    checkstyle project(':build-config:checkstyle')
+    checkstyle "com.puppycrawl.tools:checkstyle:${puppycrawlCheckstyleVersion}"
     compile group: 'io.nats', name: 'java-nats-streaming', version: "${natsStreamingVersion}"
     compile group: 'io.nats', name: 'jnats', version: "${natsVersion}"
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: "${protobufVersion}"
     compile group: 'org.ballerinalang', name: 'ballerina-lang', version: "${ballerinaLangVersion}"
     compile group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
     compile group: 'org.slf4j', name: 'slf4j-jdk14', version: "${slf4jVersion}"
+}
+
+checkstyle {
+    toolVersion '7.8.2'
+    configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
+    configProperties = ["suppressionFile" : file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
+}
+
+def excludePattern = '**/module-info.java'
+tasks.withType(Checkstyle) {
+    exclude excludePattern
+}
+
+checkstyleMain.dependsOn(":build-config:checkstyle:downloadMultipleFiles")
+
+spotbugsMain {
+    effort "max"
+    reportLevel "low"
+    reportsDir = file("$project.buildDir/reports/spotbugs")
+    reports {
+        html.enabled true
+        text.enabled = true
+    }
+    def excludeFile = file("${rootDir}/spotbugs-exclude.xml")
+    if(excludeFile.exists()) {
+        excludeFilter = excludeFile
+    }
+}
+
+spotbugsTest {
+    enabled = false
 }
 
 compileJava {

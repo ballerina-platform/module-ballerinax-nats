@@ -24,7 +24,7 @@ plugins {
 }
 
 ext.ballerinaLangVersion = project.ballerinaLangVersion
-ext.puppycrawlCheckstyleVersion = "8.18"
+ext.puppycrawlCheckstyleVersion = project.puppycrawlCheckstyleVersion
 ext.slf4jVersion = "1.7.30"
 ext.natsVersion = "2.6.0"
 ext.natsStreamingVersion = "2.2.3"
