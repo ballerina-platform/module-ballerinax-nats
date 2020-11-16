@@ -18,13 +18,14 @@
 
 package org.ballerinalang.nats.basic.producer;
 
-import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.types.BAnnotatableType;
 import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
@@ -41,10 +42,11 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externPublish(BObject producerObject, BString subject, Object data, Object replyTo) {
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject, subject.getValue());
+    public static Object externPublish(Environment environment, BObject producerObject,
+                                       BString subject, Object data, Object replyTo) {
+        NatsTracingUtil.traceResourceInvocation(environment, producerObject, subject.getValue());
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject connectionObject = (BObject) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             NatsMetricsReporter natsMetricsReporter =
@@ -53,16 +55,17 @@ public class Publish {
                 natsMetricsReporter.reportProducerError(subject.getValue(),
                                                         NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                        subject.getValue() + ". NATS connection doesn't exist.");
+                                                     subject.getValue() + ". NATS connection doesn't exist.");
             }
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
-                if (TypeChecker.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
+                if (TypeUtils.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
                     natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
-                } else if (TypeChecker.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
+                } else if (TypeUtils.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
                     BMap<BString, Object> subscriptionConfig =
-                            getSubscriptionConfig(((BAnnotatableType) ((BObject) replyTo).getType()).getAnnotation(
-                                    Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
+                            getSubscriptionConfig(((AnnotatableType) ((BObject) replyTo).getType()).getAnnotation(
+                                    StringUtils.fromString(Constants.NATS_PACKAGE +
+                                                                   ":" + Constants.SUBSCRIPTION_CONFIG)));
                     if (subscriptionConfig == null) {
                         natsMetricsReporter.reportProducerError(subject.getValue(),
                                                                 NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
@@ -78,12 +81,12 @@ public class Publish {
                 natsMetricsReporter.reportProducerError(subject.getValue(),
                                                         NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                        subject.getValue() + ". " + ex.getMessage());
+                                                     subject.getValue() + ". " + ex.getMessage());
             }
         } else {
             NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                    subject.getValue() + ". Producer is logically disconnected.");
+                                                 subject.getValue() + ". Producer is logically disconnected.");
         }
         return null;
     }
@@ -91,7 +94,7 @@ public class Publish {
     @SuppressWarnings("unchecked")
     private static BMap<BString, Object> getSubscriptionConfig(Object annotationData) {
         BMap annotationRecord = null;
-        if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
+        if (TypeUtils.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
             annotationRecord = (BMap) annotationData;
         }
         return annotationRecord;

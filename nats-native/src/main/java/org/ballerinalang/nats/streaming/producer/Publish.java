@@ -19,10 +19,9 @@ package org.ballerinalang.nats.streaming.producer;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
 import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
@@ -46,7 +45,7 @@ public class Publish {
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
+        NatsTracingUtil.traceResourceInvocation(env,
                                                 streamingConnection.getNatsConnection().getConnectedUrl(),
                                                 subject.getValue());
         byte[] byteData = convertDataIntoByteArray(data);

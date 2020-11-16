@@ -19,18 +19,16 @@
 package org.ballerinalang.nats.basic.consumer;
 
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.services.ErrorHandlerUtils;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.ArrayValueImpl;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import org.ballerinalang.nats.Constants;
@@ -75,11 +73,11 @@ public class DefaultMessageHandler implements MessageHandler {
     @Override
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
-        ArrayValue msgData = new ArrayValueImpl(message.getData());
+        BArray msgData = ValueCreator.createArrayValue(message.getData());
         BObject msgObj = ValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
-                                                         Constants.NATS_MESSAGE_OBJ_NAME,
-                                                         StringUtils.fromString(message.getSubject()),
-                                                         msgData, StringUtils.fromString(message.getReplyTo()));
+                                                        Constants.NATS_MESSAGE_OBJ_NAME,
+                                                        StringUtils.fromString(message.getSubject()),
+                                                        msgData, StringUtils.fromString(message.getReplyTo()));
         AttachedFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
         Type[] parameterTypes = onMessage.getParameterTypes();
         if (parameterTypes.length == 1) {
@@ -200,7 +198,7 @@ public class DefaultMessageHandler implements MessageHandler {
          */
         @Override
         public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
-            ErrorHandlerUtils.printError(error);
+            error.printStackTrace();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             countDownLatch.countDown();
         }

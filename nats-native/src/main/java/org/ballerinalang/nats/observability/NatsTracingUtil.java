@@ -18,16 +18,14 @@
 
 package org.ballerinalang.nats.observability;
 
-import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-
-import java.util.Optional;
 
 /**
  * Providing metrics functionality to NATS.
@@ -36,59 +34,51 @@ import java.util.Optional;
  */
 public class NatsTracingUtil {
 
-    public static void traceResourceInvocation(Strand strand, String url, String subject) {
+    public static void traceResourceInvocation(Environment environment, String url, String subject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
-        ObserverContext observerContext;
-        Optional<ObserverContext> observerContextOptional = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-        if (observerContextOptional.isPresent()) {
-            observerContext = observerContextOptional.get();
-        } else {
-            observerContext = new ObserverContext();
-            ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext);
+        ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(environment);
+        if (observerContext != null) {
+            ObserveUtils.setObserverContextToCurrentFrame(environment, observerContext);
+            setTags(observerContext, url, subject);
         }
-        setTags(observerContext, url, subject);
     }
 
-    public static void traceResourceInvocation(Strand strand, String url) {
+    public static void traceResourceInvocation(Environment environment, String url) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
-        ObserverContext observerContext;
-        Optional<ObserverContext> observerContextOptional = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-        if (observerContextOptional.isPresent()) {
-            observerContext = observerContextOptional.get();
-        } else {
-            observerContext = new ObserverContext();
-            ObserveUtils.setObserverContextToCurrentFrame(strand, observerContext);
+        ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(environment);
+        if (observerContext != null) {
+            ObserveUtils.setObserverContextToCurrentFrame(environment, observerContext);
+            setTags(observerContext, url);
         }
-        setTags(observerContext, url);
     }
 
-    public static void traceResourceInvocation(Strand strand, BObject producerObject, String subject) {
+    public static void traceResourceInvocation(Environment environment, BObject producerObject, String subject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
         Object connection = producerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject connectionObject = (BObject) connection;
-            traceResourceInvocation(strand, Utils.getCommaSeparatedUrl(connectionObject), subject);
+            traceResourceInvocation(environment, Utils.getCommaSeparatedUrl(connectionObject), subject);
         } else {
-            traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN, subject);
+            traceResourceInvocation(environment, NatsObservabilityConstants.UNKNOWN, subject);
         }
     }
 
-    public static void traceResourceInvocation(Strand strand, BObject listenerOrProducerObject) {
+    public static void traceResourceInvocation(Environment environment, BObject listenerOrProducerObject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
         Object connection = listenerOrProducerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject connectionObject = (BObject) connection;
-            traceResourceInvocation(strand, Utils.getCommaSeparatedUrl(connectionObject));
+            traceResourceInvocation(environment, Utils.getCommaSeparatedUrl(connectionObject));
         } else {
-            traceResourceInvocation(strand, NatsObservabilityConstants.UNKNOWN);
+            traceResourceInvocation(environment, NatsObservabilityConstants.UNKNOWN);
         }
     }
 

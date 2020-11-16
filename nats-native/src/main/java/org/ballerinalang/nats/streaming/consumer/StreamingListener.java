@@ -18,16 +18,15 @@
 package org.ballerinalang.nats.streaming.consumer;
 
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
 import org.ballerinalang.nats.Constants;
@@ -172,7 +171,7 @@ public class StreamingListener implements MessageHandler {
         @Override
         public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
-            ErrorHandlerUtils.printError(error);
+            error.printStackTrace();
         }
     }
 }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nats.streaming;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;

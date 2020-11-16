@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nats.streaming.consumer;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
@@ -35,7 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Close {
 
-    public static Object streamingListenerClose(BObject streamingListener, BObject natsConnection) {
+    public static Object streamingListenerClose(Environment environment, BObject streamingListener,
+                                                BObject natsConnection) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingListener.getNativeData(
                 Constants.NATS_STREAMING_CONNECTION);
         ConcurrentHashMap<BObject, Subscription> subscriptionsMap =
@@ -46,6 +48,6 @@ public class Close {
             NatsMetricsReporter.reportStreamingUnsubscription(streamingConnection.getNatsConnection().getConnectedUrl(),
                                                               subject);
         }
-        return NatsStreamingConnection.closeConnection(streamingListener, natsConnection);
+        return NatsStreamingConnection.closeConnection(environment, streamingListener, natsConnection);
     }
 }

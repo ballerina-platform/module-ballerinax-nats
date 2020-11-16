@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.nats.connection;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
 import io.nats.client.Connection;
 import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.nats.Constants;
@@ -63,10 +63,11 @@ public class NatsStreamingConnection {
         }
     }
 
-    public static Object closeConnection(BObject streamingClientObject, BObject natsConnection) {
+    public static Object closeConnection(Environment environment, BObject streamingClientObject,
+                                         BObject natsConnection) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
-        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
+        NatsTracingUtil.traceResourceInvocation(environment,
                                                 streamingConnection.getNatsConnection().getConnectedUrl());
         try {
             streamingConnection.close();
