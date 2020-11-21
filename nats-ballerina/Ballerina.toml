@@ -1,42 +1,60 @@
-[project]
-org-name = "ballerinax"
+[package]
+org = "ballerinax"
+name = "nats"
 version = "@toml.version@"
+[[dependency]]
+org = "ballerina"
+name = "io"
+version = "@stdlib.io.version@"
 
-[dependencies]
-"ballerina/crypto" = "@stdlib.crypto.version@"
-"ballerina/log" = "@stdlib.log.version@"
-"ballerina/time" = "@stdlib.time.version@"
-"ballerina/system" = "@stdlib.system.version@"
-"ballerina/runtime" = "@stdlib.runtime.version@"
-"ballerina/io" = "@stdlib.io.version@"
+[[dependency]]
+org = "ballerina"
+name = "time"
+version = "@stdlib.time.version@"
 
-[platform]
-target = "java11"
+[[dependency]]
+org = "ballerina"
+name = "runtime"
+version = "@stdlib.runtime.version@"
 
-    [[platform.libraries]]
-    artifactId = "java-nats-streaming"
-    version = "2.2.3"
-    path = "./lib/java-nats-streaming-2.2.3.jar"
-    groupId = "io.nats"
-    modules = ["nats"]
+[[dependency]]
+org = "ballerina"
+name = "log"
+version = "@stdlib.log.version@"
 
-    [[platform.libraries]]
-    artifactId = "jnats"
-    version = "2.6.0"
-    path = "./lib/jnats-2.6.0.jar"
-    groupId = "io.nats"
-    modules = ["nats"]
+[[dependency]]
+org = "ballerina"
+name = "crypto"
+version = "@stdlib.crypto.version@"
 
-    [[platform.libraries]]
-    artifactId = "protobuf-java"
-    version = "3.9.1"
-    path = "./lib/protobuf-java-3.9.1.jar"
-    groupId = "com.google.protobuf"
-    modules = ["nats"]
-    
-    [[platform.libraries]]
-    artifactId = "nats"
-    version = "1.0.0-SNAPSHOT"
-    path = "../nats-native/build/libs/nats-native-@project.version@.jar"
-    groupId = "ballerina"
-    modules = ["nats"]
+[[dependency]]
+org = "ballerina"
+name = "system"
+version = "@stdlib.system.version@"
+
+[[platform.java11.dependency]]
+path = "./lib/java-nats-streaming-2.2.3.jar"
+groupId = "io.nats"
+artifactId = "java-nats-streaming"
+version = "2.2.3"
+
+
+[[platform.java11.dependency]]
+path = "./lib/jnats-2.6.0.jar"
+groupId = "io.nats"
+artifactId = "jnats"
+version = "2.6.0"
+
+
+[[platform.java11.dependency]]
+path = "./lib/protobuf-java-3.9.1.jar"
+groupId = "com.google.protobuf"
+artifactId = "protobuf-java"
+version = "3.9.1"
+
+
+[[platform.java11.dependency]]
+path = "../nats-native/build/libs/nats-native-@project.version@.jar"
+groupId = "ballerina"
+artifactId = "nats"
+version = "1.0.0-SNAPSHOT"
