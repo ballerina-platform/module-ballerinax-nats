@@ -5,16 +5,6 @@ version = "@toml.version@"
 
 [[dependency]]
 org = "ballerina"
-name = "io"
-version = "@stdlib.io.version@"
-
-[[dependency]]
-org = "ballerina"
-name = "time"
-version = "@stdlib.time.version@"
-
-[[dependency]]
-org = "ballerina"
 name = "runtime"
 version = "@stdlib.runtime.version@"
 
@@ -28,17 +18,11 @@ org = "ballerina"
 name = "crypto"
 version = "@stdlib.crypto.version@"
 
-[[dependency]]
-org = "ballerina"
-name = "system"
-version = "@stdlib.system.version@"
-
 [[platform.java11.dependency]]
 path = "./lib/java-nats-streaming-2.2.3.jar"
 groupId = "io.nats"
 artifactId = "java-nats-streaming"
 version = "2.2.3"
-
 
 [[platform.java11.dependency]]
 path = "./lib/jnats-2.6.0.jar"
@@ -46,13 +30,11 @@ groupId = "io.nats"
 artifactId = "jnats"
 version = "2.6.0"
 
-
 [[platform.java11.dependency]]
 path = "./lib/protobuf-java-3.9.1.jar"
 groupId = "com.google.protobuf"
 artifactId = "protobuf-java"
 version = "3.9.1"
-
 
 [[platform.java11.dependency]]
 path = "../nats-native/build/libs/nats-native-@project.version@.jar"
