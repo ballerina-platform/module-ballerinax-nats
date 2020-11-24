@@ -35,7 +35,6 @@ ext.stdlibTimeVersion = project.stdlibTimeVersion
 ext.stdlibRuntimeVersion = project.stdlibRuntimeVersion
 ext.stdlibSystemVersion = project.stdlibSystemVersion
 ext.stdlibIoVersion = project.stdlibIoVersion
-ext.stdlibStringUtilsVersion = project.stdlibStringUtilsVersion
 
 allprojects {
     group = 'org.ballerinalang'
@@ -114,13 +113,6 @@ allprojects {
             }
         }
 
-        maven {
-            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-stringutils"
-            credentials {
-                username System.getenv("packageUser")
-                password System.getenv("packagePAT")
-            }
-        }
     }
 }
 
@@ -138,7 +130,6 @@ subprojects {
         ballerinaStdLibs "org.ballerinalang:runtime-ballerina:${stdlibRuntimeVersion}"
         ballerinaStdLibs "org.ballerinalang:system-ballerina:${stdlibSystemVersion}"
         ballerinaStdLibs "org.ballerinalang:io-ballerina:${stdlibIoVersion}"
-        ballerinaStdLibs "org.ballerinalang:stringutils-ballerina:${stdlibStringUtilsVersion}"
     }
 }
 def moduleVersion = project.version
