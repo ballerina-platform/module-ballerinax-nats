@@ -39,10 +39,11 @@ public class NatsTracingUtil {
             return;
         }
         ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(environment);
-        if (observerContext != null) {
+        if (observerContext == null) {
+            observerContext = new ObserverContext();
             ObserveUtils.setObserverContextToCurrentFrame(environment, observerContext);
-            setTags(observerContext, url, subject);
         }
+        setTags(observerContext, url, subject);
     }
 
     public static void traceResourceInvocation(Environment environment, String url) {
@@ -50,10 +51,11 @@ public class NatsTracingUtil {
             return;
         }
         ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(environment);
-        if (observerContext != null) {
+        if (observerContext == null) {
+            observerContext = new ObserverContext();
             ObserveUtils.setObserverContextToCurrentFrame(environment, observerContext);
-            setTags(observerContext, url);
         }
+        setTags(observerContext, url);
     }
 
     public static void traceResourceInvocation(Environment environment, BObject producerObject, String subject) {
