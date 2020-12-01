@@ -29,9 +29,6 @@ dependencies {
         transitive = false
     }
     compile project(':nats-native')
-    externalJars (group: 'io.nats', name: 'java-nats-streaming', version: "${natsStreamingVersion}") {
-        transitive = false
-    }
     externalJars (group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
         transitive = false
     }

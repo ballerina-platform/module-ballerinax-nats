@@ -26,7 +26,6 @@ description = 'Ballerina - NATS Java Utils'
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle "com.puppycrawl.tools:checkstyle:${puppycrawlCheckstyleVersion}"
-    compile group: 'io.nats', name: 'java-nats-streaming', version: "${natsStreamingVersion}"
     compile group: 'io.nats', name: 'jnats', version: "${natsVersion}"
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: "${protobufVersion}"
     compile group: 'org.ballerinalang', name: 'ballerina-lang', version: "${ballerinaLangVersion}"

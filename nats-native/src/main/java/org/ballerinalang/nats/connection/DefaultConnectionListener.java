@@ -84,6 +84,9 @@ public class DefaultConnectionListener implements ConnectionListener {
                         + Arrays.toString(conn.getServers().toArray()));
                 break;
             }
+            default: {
+                printToConsole("Changes in the connection are detected");
+            }
         }
     }
 
