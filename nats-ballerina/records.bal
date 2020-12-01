@@ -62,3 +62,39 @@ public type SecureSocket record {|
     crypto:KeyStore? keyStore = ();
     string protocol = "TLS";
 |};
+
+# Represents the message, which a NATS server sends to its subscribed services.
+#
+# + content - The message content
+# + replyTo - The `replyTo` subject of the message
+# + subject - The subject to which the message was sent to
+public type Message record {|
+    byte[] content;
+    string subject;
+    string replyTo?;
+|};
+
+# The configurations for the NATS basic subscription.
+#
+# + subject - Name of the subject
+# + queueName - Name of the queue group
+# + pendingLimits - Parameters to set limits on the maximum number of pending messages
+#                   or maximum size of pending messages
+public type SubscriptionConfigData record {|
+    string subject;
+    string queueName?;
+    PendingLimits pendingLimits?;
+|};
+
+# The configurations to set limits on the maximum number of messages or maximum size of messages this consumer will
+# hold before it starts to drop new messages waiting for the resource functions to drain the queue.
+# Setting a value less than or equal to 0 will disable this check.
+#
+# + maxMessages - Maximum number of pending messages retrieved and held by the consumer service.
+#                 The default value is 65536
+# + maxBytes - Total size of pending messages in bytes retrieved and held by the consumer service.
+#              The default value is 67108864
+public type PendingLimits record {|
+    int maxMessages;
+    int maxBytes;
+|};

@@ -37,7 +37,7 @@ public class DefaultConnectionListener implements ConnectionListener {
     private static final PrintStream console;
     private boolean printDisconnected = true;
 
-    DefaultConnectionListener() {
+    public DefaultConnectionListener() {
     }
 
     @Override

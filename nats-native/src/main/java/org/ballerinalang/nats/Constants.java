@@ -73,7 +73,7 @@ public class Constants {
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";
 
     // Represents the object which holds the connection.
-    public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
+    //public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
 
     // Represents the connection url
     public static final BString URL = StringUtils.fromString("url");

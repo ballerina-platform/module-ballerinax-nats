@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
+import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -58,30 +59,20 @@ public class NatsTracingUtil {
         setTags(observerContext, url);
     }
 
-    public static void traceResourceInvocation(Environment environment, BObject producerObject, String subject) {
+    public static void traceResourceInvocation(Environment environment, BObject clientObj, String subject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
-        Object connection = producerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BObject connectionObject = (BObject) connection;
-            traceResourceInvocation(environment, Utils.getCommaSeparatedUrl(connectionObject), subject);
-        } else {
-            traceResourceInvocation(environment, NatsObservabilityConstants.UNKNOWN, subject);
-        }
+        Connection connection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);
+        traceResourceInvocation(environment, connection.getConnectedUrl(), subject);
     }
 
     public static void traceResourceInvocation(Environment environment, BObject listenerOrProducerObject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
         }
-        Object connection = listenerOrProducerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BObject connectionObject = (BObject) connection;
-            traceResourceInvocation(environment, Utils.getCommaSeparatedUrl(connectionObject));
-        } else {
-            traceResourceInvocation(environment, NatsObservabilityConstants.UNKNOWN);
-        }
+        Connection connection = (Connection) listenerOrProducerObject.getNativeData(Constants.NATS_CONNECTION);
+        traceResourceInvocation(environment, connection.getConnectedUrl());
     }
 
     private static void setTags(ObserverContext observerContext, String url, String subject) {

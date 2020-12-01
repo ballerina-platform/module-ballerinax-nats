@@ -33,7 +33,7 @@ public class Close {
 
     public static Object streamingProducerClose(Environment environment, BObject streamingClientObject,
                                                 BObject natsConnection) {
-        ((NatsMetricsReporter) natsConnection.getNativeData(Constants.NATS_METRIC_UTIL)).reportProducerClose();
+        ((NatsMetricsReporter) natsConnection.getNativeData(Constants.NATS_METRIC_UTIL)).reportClientClose();
         return NatsStreamingConnection.closeConnection(environment, streamingClientObject, natsConnection);
     }
 }

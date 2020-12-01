@@ -17,30 +17,29 @@
 import ballerina/log;
 import ballerina/java;
 
-# The producer provides the capability to publish messages to the NATS server.
-# The `nats:Producer` needs the `nats:Connection` to be initialized.
-public client class Producer {
+# The client provides the capability to publish messages to the NATS server.
+# The `nats:Client` needs the  to be initialized.
+public client class Client {
 
     private Connection? conn = ();
 
-    # Creates a new `nats:Producer`.
+    # Creates a new `nats:Client`.
     #
     # + connection - An established NATS connection
-    public isolated function init(Connection connection) {
-        self.conn = connection;
-        producerInit(connection);
+    public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) {
+        externInit(self, url, config);
     }
 
     # Publishes data to a given subject.
     # ```ballerina
-    # nats:Error? result = producer->publish(subject, <@untainted>message);
+    # nats:Error? result = natsClient->publish(subject, <@untainted>message);
     # ```
     #
     # + subject - The subject to send the message
     # + data - Data to publish
     # + replyTo - The subject or the callback service to which the receiver should send the response
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
-    public isolated remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
+    public isolated remote function publish(string subject, byte[] data, (string | service)? replyTo = ())
                     returns Error? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -52,52 +51,42 @@ public client class Producer {
 
     # Publishes data to a given subject and waits for a response.
     # ```ballerina
-    # nats:Message|nats:Error reqReply = producer->request(subject, <@untainted>message, 5000);
+    # nats:Message|nats:Error reqReply = natsClient->request(subject, <@untainted>message, 5000);
     # ```
     #
     # + subject - The subject to send the message
     # + data - Data to publish
     # + duration - The time (in milliseconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    public isolated remote function request(string subject, @untainted Content data, int? duration = ())
+    public isolated remote function request(string subject, byte[] data, int? duration = ())
     returns Message|Error {
-        string | byte[] | error converted = convertData(data);
-        if (converted is error) {
-            return prepareError("Error in data conversion", converted);
-        } else {
-            return externRequest(self, subject, converted, duration);
-        }
+        return externRequest(self, subject, converted, duration);
     }
 
-    # Closes a given connection.
+    # Closes the nats client connection.
     #
     # + return - `()` or else a `nats:Error` if unable to complete the close the operation
     public isolated function close() returns Error? {
         closeConnection(self);
-        if (self.conn is Connection) {
-            self.conn = ();
-            log:printInfo("Close the logical connection between producer and connection.");
-        }
-
     }
 }
 
-isolated function producerInit(Connection c) =
+isolated function externInit(Client clientObj, string|string[] url, ConnectionConfig? config) =
 @java:Method {
-    'class: "org.ballerinalang.nats.basic.producer.Init"
+    'class: "org.ballerinalang.nats.basic.client.Init"
 } external;
 
-isolated function closeConnection(Producer producer) =
+isolated function closeConnection(Client clientObj) =
 @java:Method {
-    'class: "org.ballerinalang.nats.basic.producer.CloseConnection"
+    'class: "org.ballerinalang.nats.basic.client.CloseConnection"
 } external;
 
-isolated function externRequest(Producer producer, string subject, Content data, int? duration = ())
+isolated function externRequest(Client clientObj, string subject, byte[] data, int? duration = ())
 returns Message | Error = @java:Method {
-    'class: "org.ballerinalang.nats.basic.producer.Request"
+    'class: "org.ballerinalang.nats.basic.client.Request"
 } external;
 
-isolated function externPublish(Producer producer, string subject, string | byte[] data, 
+isolated function externPublish(Client clientObj, string subject, string | byte[] data,
 (string | service) ? replyTo = ()) returns Error? = @java:Method {
-    'class: "org.ballerinalang.nats.basic.producer.Publish"
+    'class: "org.ballerinalang.nats.basic.client.Publish"
 } external;

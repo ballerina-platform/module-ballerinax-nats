@@ -16,17 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.basic.producer;
+package org.ballerinalang.nats.basic.client;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
+import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Extern function to close logical connection in producer.
@@ -35,13 +34,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CloseConnection {
 
-    public static void closeConnection(Environment environment, BObject producerObject) {
-        NatsTracingUtil.traceResourceInvocation(environment, producerObject);
-        Object connection = producerObject.get(Constants.CONNECTION_OBJ);
-        if (TypeUtils.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BObject connectionObject = (BObject) connection;
-            ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-            ((NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportProducerClose();
+    public static Object closeConnection(Environment environment, BObject clientObject) {
+        NatsTracingUtil.traceResourceInvocation(environment, clientObject);
+        Connection connection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
+        try {
+            connection.close();
+        } catch (InterruptedException e) {
+            return Utils.createNatsError("Error while closing the connection: " + e.getMessage());
         }
+        ((NatsMetricsReporter) clientObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportClientClose();
+        return null;
     }
 }

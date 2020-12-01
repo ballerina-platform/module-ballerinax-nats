@@ -22,13 +22,11 @@ import ballerina/java;
 public class Listener {
 
     *lang:Listener;
-    private Connection conn;
 
     # Creates a new NATS Listener.
     #
     # + connection - An established NATS connection.
-    public isolated function init(Connection connection) {
-        self.conn = connection;
+    public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) {
         consumerInit(self, connection);
     }
 
@@ -96,6 +94,8 @@ isolated function basicImmediateStop(Listener lis) =
     'class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
 } external;
 
+
+//change
 isolated function consumerInit(Listener lis, Connection c) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Init"

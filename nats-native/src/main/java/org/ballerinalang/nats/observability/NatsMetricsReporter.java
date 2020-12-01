@@ -41,35 +41,9 @@ public class NatsMetricsReporter {
     }
 
     /**
-     * Reports a new consumer connection.
-     *
-     * @param url URL of the NATS server that the client is connecting to.
-     */
-    public static void reportNewConnection(String url) {
-        if (!ObserveUtils.isMetricsEnabled()) {
-            return;
-        }
-        incrementGauge(new NatsObserverContext(url), NatsObservabilityConstants.METRIC_CONNECTIONS[0],
-                       NatsObservabilityConstants.METRIC_CONNECTIONS[1]);
-    }
-
-    /**
-     * Reports a disconnection.
-     *
-     * @param url URL of the NATS server that the client is disconnecting from.
-     */
-    public static void reportConnectionClose(String url) {
-        if (!ObserveUtils.isMetricsEnabled()) {
-            return;
-        }
-        decrementGauge(new NatsObserverContext(url), NatsObservabilityConstants.METRIC_CONNECTIONS[0],
-                       NatsObservabilityConstants.METRIC_CONNECTIONS[1]);
-    }
-
-    /**
      * Reports a new producer connection.
      */
-    public void reportNewProducer() {
+    public void reportNewClient() {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -83,7 +57,7 @@ public class NatsMetricsReporter {
     /**
      * Reports a producer disconnection.
      */
-    public void reportProducerClose() {
+    public void reportClientClose() {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }

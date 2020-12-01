@@ -44,6 +44,7 @@ import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
  * @since 0.995
  */
 public class Register {
+    //            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
 
     private static final PrintStream console;
 

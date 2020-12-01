@@ -35,7 +35,7 @@ public class Init {
                                              BString clusterId, Object clientIdNillable, Object streamingConfig) {
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        natsMetricsReporter.reportNewProducer();
+        natsMetricsReporter.reportNewClient();
         NatsStreamingConnection.createConnection(streamingClientObject, connectionObject, clusterId.getValue(),
                                                  clientIdNillable, streamingConfig);
     }

@@ -137,8 +137,4 @@ public class Utils {
         }
         return annotationRecord;
     }
-
-    public static String getCommaSeparatedUrl(BObject connectionObject) {
-        return String.join(", ", connectionObject.getArrayValue(Constants.URL).getStringArray());
-    }
 }

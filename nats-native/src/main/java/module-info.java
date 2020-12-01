@@ -23,7 +23,7 @@ module io.ballerina.stdlib.nats {
     requires org.slf4j;
     requires io.ballerina.lang;
     exports org.ballerinalang.nats.basic.consumer;
-    exports org.ballerinalang.nats.basic.producer;
+    exports org.ballerinalang.nats.basic.client;
     exports org.ballerinalang.nats.connection;
     exports org.ballerinalang.nats.observability;
     exports org.ballerinalang.nats.streaming;
