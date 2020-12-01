@@ -59,7 +59,7 @@ public class Init {
     private static final BString NO_ECHO = StringUtils.fromString("noEcho");
     private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
 
-    public static void externInit(BObject clientObj, Object urlString, BMap connectionConfig) {
+    public static void clientInit(BObject clientObj, Object urlString, Object connectionConfig) {
 
         Options.Builder opts = new Options.Builder();
         try {
@@ -71,45 +71,48 @@ public class Init {
                 opts.servers(serverUrls);
             }
 
-            // Add connection name.
-            opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME).getValue());
+            if (TypeUtils.getType(connectionConfig).getTag() == TypeTags.RECORD_TYPE_TAG) {
 
-            // Add max reconnect.
-            opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
+                // Add connection name.
+                opts.connectionName(((BMap) connectionConfig).getStringValue(CONNECTION_NAME).getValue());
 
-            // Add reconnect wait.
-            opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
+                // Add max reconnect.
+                opts.maxReconnects(Math.toIntExact(((BMap) connectionConfig).getIntValue(MAX_RECONNECT)));
 
-            // Add connection timeout.
-            opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
+                // Add reconnect wait.
+                opts.reconnectWait(Duration.ofSeconds(((BMap) connectionConfig).getIntValue(RECONNECT_WAIT)));
 
-            // Add ping interval.
-            opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
+                // Add connection timeout.
+                opts.connectionTimeout(Duration.ofSeconds(((BMap) connectionConfig).getIntValue(CONNECTION_TIMEOUT)));
 
-            // Add max ping out.
-            opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
+                // Add ping interval.
+                opts.pingInterval(Duration.ofMinutes(((BMap) connectionConfig).getIntValue(PING_INTERVAL)));
 
-            // Add inbox prefix.
-            opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX).getValue());
+                // Add max ping out.
+                opts.maxPingsOut(Math.toIntExact(((BMap) connectionConfig).getIntValue(MAX_PINGS_OUT)));
 
-            // Add NATS connection listener.
-            opts.connectionListener(new DefaultConnectionListener());
+                // Add inbox prefix.
+                opts.inboxPrefix(((BMap) connectionConfig).getStringValue(INBOX_PREFIX).getValue());
 
-            // Add NATS error listener.
-            if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
-                ErrorListener errorListener = new DefaultErrorListener();
-                opts.errorListener(errorListener);
-            }
+                // Add NATS connection listener.
+                opts.connectionListener(new DefaultConnectionListener());
 
-            // Add noEcho.
-            if (connectionConfig.getBooleanValue(NO_ECHO)) {
-                opts.noEcho();
-            }
+                // Add NATS error listener.
+                if (((BMap) connectionConfig).getBooleanValue(ENABLE_ERROR_LISTENER)) {
+                    ErrorListener errorListener = new DefaultErrorListener();
+                    opts.errorListener(errorListener);
+                }
 
-            BMap secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
-            if (secureSocket != null) {
-                SSLContext sslContext = ConnectionUtils.getSSLContext(secureSocket);
-                opts.sslContext(sslContext);
+                // Add noEcho.
+                if (((BMap) connectionConfig).getBooleanValue(NO_ECHO)) {
+                    opts.noEcho();
+                }
+
+                BMap secureSocket = ((BMap) connectionConfig).getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
+                if (secureSocket != null) {
+                    SSLContext sslContext = ConnectionUtils.getSSLContext(secureSocket);
+                    opts.sslContext(sslContext);
+                }
             }
 
             Connection natsConnection = Nats.connect(opts.build());

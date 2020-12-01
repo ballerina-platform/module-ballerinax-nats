@@ -26,7 +26,9 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.nats.client.Message;
@@ -74,17 +76,18 @@ public class DefaultMessageHandler implements MessageHandler {
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         BArray msgData = ValueCreator.createArrayValue(message.getData());
-        BObject msgObj = ValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
-                                                        Constants.NATS_MESSAGE_OBJ_NAME,
-                                                        StringUtils.fromString(message.getSubject()),
-                                                        msgData, StringUtils.fromString(message.getReplyTo()));
+        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Constants.NATS_PACKAGE_ID,
+                                                                      Constants.NATS_MESSAGE_OBJ_NAME);
+        BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
+                                                                         StringUtils.fromString(message.getSubject()),
+                                                                         StringUtils.fromString(message.getReplyTo()));
         AttachedFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
         Type[] parameterTypes = onMessage.getParameterTypes();
         if (parameterTypes.length == 1) {
-            dispatch(msgObj);
+            dispatch(populatedRecord);
         } else {
             Type intendedTypeForData = parameterTypes[1];
-            dispatchWithDataBinding(msgObj, intendedTypeForData, message.getData());
+            dispatchWithDataBinding(populatedRecord, intendedTypeForData, message.getData());
         }
     }
 
@@ -93,7 +96,7 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatch(BObject msgObj) {
+    private void dispatch(BMap<BString, Object>  msgObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         executeResource(msgObj, countDownLatch);
         try {
@@ -113,7 +116,7 @@ public class DefaultMessageHandler implements MessageHandler {
      * @param intendedType Message type for data binding
      * @param data         Message data
      */
-    private void dispatchWithDataBinding(BObject msgObj, Type intendedType, byte[] data) {
+    private void dispatchWithDataBinding(BMap<BString, Object>  msgObj, Type intendedType, byte[] data) {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -133,7 +136,7 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeResource(BObject msgObj, CountDownLatch countDownLatch) {
+    private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
@@ -151,7 +154,7 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeResource(BObject msgObj, CountDownLatch countDownLatch, Object typeBoundData) {
+    private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch, Object typeBoundData) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();

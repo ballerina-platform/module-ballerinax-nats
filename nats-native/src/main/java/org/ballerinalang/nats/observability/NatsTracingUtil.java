@@ -19,14 +19,11 @@
 package org.ballerinalang.nats.observability;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.Utils;
 
 /**
  * Providing metrics functionality to NATS.

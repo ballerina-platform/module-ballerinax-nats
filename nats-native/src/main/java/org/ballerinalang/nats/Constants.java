@@ -120,7 +120,7 @@ public class Constants {
     public static final String PRODUCER_ERROR = "Error while publishing message to subject ";
 
     // Service annotation fields.
-    public static final String SUBSCRIPTION_CONFIG = "SubscriptionConfig";
+    public static final String SUBSCRIPTION_CONFIG = "ServiceConfig";
     public static final BString QUEUE_NAME = StringUtils.fromString("queueName");
     public static final BString SUBJECT = StringUtils.fromString("subject");
     public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");

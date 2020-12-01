@@ -14,20 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
 import ballerina/java;
 
 # The client provides the capability to publish messages to the NATS server.
-# The `nats:Client` needs the  to be initialized.
+# The `nats:Client` needs the nats url to be initialized.
 public client class Client {
-
-    private Connection? conn = ();
 
     # Creates a new `nats:Client`.
     #
-    # + connection - An established NATS connection
+    # + url - The NATS Broker URL. For a clustered use case, pass the URLs as a string array
+    # + config - Configurations associated with the NATS client to establish a connection with the server
     public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) {
-        externInit(self, url, config);
+        clientInit(self, url, config);
     }
 
     # Publishes data to a given subject.
@@ -41,12 +39,7 @@ public client class Client {
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
     public isolated remote function publish(string subject, byte[] data, (string | service)? replyTo = ())
                     returns Error? {
-        string | byte[] | error converted = convertData(data);
-        if (converted is error) {
-            return prepareError("Error in data conversion", err = converted);
-        } else {
-            return externPublish(self, subject, converted, replyTo);
-        }
+        return externPublish(self, subject, data, replyTo);
     }
 
     # Publishes data to a given subject and waits for a response.
@@ -60,23 +53,23 @@ public client class Client {
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
     public isolated remote function request(string subject, byte[] data, int? duration = ())
     returns Message|Error {
-        return externRequest(self, subject, converted, duration);
+        return externRequest(self, subject, data, duration);
     }
 
     # Closes the nats client connection.
     #
     # + return - `()` or else a `nats:Error` if unable to complete the close the operation
     public isolated function close() returns Error? {
-        closeConnection(self);
+        return closeConnection(self);
     }
 }
 
-isolated function externInit(Client clientObj, string|string[] url, ConnectionConfig? config) =
+isolated function clientInit(Client clientObj, string|string[] url, ConnectionConfig? config) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Init"
 } external;
 
-isolated function closeConnection(Client clientObj) =
+isolated function closeConnection(Client clientObj) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.client.CloseConnection"
 } external;
@@ -86,7 +79,7 @@ returns Message | Error = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Request"
 } external;
 
-isolated function externPublish(Client clientObj, string subject, string | byte[] data,
+isolated function externPublish(Client clientObj, string subject, byte[] data,
 (string | service) ? replyTo = ()) returns Error? = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Publish"
 } external;

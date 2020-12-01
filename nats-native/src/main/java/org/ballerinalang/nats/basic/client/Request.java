@@ -48,7 +48,7 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 public class Request {
 
     @SuppressWarnings("unused")
-    public static Object externRequest(Environment environment, BObject clientObj, BString subject, Object data,
+    public static Object externRequest(Environment environment, BObject clientObj, BString subject, BArray data,
                                        Object duration) {
         NatsTracingUtil.traceResourceInvocation(environment, clientObj, subject.getValue());
         Connection natsConnection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);

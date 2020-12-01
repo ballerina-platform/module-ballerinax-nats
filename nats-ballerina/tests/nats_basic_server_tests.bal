@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/test;
 
-Connection? basicConnection = ();
+Client? clientObj = ();
 const SUBJECT_NAME = "nats-basic";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
 string receivedConsumerMessage = "";
@@ -26,8 +27,8 @@ string receivedConsumerMessage = "";
 @test:BeforeSuite
 function setup() {
     log:printInfo("Creating a ballerina NATS connection.");
-    Connection newConnection = new(["nats://localhost:4222"]);
-    basicConnection = newConnection;
+    Client newClient = new;
+    clientObj = newClient;
 }
 
 @test:Config {
@@ -35,8 +36,8 @@ function setup() {
 }
 public function testConnection() {
     boolean flag = false;
-    Connection? con = basicConnection;
-    if (con is Connection) {
+    Client? newClient = clientObj;
+    if (newClient is Client) {
         flag = true;
     }
     test:assertTrue(flag, msg = "NATS Connection creation failed.");
@@ -47,10 +48,10 @@ public function testConnection() {
     groups: ["nats-basic"]
 }
 public function testProducer() {
-    Connection? con = basicConnection;
-    if (con is Connection) {
-        Producer producer = new(con);
-        Error? result = producer->publish(SUBJECT_NAME, "Hello World");
+    Client? newClient = clientObj;
+    string message = "Hello World";
+    if (newClient is Client) {
+        Error? result = newClient->publish(SUBJECT_NAME, message.toBytes());
         test:assertEquals(result, (), msg = "Producing a message to the broker caused an error.");
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -63,13 +64,12 @@ public function testProducer() {
 }
 public function testConsumerService() {
     string message = "Testing Consumer Service";
-    Connection? con = basicConnection;
-    if (con is Connection) {
-        Listener sub = new(con);
-        Producer producer = new(con);
+    Client? newClient = clientObj;
+    if (newClient is Client) {
+        Listener sub = new;
         checkpanic sub.__attach(consumerService);
         checkpanic sub.__start();
-        checkpanic producer->publish(SERVICE_SUBJECT_NAME, message);
+        checkpanic newClient->publish(SERVICE_SUBJECT_NAME, message.toBytes());
         runtime:sleep(5000);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
     } else {
@@ -78,13 +78,18 @@ public function testConsumerService() {
 }
 
 service consumerService =
-@SubscriptionConfig {
+@ServiceConfig {
     subject: SERVICE_SUBJECT_NAME
 }
 service {
-    resource function onMessage(Message msg, string data) {
-        receivedConsumerMessage = <@untainted> data;
-        log:printInfo("Message Received: " + receivedConsumerMessage);
+    resource function onMessage(Message msg) {
+        byte[] messageContent = <@untainted> msg.content;
+
+        string|error message = strings:fromBytes(messageContent);
+        if (message is string) {
+            receivedConsumerMessage = message;
+            log:printInfo("Message Received: " + message);
+        }
     }
 
     resource function onError(Message msg, Error err) {

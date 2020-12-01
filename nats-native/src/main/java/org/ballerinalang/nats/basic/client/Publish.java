@@ -34,7 +34,6 @@ import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
-import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 
 /**
  * Extern function to publish message to a given subject.

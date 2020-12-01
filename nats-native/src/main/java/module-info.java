@@ -26,8 +26,4 @@ module io.ballerina.stdlib.nats {
     exports org.ballerinalang.nats.basic.client;
     exports org.ballerinalang.nats.connection;
     exports org.ballerinalang.nats.observability;
-    exports org.ballerinalang.nats.streaming;
-    exports org.ballerinalang.nats.streaming.consumer;
-    exports org.ballerinalang.nats.streaming.producer;
-    exports org.ballerinalang.nats.streaming.message;
 }
