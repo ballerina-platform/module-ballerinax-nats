@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -45,7 +44,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
-import static org.ballerinalang.nats.Utils.bindDataToIntendedType;
 import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
 /**
@@ -108,33 +106,6 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    /**
-     * Dispatch message and type bound data to the onMessage resource.
-     *
-     * @param msgObj       Message object
-     * @param intendedType Message type for data binding
-     * @param data         Message data
-     */
-    private void dispatchWithDataBinding(BMap<BString, Object>  msgObj, Type intendedType, byte[] data) {
-        try {
-            Object typeBoundData = bindDataToIntendedType(data, intendedType);
-            CountDownLatch countDownLatch = new CountDownLatch(1);
-            executeResource(msgObj, countDownLatch, typeBoundData);
-            countDownLatch.await();
-        } catch (NumberFormatException e) {
-            BError dataBindError = Utils
-                    .createNatsError("The received message is unsupported by the resource signature");
-            ErrorHandler.dispatchError(serviceObject, msgObj, dataBindError, runtime, natsMetricsReporter);
-        } catch (BError e) {
-            ErrorHandler.dispatchError(serviceObject, msgObj, e, runtime, natsMetricsReporter);
-        } catch (InterruptedException e) {
-            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
-                                                    NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
-            Thread.currentThread().interrupt();
-            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
-        }
-    }
-
     private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
@@ -150,25 +121,6 @@ public class DefaultMessageHandler implements MessageHandler {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
                                       null, msgObj, Boolean.TRUE);
-        }
-    }
-
-    private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch, Object typeBoundData) {
-        String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
-        if (ObserveUtils.isTracingEnabled()) {
-            Map<String, Object> properties = new HashMap<>();
-            NatsObserverContext observerContext = new NatsObserverContext(
-                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
-                    msgObj.getStringValue(Constants.SUBJECT).getValue());
-            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
-                                      null, ON_MESSAGE_METADATA,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
-                                      msgObj, true, typeBoundData, true);
-        } else {
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), null,
-                                      msgObj, true, typeBoundData, true);
         }
     }
 

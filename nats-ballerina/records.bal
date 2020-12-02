@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/crypto;
-
 # Configurations related to creating a NATS streaming subscription.
 #
 # + connectionName - Name of the connection (this is optional)
@@ -35,7 +33,6 @@ import ballerina/crypto;
 # + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
 #            has subscriptions on the subject being published to
 # + enableErrorListener - Enables the connection to the error listener
-# + secureSocket - Configurations related to SSL/TLS
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
   int maxReconnect = 60;
