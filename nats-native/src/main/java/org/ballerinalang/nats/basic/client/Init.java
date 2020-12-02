@@ -31,7 +31,6 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.connection.ConnectionUtils;
 import org.ballerinalang.nats.connection.DefaultConnectionListener;
 import org.ballerinalang.nats.connection.DefaultErrorListener;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -39,8 +38,6 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.IOException;
 import java.time.Duration;
-
-import javax.net.ssl.SSLContext;
 
 /**
  * Initialize NATS producer using the connection.

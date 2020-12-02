@@ -32,7 +32,6 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.connection.ConnectionUtils;
 import org.ballerinalang.nats.connection.DefaultConnectionListener;
 import org.ballerinalang.nats.connection.DefaultErrorListener;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -44,8 +43,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.net.ssl.SSLContext;
 
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 
