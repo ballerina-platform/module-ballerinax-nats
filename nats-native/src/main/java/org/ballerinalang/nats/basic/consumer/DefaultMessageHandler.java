@@ -86,8 +86,7 @@ public class DefaultMessageHandler implements MessageHandler {
         if (parameterTypes.length == 1) {
             dispatch(populatedRecord);
         } else {
-            Type intendedTypeForData = parameterTypes[1];
-            dispatchWithDataBinding(populatedRecord, intendedTypeForData, message.getData());
+            throw Utils.createNatsError("Invalid remote function signature");
         }
     }
 
