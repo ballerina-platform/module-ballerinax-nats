@@ -21,8 +21,10 @@ package org.ballerinalang.nats.basic.client;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
@@ -71,12 +73,13 @@ public class Request {
                 reply = incoming.get();
             }
             BArray msgData = ValueCreator.createArrayValue(reply.getData());
+            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Constants.NATS_PACKAGE_ID,
+                                                                             Constants.NATS_MESSAGE_OBJ_NAME);
+            BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
+                                                                   StringUtils.fromString(reply.getSubject()),
+                                                                   StringUtils.fromString(reply.getReplyTo()));
             natsMetricsReporter.reportResponse(subject.getValue());
-            BObject msgObj = ValueCreator.createObjectValue(Constants.NATS_PACKAGE_ID,
-                                                            Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(),
-                                                            msgData, reply.getReplyTo());
-            msgObj.addNativeData(Constants.NATS_MSG, reply);
-            return msgObj;
+            return populatedRecord;
         } catch (TimeoutException ex) {
             natsMetricsReporter.reportProducerError(subject.getValue(),
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
