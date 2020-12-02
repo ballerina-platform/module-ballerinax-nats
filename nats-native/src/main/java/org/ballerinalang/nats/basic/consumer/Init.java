@@ -113,12 +113,6 @@ public class Init {
                     opts.noEcho();
                 }
 
-                BMap secureSocket = ((BMap) connectionConfig).getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
-                if (secureSocket != null) {
-                    SSLContext sslContext = ConnectionUtils.getSSLContext(secureSocket);
-                    opts.sslContext(sslContext);
-                }
-
             }
             Connection natsConnection = Nats.connect(opts.build());
             listenerObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));

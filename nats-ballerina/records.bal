@@ -49,18 +49,6 @@ public type ConnectionConfig record {|
   string inboxPrefix = "_INBOX.";
   boolean noEcho = false;
   boolean enableErrorListener = false;
-  SecureSocket? secureSocket = ();
-|};
-
-# Configurations related to facilitating a secure communication with a remote HTTP endpoint.
-#
-# + trustStore - Configurations associated with the TrustStore
-# + keyStore - Configurations associated with the KeyStore
-# + protocol - The standard name of the requested protocol
-public type SecureSocket record {|
-    crypto:TrustStore? trustStore = ();
-    crypto:KeyStore? keyStore = ();
-    string protocol = "TLS";
 |};
 
 # Represents the message, which a NATS server sends to its subscribed services.
