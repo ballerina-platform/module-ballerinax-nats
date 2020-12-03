@@ -53,7 +53,7 @@ public class Constants {
 
     public static final String NATS = "nats";
     public static final String ORG_NAME = "ballerinax";
-    public static final String VERSION = "1.0.5";
+    public static final String VERSION = "1.0.6";
 
     // Represents nats package.
     public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS + ":" + VERSION;
