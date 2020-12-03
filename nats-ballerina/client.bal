@@ -35,28 +35,28 @@ public client class Client {
     #
     # + subject - The subject to send the message
     # + data - Data to publish
-    # + replyTo - The subject or the callback service to which the receiver should send the response
+    # + replyTo - The subject to which the receiver should send the response
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
-    public isolated remote function publish(string subject, byte[] data, (string | service)? replyTo = ())
-                    returns Error? {
+    isolated remote function publish(string subject, byte[] data, string? replyTo = ())
+            returns Error? {
         return externPublish(self, subject, data, replyTo);
     }
 
     # Publishes data to a given subject and waits for a response.
     # ```ballerina
-    # nats:Message|nats:Error reqReply = natsClient->request(subject, <@untainted>message, 5000);
+    # nats:Message|nats:Error reqReply = natsClient->request(subject, <@untainted>message);
     # ```
     #
     # + subject - The subject to send the message
     # + data - Data to publish
     # + duration - The time (in milliseconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    public isolated remote function request(string subject, byte[] data, int? duration = ())
-    returns Message|Error {
+    isolated remote function request(string subject, byte[] data, int? duration = ())
+            returns Message|Error {
         return externRequest(self, subject, data, duration);
     }
 
-    # Closes the nats client connection.
+    # Closes the NATS client connection.
     #
     # + return - `()` or else a `nats:Error` if unable to complete the close the operation
     public isolated function close() returns Error? {
@@ -80,6 +80,6 @@ returns Message | Error = @java:Method {
 } external;
 
 isolated function externPublish(Client clientObj, string subject, byte[] data,
-(string | service) ? replyTo = ()) returns Error? = @java:Method {
+string? replyTo = ()) returns Error? = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Publish"
 } external;

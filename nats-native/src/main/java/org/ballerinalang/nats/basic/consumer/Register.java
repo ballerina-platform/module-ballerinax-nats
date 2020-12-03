@@ -18,9 +18,12 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -44,11 +47,10 @@ import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
  * @since 0.995
  */
 public class Register {
-    //            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
-
     private static final PrintStream console;
 
-    public static Object basicRegister(BObject listenerObject, BObject service, Object annotationData) {
+    public static Object basicRegister(Environment env, BObject listenerObject, BObject service,
+                                       Object annotationData) {
         String errorMessage = "Error while registering the subscriber. ";
         Connection natsConnection =
                 (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
@@ -59,16 +61,10 @@ public class Register {
                 Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
                                                     .getAnnotation(StringUtils.fromString(Constants.NATS_PACKAGE
                                                                    + ":" + Constants.SUBSCRIPTION_CONFIG)));
-        if (subscriptionConfig == null) {
-            NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
-            return Utils.createNatsError(errorMessage + " Cannot find subscription configuration.");
-        }
         String queueName = null;
-        if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
-            queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
-        }
-        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
-        Runtime runtime = Runtime.getCurrentRuntime();
+        String subject;
+
+        Runtime runtime = env.getRuntime();
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(
@@ -79,14 +75,29 @@ public class Register {
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(Constants.DISPATCHER_LIST);
         dispatcherList.put(service.getType().getName(), dispatcher);
-        if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
-            setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
+        if (subscriptionConfig != null) {
+            if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
+                queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
+            }
+            subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
+            if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
+                setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
+            }
+        } else if (TypeUtils.getType(annotationData).getTag() == TypeTags.STRING_TAG) {
+            subject = ((BString) annotationData).getValue();
+        } else {
+            throw Utils.createNatsError("Cannot find the subject name");
         }
+
         try {
-            if (queueName != null) {
-                dispatcher.subscribe(subject, queueName);
+            if (subject != null) {
+                if (queueName != null) {
+                    dispatcher.subscribe(subject, queueName);
+                } else {
+                    dispatcher.subscribe(subject);
+                }
             } else {
-                dispatcher.subscribe(subject);
+                throw Utils.createNatsError("Cannot find the subject name");
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);

@@ -90,7 +90,7 @@ public class ErrorHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifySuccess() {
+        public void notifySuccess(Object obj) {
             countDownLatch.countDown();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
         }
