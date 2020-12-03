@@ -86,7 +86,7 @@ public class Register {
         } else if (TypeUtils.getType(annotationData).getTag() == TypeTags.STRING_TAG) {
             subject = ((BString) annotationData).getValue();
         } else {
-            throw Utils.createNatsError("Cannot find the subject name");
+            throw Utils.createNatsError("Subject name cannot be found");
         }
 
         try {

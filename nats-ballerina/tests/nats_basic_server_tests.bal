@@ -70,7 +70,7 @@ public function testConsumerService() {
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publish(SERVICE_SUBJECT_NAME, message.toBytes());
-        runtime:sleep(5000);
+        runtime:sleep(6000);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
     } else {
         test:assertFail("NATS Connection creation failed.");
