@@ -26,8 +26,7 @@ plugins {
 ext.ballerinaLangVersion = project.ballerinaLangVersion
 ext.puppycrawlCheckstyleVersion = project.puppycrawlCheckstyleVersion
 ext.slf4jVersion = "1.7.30"
-ext.natsVersion = "2.6.0"
-ext.natsStreamingVersion = "2.2.3"
+ext.natsVersion = "2.8.0"
 ext.protobufVersion = "3.9.1"
 ext.stdlibCryptoVersion = project.stdlibCryptoVersion
 ext.stdlibLogVersion = project.stdlibLogVersion

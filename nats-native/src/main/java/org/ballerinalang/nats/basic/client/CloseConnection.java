@@ -16,24 +16,33 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.streaming.producer;
+package org.ballerinalang.nats.basic.client;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
+import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.connection.NatsStreamingConnection;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
+import org.ballerinalang.nats.observability.NatsTracingUtil;
+
 
 /**
- * Close NATS producer using the connection.
+ * Extern function to close logical connection in producer.
  *
- * @since 1.1.0
+ * @since 0.995
  */
-public class Close {
+public class CloseConnection {
 
-    public static Object streamingProducerClose(Environment environment, BObject streamingClientObject,
-                                                BObject natsConnection) {
-        ((NatsMetricsReporter) natsConnection.getNativeData(Constants.NATS_METRIC_UTIL)).reportProducerClose();
-        return NatsStreamingConnection.closeConnection(environment, streamingClientObject, natsConnection);
+    public static Object closeConnection(Environment environment, BObject clientObject) {
+        NatsTracingUtil.traceResourceInvocation(environment, clientObject);
+        Connection connection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
+        try {
+            connection.close();
+        } catch (InterruptedException e) {
+            return Utils.createNatsError("Error while closing the connection: " + e.getMessage());
+        }
+        ((NatsMetricsReporter) clientObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportClientClose();
+        return null;
     }
 }

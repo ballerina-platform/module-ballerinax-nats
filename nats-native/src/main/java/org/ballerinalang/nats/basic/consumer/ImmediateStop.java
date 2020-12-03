@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
@@ -50,16 +49,10 @@ public class ImmediateStop {
 
     public static void basicImmediateStop(Environment environment, BObject listenerObject) {
         NatsTracingUtil.traceResourceInvocation(environment, listenerObject);
-        BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
-        if (connectionObject == null) {
-            NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            LOG.debug("Connection object reference does not exist. Possibly the connection is already closed.");
-            return;
-        }
         Connection natsConnection =
-                (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
+                (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
-                (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
+                (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         if (natsConnection == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
@@ -80,19 +73,14 @@ public class ImmediateStop {
                         .getNativeData(BASIC_SUBSCRIPTION_LIST);
         natsMetricsReporter.reportBulkUnsubscription(subscriptionsList);
 
-        int clientsCount =
-                ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-
-        if (clientsCount == 0) {
-            // Actual NATS connection is not used in any other clients. So we can close the actual connection.
-            try {
-                natsConnection.close();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
-                                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-                throw Utils.createNatsError("Listener interrupted while closing NATS connection");
-            }
+        // Actual NATS connection is not used in any other clients. So we can close the actual connection.
+        try {
+            natsConnection.close();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
+                                                    NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            throw Utils.createNatsError("Listener interrupted while closing NATS connection");
         }
     }
 }

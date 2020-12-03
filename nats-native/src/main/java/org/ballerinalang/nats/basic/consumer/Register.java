@@ -44,18 +44,17 @@ import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
  * @since 0.995
  */
 public class Register {
+    //            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
 
     private static final PrintStream console;
 
     public static Object basicRegister(BObject listenerObject, BObject service, Object annotationData) {
         String errorMessage = "Error while registering the subscriber. ";
         Connection natsConnection =
-                (Connection) ((BObject) listenerObject.get(Constants.CONNECTION_OBJ))
-                        .getNativeData(Constants.NATS_CONNECTION);
+                (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         @SuppressWarnings("unchecked")
         List<BObject> serviceList =
-                (List<BObject>) ((BObject) listenerObject.get(Constants.CONNECTION_OBJ))
-                        .getNativeData(Constants.SERVICE_LIST);
+                (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
                                                     .getAnnotation(StringUtils.fromString(Constants.NATS_PACKAGE
@@ -70,9 +69,8 @@ public class Register {
         }
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         Runtime runtime = Runtime.getCurrentRuntime();
-        BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         NatsMetricsReporter natsMetricsReporter =
-                (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
+                (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(
                 service, runtime, natsConnection.getConnectedUrl(), natsMetricsReporter));
 

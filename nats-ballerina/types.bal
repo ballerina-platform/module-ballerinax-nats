@@ -14,15 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Configuration related to establishing a streaming connection.
-#
-# + ackTimeoutInSeconds - Timeout (in seconds) to wait for an acknowledgement for the corresponding subscription
-# + connectionTimeoutInSeconds - Timeout (in seconds) to wait for a connection
-# + maxPubAcksInFlight - The maximum number of publish ACKs that may be in flight at any point of time
-# + discoverPrefix - Subject prefix used for server discovery
-public type StreamingConfig record {|
-    int ackTimeoutInSeconds = 30;
-    int connectionTimeoutInSeconds = 5;
-    int maxPubAcksInFlight = 16384;
-    string discoverPrefix = "_STAN.discover";
-|};
+# Default URL for NATS connections.
+public const string DEFAULT_URL = "nats://localhost:4222";
+
+# The annotation, which is used to configure the basic subscription.
+public annotation SubscriptionConfigData ServiceConfig on service;

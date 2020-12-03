@@ -18,19 +18,9 @@
 
 package org.ballerinalang.nats.connection;
 
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BString;
-import io.nats.client.Connection;
-import io.nats.client.ErrorListener;
-import io.nats.client.Nats;
-import io.nats.client.Options;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsReporter;
-import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,11 +31,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -56,85 +41,7 @@ import javax.net.ssl.TrustManagerFactory;
  *
  * @since 0.995
  */
-public class Init {
-
-    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
-    private static final String SERVER_URL_SEPARATOR = ",";
-    private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
-    private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
-    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
-    private static final BString PING_INTERVAL = StringUtils.fromString("pingIntervalInMinutes");
-    private static final BString MAX_PINGS_OUT = StringUtils.fromString("maxPingsOut");
-    private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
-    private static final BString NO_ECHO = StringUtils.fromString("noEcho");
-    private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
-
-    public static void externInit(BObject connectionObject, BArray urlString, BMap connectionConfig) {
-        Options.Builder opts = new Options.Builder();
-        try {
-            String[] serverUrls = urlString.getStringArray();
-            opts.servers(serverUrls);
-
-            // Add connection name.
-            opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME).getValue());
-
-            // Add max reconnect.
-            opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
-
-            // Add reconnect wait.
-            opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
-
-            // Add connection timeout.
-            opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
-
-            // Add ping interval.
-            opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
-
-            // Add max ping out.
-            opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
-
-            // Add inbox prefix.
-            opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX).getValue());
-
-            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
-
-            // Add NATS connection listener.
-            opts.connectionListener(new DefaultConnectionListener());
-
-            // Add NATS error listener.
-            if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
-                ErrorListener errorListener = new DefaultErrorListener();
-                opts.errorListener(errorListener);
-            }
-
-            // Add noEcho.
-            if (connectionConfig.getBooleanValue(NO_ECHO)) {
-                opts.noEcho();
-            }
-
-            BMap secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
-            if (secureSocket != null) {
-                SSLContext sslContext = getSSLContext(secureSocket);
-                opts.sslContext(sslContext);
-            }
-
-            Connection natsConnection = Nats.connect(opts.build());
-            connectionObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
-            connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
-            connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
-            connectionObject.addNativeData(Constants.SERVICE_LIST, serviceList);
-        } catch (IOException | InterruptedException e) {
-            NatsMetricsReporter.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
-                                            NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
-            String errorMsg = "Error while setting up a connection. " +
-                    (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-            throw Utils.createNatsError(errorMsg);
-        } catch (IllegalArgumentException e) {
-            NatsMetricsReporter.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
-                                            NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
-            throw Utils.createNatsError(e.getMessage());
-        }
-    }
+public class ConnectionUtils {
 
     /**
      * Creates and retrieves the SSLContext from socket configuration.
@@ -142,7 +49,7 @@ public class Init {
      * @param secureSocket secureSocket record.
      * @return Initialized SSLContext.
      */
-    private static SSLContext getSSLContext(BMap secureSocket) {
+    public static SSLContext getSSLContext(BMap secureSocket) {
         try {
             BMap cryptoKeyStore = secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
             KeyManagerFactory keyManagerFactory = null;

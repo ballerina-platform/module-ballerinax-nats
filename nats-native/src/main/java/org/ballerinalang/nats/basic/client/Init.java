@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.basic.consumer;
+package org.ballerinalang.nats.basic.client;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
-import io.nats.client.Dispatcher;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
@@ -39,19 +38,14 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 
 /**
- * Initialize NATS subscriber using the connection.
+ * Initialize NATS producer using the connection.
  *
  * @since 0.995
  */
 public class Init {
+
     private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
     private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
     private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
@@ -62,7 +56,7 @@ public class Init {
     private static final BString NO_ECHO = StringUtils.fromString("noEcho");
     private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
 
-    public static void consumerInit(BObject listenerObject, Object urlString, Object connectionConfig) {
+    public static void clientInit(BObject clientObj, Object urlString, Object connectionConfig) {
 
         Options.Builder opts = new Options.Builder();
         try {
@@ -75,6 +69,7 @@ public class Init {
             }
 
             if (TypeUtils.getType(connectionConfig).getTag() == TypeTags.RECORD_TYPE_TAG) {
+
                 // Add connection name.
                 opts.connectionName(((BMap) connectionConfig).getStringValue(CONNECTION_NAME).getValue());
 
@@ -111,19 +106,11 @@ public class Init {
                 }
 
             }
+
             Connection natsConnection = Nats.connect(opts.build());
-            listenerObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
-            listenerObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
-            ((NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportNewClient();
-
-            // Initialize dispatcher list to use in service register and listener close.
-            ConcurrentHashMap<String, Dispatcher> dispatcherList = new ConcurrentHashMap<>();
-            listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
-            ArrayList<String> subscriptionsList = new ArrayList<>();
-            listenerObject.addNativeData(Constants.BASIC_SUBSCRIPTION_LIST, subscriptionsList);
-            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
-
-            listenerObject.addNativeData(Constants.SERVICE_LIST, serviceList);
+            clientObj.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
+            clientObj.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+            ((NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL)).reportNewClient();
         } catch (IOException | InterruptedException e) {
             NatsMetricsReporter.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
                                             NatsObservabilityConstants.ERROR_TYPE_CONNECTION);

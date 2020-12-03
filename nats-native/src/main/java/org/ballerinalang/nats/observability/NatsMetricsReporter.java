@@ -69,7 +69,7 @@ public class NatsMetricsReporter {
     /**
      * Reports a new producer connection.
      */
-    public void reportNewProducer() {
+    public void reportNewClient() {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
@@ -83,7 +83,7 @@ public class NatsMetricsReporter {
     /**
      * Reports a producer disconnection.
      */
-    public void reportProducerClose() {
+    public void reportClientClose() {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
