@@ -67,7 +67,7 @@ public function testConsumerService() {
     Client? newClient = clientObj;
     if (newClient is Client) {
         Listener sub = new;
-        checkpanic sub.attach(consumerService, SERVICE_SUBJECT_NAME);
+        checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publish(SERVICE_SUBJECT_NAME, message.toBytes());
         runtime:sleep(5000);
@@ -78,6 +78,9 @@ public function testConsumerService() {
 }
 
 NatsService consumerService =
+@ServiceConfig {
+    subject: SERVICE_SUBJECT_NAME
+}
 service object {
     remote function onMessage(Message msg) {
         byte[] messageContent = <@untainted> msg.content;

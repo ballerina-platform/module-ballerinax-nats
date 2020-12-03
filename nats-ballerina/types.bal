@@ -23,4 +23,4 @@ public type NatsService service object {
 };
 
 # The annotation, which is used to configure the basic subscription.
-public annotation SubscriptionConfigData ServiceConfig on service;
+public annotation SubscriptionConfigData ServiceConfig on service, class;
