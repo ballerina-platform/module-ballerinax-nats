@@ -21,7 +21,7 @@ package org.ballerinalang.nats.basic.consumer;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -79,7 +79,7 @@ public class DefaultMessageHandler implements MessageHandler {
         BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                          StringUtils.fromString(message.getSubject()),
                                                                          StringUtils.fromString(message.getReplyTo()));
-        AttachedFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
+        MemberFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
         Type[] parameterTypes = onMessage.getParameterTypes();
         if (parameterTypes.length == 1) {
             dispatch(populatedRecord);
@@ -116,11 +116,10 @@ public class DefaultMessageHandler implements MessageHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
-                                      msgObj, Boolean.TRUE);
+                                      msgObj, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      null, msgObj, Boolean.TRUE);
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
         }
     }
 
@@ -142,7 +141,7 @@ public class DefaultMessageHandler implements MessageHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifySuccess() {
+        public void notifySuccess(Object obj) {
             natsMetricsReporter.reportDelivery(subject);
             countDownLatch.countDown();
         }

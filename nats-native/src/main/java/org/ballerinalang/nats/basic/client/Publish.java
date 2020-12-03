@@ -20,11 +20,8 @@ package org.ballerinalang.nats.basic.client;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.AnnotatableType;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
@@ -58,18 +55,6 @@ public class Publish {
         try {
             if (TypeUtils.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
                 natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
-            } else if (TypeUtils.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
-                BMap<BString, Object> subscriptionConfig =
-                        getSubscriptionConfig(((AnnotatableType) ((BObject) replyTo).getType()).getAnnotation(
-                                StringUtils.fromString(Constants.NATS_PACKAGE +
-                                                               ":" + Constants.SUBSCRIPTION_CONFIG)));
-                if (subscriptionConfig == null) {
-                    natsMetricsReporter.reportProducerError(subject.getValue(),
-                                                            NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-                    return Utils.createNatsError("Cannot find subscription configuration");
-                }
-                String replyToSubject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
-                natsConnection.publish(subject.getValue(), replyToSubject, byteContent);
             } else {
                 natsConnection.publish(subject.getValue(), byteContent);
             }
@@ -81,14 +66,5 @@ public class Publish {
                                                  subject.getValue() + ". " + ex.getMessage());
         }
         return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static BMap<BString, Object> getSubscriptionConfig(Object annotationData) {
-        BMap annotationRecord = null;
-        if (TypeUtils.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
-            annotationRecord = (BMap) annotationData;
-        }
-        return annotationRecord;
     }
 }

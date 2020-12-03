@@ -67,8 +67,8 @@ public function testConsumerService() {
     Client? newClient = clientObj;
     if (newClient is Client) {
         Listener sub = new;
-        checkpanic sub.__attach(consumerService);
-        checkpanic sub.__start();
+        checkpanic sub.attach(consumerService, SERVICE_SUBJECT_NAME);
+        checkpanic sub.'start();
         checkpanic newClient->publish(SERVICE_SUBJECT_NAME, message.toBytes());
         runtime:sleep(5000);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
@@ -77,12 +77,9 @@ public function testConsumerService() {
     }
 }
 
-service consumerService =
-@ServiceConfig {
-    subject: SERVICE_SUBJECT_NAME
-}
-service {
-    resource function onMessage(Message msg) {
+NatsService consumerService =
+service object {
+    remote function onMessage(Message msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -90,8 +87,5 @@ service {
             receivedConsumerMessage = message;
             log:printInfo("Message Received: " + message);
         }
-    }
-
-    resource function onError(Message msg, Error err) {
     }
 };
