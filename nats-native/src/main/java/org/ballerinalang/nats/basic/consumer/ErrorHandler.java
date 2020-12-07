@@ -21,7 +21,9 @@ package org.ballerinalang.nats.basic.consumer;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -48,7 +50,7 @@ public class ErrorHandler {
      * @param e               BError
      * @param natsMetricsReporter Nats Metrics Util
      */
-    static void dispatchError(BObject serviceObject, BObject msgObj, BError e, Runtime runtime,
+    static void dispatchError(BObject serviceObject, BMap<BString, Object> msgObj, BError e, Runtime runtime,
                               NatsMetricsReporter natsMetricsReporter) {
         boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
@@ -88,7 +90,7 @@ public class ErrorHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifySuccess() {
+        public void notifySuccess(Object obj) {
             countDownLatch.countDown();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
         }

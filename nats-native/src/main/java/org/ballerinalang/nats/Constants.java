@@ -73,7 +73,7 @@ public class Constants {
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";
 
     // Represents the object which holds the connection.
-    public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
+    //public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
 
     // Represents the connection url
     public static final BString URL = StringUtils.fromString("url");
@@ -120,7 +120,7 @@ public class Constants {
     public static final String PRODUCER_ERROR = "Error while publishing message to subject ";
 
     // Service annotation fields.
-    public static final String SUBSCRIPTION_CONFIG = "SubscriptionConfig";
+    public static final String SUBSCRIPTION_CONFIG = "ServiceConfig";
     public static final BString QUEUE_NAME = StringUtils.fromString("queueName");
     public static final BString SUBJECT = StringUtils.fromString("subject");
     public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");

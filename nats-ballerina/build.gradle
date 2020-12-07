@@ -29,13 +29,7 @@ dependencies {
         transitive = false
     }
     compile project(':nats-native')
-    externalJars (group: 'io.nats', name: 'java-nats-streaming', version: "${natsStreamingVersion}") {
-        transitive = false
-    }
     externalJars (group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
-        transitive = false
-    }
-    externalJars (group: 'com.google.protobuf', name: 'protobuf-java', version: "${protobufVersion}") {
         transitive = false
     }
 }
@@ -106,12 +100,14 @@ task updateTomlVersions {
         def stdlibDependentCryptoVersion = project.stdlibCryptoVersion.split("-")[0]
         def stdlibDependentLogVersion = project.stdlibLogVersion.split("-")[0]
         def stdlibDependentRuntimeVersion = project.stdlibRuntimeVersion.split("-")[0]
+        def natsClientVersion = project.natsVersion
 
         def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
         newConfig = newConfig.replace("@stdlib.log.version@", stdlibDependentLogVersion)
         newConfig = newConfig.replace("@stdlib.crypto.version@", stdlibDependentCryptoVersion)
         newConfig = newConfig.replace("@stdlib.runtime.version@", stdlibDependentRuntimeVersion)
+        newConfig = newConfig.replace("@nats.client.version@", natsClientVersion)
         ballerinaConfigFile.text = newConfig
     }
 }

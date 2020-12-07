@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
@@ -52,11 +51,10 @@ public class GracefulStop {
 
     public static void basicGracefulStop(Environment environment, BObject listenerObject) {
         NatsTracingUtil.traceResourceInvocation(environment, listenerObject);
-        BObject connectionObject = (BObject) listenerObject.get(Constants.CONNECTION_OBJ);
         NatsMetricsReporter natsMetricsReporter =
-                (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
+                (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Connection natsConnection =
-                (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
+                (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
@@ -77,28 +75,24 @@ public class GracefulStop {
                         .getNativeData(BASIC_SUBSCRIPTION_LIST);
         natsMetricsReporter.reportBulkUnsubscription(subscriptionsList);
 
-        int clientsCount =
-                ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-
-        if (clientsCount == 0) {
-            try {
-                // Wait for the drain to succeed, passed 0 to wait forever.
-                natsConnection.drain(Duration.ZERO);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
-                                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-                throw Utils.createNatsError("Listener interrupted on graceful stop.");
-            } catch (TimeoutException e) {
-                natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
-                                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-                throw Utils.createNatsError("Timeout error occurred, on graceful stop.");
-            } catch (IllegalStateException e) {
-                natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
-                                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-                throw Utils.createNatsError("Connection is already closed.");
-            }
+        try {
+            // Wait for the drain to succeed, passed 0 to wait forever.
+            natsConnection.drain(Duration.ZERO);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
+                                                    NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            throw Utils.createNatsError("Listener interrupted on graceful stop.");
+        } catch (TimeoutException e) {
+            natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
+                                                    NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            throw Utils.createNatsError("Timeout error occurred, on graceful stop.");
+        } catch (IllegalStateException e) {
+            natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
+                                                    NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            throw Utils.createNatsError("Connection is already closed.");
         }
+
     }
 
 }

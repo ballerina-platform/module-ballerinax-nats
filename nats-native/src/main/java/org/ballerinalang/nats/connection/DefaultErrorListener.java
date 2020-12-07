@@ -35,7 +35,7 @@ public class DefaultErrorListener implements ErrorListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultErrorListener.class);
 
-    DefaultErrorListener() {
+    public DefaultErrorListener() {
     }
 
     @Override

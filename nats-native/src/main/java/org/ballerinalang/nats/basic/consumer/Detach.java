@@ -41,12 +41,11 @@ public class Detach {
     private static final PrintStream console;
 
     public static Object basicDetach(BObject listener, BObject service) {
-        BObject connectionObject = (BObject) listener.get(Constants.CONNECTION_OBJ);
         @SuppressWarnings("unchecked")
         List<BObject> serviceList =
-                (List<BObject>) connectionObject.getNativeData(Constants.SERVICE_LIST);
+                (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
         NatsMetricsReporter natsMetricsReporter =
-                (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
+                (NatsMetricsReporter) listener.getNativeData(Constants.NATS_METRIC_UTIL);
         BMap<BString, Object> subscriptionConfig = Utils
                 .getSubscriptionConfig(service.getType().getAnnotation(
                         StringUtils.fromString(Constants.NATS_PACKAGE + ":" + Constants.SUBSCRIPTION_CONFIG)));
@@ -67,8 +66,7 @@ public class Detach {
         console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + subject);
         serviceList.remove(service);
         dispatcherList.remove(service.getType().getName());
-        Connection natsConnection = (Connection) ((BObject) listener.get(Constants.CONNECTION_OBJ))
-                .getNativeData(Constants.NATS_CONNECTION);
+        Connection natsConnection = (Connection) listener.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection != null) {
             natsMetricsReporter.reportUnsubscription(subject);
         }

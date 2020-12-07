@@ -37,7 +37,7 @@ public class DefaultConnectionListener implements ConnectionListener {
     private static final PrintStream console;
     private boolean printDisconnected = true;
 
-    DefaultConnectionListener() {
+    public DefaultConnectionListener() {
     }
 
     @Override
@@ -83,6 +83,9 @@ public class DefaultConnectionListener implements ConnectionListener {
                 printToConsole("Server discovered. List of connected servers "
                         + Arrays.toString(conn.getServers().toArray()));
                 break;
+            }
+            default: {
+                printToConsole("Changes in the connection are detected");
             }
         }
     }
