@@ -77,7 +77,7 @@ public function testConsumerService() {
     }
 }
 
-NatsService consumerService =
+Service consumerService =
 @ServiceConfig {
     subject: SERVICE_SUBJECT_NAME
 }

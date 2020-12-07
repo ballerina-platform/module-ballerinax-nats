@@ -18,7 +18,7 @@
 public const string DEFAULT_URL = "nats://localhost:4222";
 
 # The NATS service type
-public type NatsService service object {
+public type Service service object {
     remote function onMessage(Message message);
 };
 

@@ -32,7 +32,7 @@ public class Listener {
     # + s - Type descriptor of the service
     # + name - Name of the service
     # + return - `()` or else a `nats:Error` upon failure to register the listener
-    public isolated function attach(NatsService s, string[]|string? name = ()) returns error? {
+    public isolated function attach(Service s, string[]|string? name = ()) returns error? {
         return basicRegister(self, s, name);
     }
 
@@ -40,7 +40,7 @@ public class Listener {
     #
     # + s - Type descriptor of the service
     # + return - `()` or else a `nats:Error` upon failure to detach the service
-    public isolated function detach(NatsService s) returns error? {
+    public isolated function detach(Service s) returns error? {
         return basicDetach(self, s);
     }
 
@@ -66,12 +66,12 @@ public class Listener {
     }
 }
 
-isolated function basicRegister(Listener lis, NatsService s, string[]|string? name = ()) returns error? =
+isolated function basicRegister(Listener lis, Service s, string[]|string? name = ()) returns error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Register"
 } external;
 
-isolated function basicDetach(Listener lis, NatsService serviceType) returns error? =
+isolated function basicDetach(Listener lis, Service serviceType) returns error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Detach"
 } external;
