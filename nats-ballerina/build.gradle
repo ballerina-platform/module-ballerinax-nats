@@ -32,9 +32,6 @@ dependencies {
     externalJars (group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
         transitive = false
     }
-    externalJars (group: 'com.google.protobuf', name: 'protobuf-java', version: "${protobufVersion}") {
-        transitive = false
-    }
 }
 
 clean {
