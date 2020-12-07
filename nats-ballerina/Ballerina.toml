@@ -19,10 +19,10 @@ name = "crypto"
 version = "@stdlib.crypto.version@"
 
 [[platform.java11.dependency]]
-path = "./lib/jnats-2.8.0.jar"
+path = "./lib/jnats-@nats.client.version@.jar"
 groupId = "io.nats"
 artifactId = "jnats"
-version = "2.8.0"
+version = "@nats.client.version@"
 
 [[platform.java11.dependency]]
 path = "../nats-native/build/libs/nats-native-@project.version@.jar"
