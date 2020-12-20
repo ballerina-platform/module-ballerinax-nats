@@ -26,7 +26,7 @@ string receivedConsumerMessage = "";
 
 @test:BeforeSuite
 function setup() {
-    log:printInfo("Creating a ballerina NATS connection.");
+    log:print("Creating a ballerina NATS connection.");
     Client newClient = new;
     clientObj = newClient;
 }
@@ -88,7 +88,7 @@ service object {
         string|error message = strings:fromBytes(messageContent);
         if (message is string) {
             receivedConsumerMessage = message;
-            log:printInfo("Message Received: " + message);
+            log:print("Message Received: " + message);
         }
     }
 };
