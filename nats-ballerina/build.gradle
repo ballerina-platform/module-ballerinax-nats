@@ -193,7 +193,7 @@ task stopNatsServer() {
 }
 
 task ballerinaBuild {
-    mustRunAfter(test)
+    dependsOn(test)
     inputs.dir file(project.projectDir)
     finalizedBy(revertTomlFile)
 
@@ -283,7 +283,7 @@ unpackStdLibs.dependsOn unpackJballerinaTools
 copyStdlibs.dependsOn unpackStdLibs
 updateTomlVersions.dependsOn copyStdlibs
 ballerinaBuild.dependsOn updateTomlVersions
-ballerinaBuild.dependsOn startNatsServer
+ballerinaTest.dependsOn startNatsServer
 ballerinaBuild.dependsOn ":nats-native:build"
-build.finalizedBy stopNatsServer
+ballerinaTest.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
