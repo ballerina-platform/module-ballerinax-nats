@@ -18,6 +18,8 @@
 
 package org.ballerinalang.nats;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MemberFunctionType;
@@ -37,8 +39,21 @@ import java.nio.charset.StandardCharsets;
  */
 public class Utils {
 
+    private static Module ioModule = null;
+
+    private Utils() {
+    }
+
+    public static void setModule(Environment env) {
+        ioModule = env.getCurrentModule();
+    }
+
+    public static Module getModule() {
+        return ioModule;
+    }
+
     public static BError createNatsError(String detailedErrorMessage) {
-        return ErrorCreator.createDistinctError(Constants.NATS_ERROR, Constants.NATS_PACKAGE_ID,
+        return ErrorCreator.createDistinctError(Constants.NATS_ERROR, getModule(),
                                                 StringUtils.fromString(detailedErrorMessage));
     }
 

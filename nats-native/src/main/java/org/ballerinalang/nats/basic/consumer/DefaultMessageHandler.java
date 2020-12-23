@@ -74,7 +74,7 @@ public class DefaultMessageHandler implements MessageHandler {
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         BArray msgData = ValueCreator.createArrayValue(message.getData());
-        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Constants.NATS_PACKAGE_ID,
+        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(),
                                                                       Constants.NATS_MESSAGE_OBJ_NAME);
         BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                          StringUtils.fromString(message.getSubject()),
