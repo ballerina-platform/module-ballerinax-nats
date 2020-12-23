@@ -55,7 +55,7 @@ public class Constants {
 
     // Represents nats package.
     public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS + ":"
-        + Utils.getModule().getVersion();
+        + Utils.getVersion();
 
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
@@ -126,10 +126,10 @@ public class Constants {
 
     // Strand meta data
     public static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(ORG_NAME, NATS,
-                                                                                Utils.getModule().getVersion(),
+                                                                                Utils.getVersion(),
                                                                                 ON_MESSAGE_RESOURCE);
     public static final StrandMetadata ON_ERROR_METADATA = new StrandMetadata(ORG_NAME, NATS,
-                                                                              Utils.getModule().getVersion(),
+                                                                              Utils.getVersion(),
                                                                               ON_ERROR_RESOURCE);
 
     private Constants() {

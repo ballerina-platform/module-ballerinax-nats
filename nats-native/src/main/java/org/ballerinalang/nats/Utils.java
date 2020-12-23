@@ -52,6 +52,10 @@ public class Utils {
         return natsModule;
     }
 
+    public static String getVersion() {
+        return natsModule.getVersion();
+    }
+
     public static BError createNatsError(String detailedErrorMessage) {
         return ErrorCreator.createDistinctError(Constants.NATS_ERROR, getModule(),
                                                 StringUtils.fromString(detailedErrorMessage));
