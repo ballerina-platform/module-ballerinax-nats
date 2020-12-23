@@ -39,17 +39,17 @@ import java.nio.charset.StandardCharsets;
  */
 public class Utils {
 
-    private static Module ioModule = null;
+    private static Module natsModule = null;
 
     private Utils() {
     }
 
     public static void setModule(Environment env) {
-        ioModule = env.getCurrentModule();
+        natsModule = env.getCurrentModule();
     }
 
     public static Module getModule() {
-        return ioModule;
+        return natsModule;
     }
 
     public static BError createNatsError(String detailedErrorMessage) {
