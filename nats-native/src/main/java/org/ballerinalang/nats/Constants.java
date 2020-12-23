@@ -42,9 +42,6 @@ public class Constants {
     // Represent whether connection close already triggered.
     public static final String CLOSING = "closing";
 
-    public static final String NATS = "nats";
-    public static final String ORG_NAME = "ballerinax";
-
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
 
