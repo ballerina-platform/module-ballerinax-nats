@@ -73,7 +73,7 @@ public class Request {
                 reply = incoming.get();
             }
             BArray msgData = ValueCreator.createArrayValue(reply.getData());
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Constants.NATS_PACKAGE_ID,
+            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(),
                                                                              Constants.NATS_MESSAGE_OBJ_NAME);
             BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                    StringUtils.fromString(reply.getSubject()),

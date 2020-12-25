@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
 
 /**
@@ -59,8 +61,11 @@ public class Register {
                 (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
-                                                    .getAnnotation(StringUtils.fromString(Constants.NATS_PACKAGE
-                                                                   + ":" + Constants.SUBSCRIPTION_CONFIG)));
+                                                    .getAnnotation(StringUtils.fromString(
+                                                         Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
+                                                            Utils.getModule().getName() + VERSION_SEPARATOR +
+                                                            Utils.getModule().getVersion() + ":" +
+                                                            Constants.SUBSCRIPTION_CONFIG)));
         String queueName = null;
         String subject;
 

@@ -20,6 +20,7 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
@@ -42,7 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.nats.Constants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
@@ -74,7 +74,7 @@ public class DefaultMessageHandler implements MessageHandler {
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         BArray msgData = ValueCreator.createArrayValue(message.getData());
-        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Constants.NATS_PACKAGE_ID,
+        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(),
                                                                       Constants.NATS_MESSAGE_OBJ_NAME);
         BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                          StringUtils.fromString(message.getSubject()),
@@ -108,17 +108,19 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
+        StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
+                                                     Utils.getModule().getVersion(), ON_MESSAGE_RESOURCE);
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
             NatsObserverContext observerContext = new NatsObserverContext(
                     NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
                                       msgObj, true);
         } else {
-            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
         }
     }
