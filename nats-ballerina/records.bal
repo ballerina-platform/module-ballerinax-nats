@@ -17,13 +17,7 @@
 # Configurations related to creating a NATS streaming subscription.
 #
 # + connectionName - Name of the connection (this is optional)
-# + maxReconnect - Maximum number of reconnect attempts. The reconnect state is triggered when an already established
-#                  connection is lost. During the initial connection attempt, the client will cycle
-#                  over its server list one time regardless of the `maxReconnects` value that is set.
-#                  Use 0 to turn off auto reconnecting.
-#                  Use -1 to turn on infinite reconnects.
-# + reconnectWaitInSeconds - The time(in seconds) to wait between the reconnect attempts to reconnect to the same server
-# + connectionTimeoutInSeconds - The timeout (in seconds) for the connection attempts
+# + retryConfig - Configurations related to connection reconnect attempts
 # + pingIntervalInMinutes - The interval (in minutes) between the attempts of pinging the server
 # + maxPingsOut - The maximum number of pings the client can have in flight. The default value is two
 # + username - The username for basic authentication
@@ -32,12 +26,9 @@
 # + inboxPrefix - The connection's inbox prefix, which all inboxes will start with
 # + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
 #            has subscriptions on the subject being published to
-# + enableErrorListener - Enables the connection to the error listener
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
-  int maxReconnect = 60;
-  int reconnectWaitInSeconds = 2;
-  int connectionTimeoutInSeconds = 2;
+  RetryConfig retryConfig?;
   int pingIntervalInMinutes = 2;
   int maxPingsOut = 2;
   string username?;
@@ -45,7 +36,21 @@ public type ConnectionConfig record {|
   string token?;
   string inboxPrefix = "_INBOX.";
   boolean noEcho = false;
-  boolean enableErrorListener = false;
+|};
+
+# Configurations related to connection reconnect attempts.
+#
+# + maxReconnect - Maximum number of reconnect attempts. The reconnect state is triggered when an already established
+#                  connection is lost. During the initial connection attempt, the client will cycle
+#                  over its server list one time regardless of the `maxReconnects` value that is set.
+#                  Use 0 to turn off auto reconnecting.
+#                  Use -1 to turn on infinite reconnects.
+# + reconnectWaitInSeconds - The time(in seconds) to wait between the reconnect attempts to reconnect to the same server
+# + connectionTimeoutInSeconds - The timeout (in seconds) for the connection attempts
+public type RetryConfig record {|
+  int maxReconnect = 60;
+  int reconnectWaitInSeconds = 2;
+  int connectionTimeoutInSeconds = 2;
 |};
 
 # Represents the message, which a NATS server sends to its subscribed services.
@@ -65,7 +70,7 @@ public type Message record {|
 # + queueName - Name of the queue group
 # + pendingLimits - Parameters to set limits on the maximum number of pending messages
 #                   or maximum size of pending messages
-public type SubscriptionConfigData record {|
+public type ServiceConfigData record {|
     string subject;
     string queueName?;
     PendingLimits pendingLimits?;

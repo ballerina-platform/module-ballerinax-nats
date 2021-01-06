@@ -31,7 +31,6 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.connection.DefaultConnectionListener;
 import org.ballerinalang.nats.connection.DefaultErrorListener;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
@@ -55,6 +54,7 @@ public class Init {
     private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
     private static final BString NO_ECHO = StringUtils.fromString("noEcho");
     private static final BString ENABLE_ERROR_LISTENER = StringUtils.fromString("enableErrorListener");
+    private static final BString RETRY_CONFIG = StringUtils.fromString("retryConfig");
 
     public static void clientInit(BObject clientObj, Object urlString, Object connectionConfig) {
 
@@ -73,14 +73,17 @@ public class Init {
                 // Add connection name.
                 opts.connectionName(((BMap) connectionConfig).getStringValue(CONNECTION_NAME).getValue());
 
+                @SuppressWarnings("unchecked")
+                BMap<BString, Object> retryConfig = ((BMap) connectionConfig).getMapValue(RETRY_CONFIG);
+
                 // Add max reconnect.
-                opts.maxReconnects(Math.toIntExact(((BMap) connectionConfig).getIntValue(MAX_RECONNECT)));
+                opts.maxReconnects(Math.toIntExact(((BMap) retryConfig).getIntValue(MAX_RECONNECT)));
 
                 // Add reconnect wait.
-                opts.reconnectWait(Duration.ofSeconds(((BMap) connectionConfig).getIntValue(RECONNECT_WAIT)));
+                opts.reconnectWait(Duration.ofSeconds(((BMap) retryConfig).getIntValue(RECONNECT_WAIT)));
 
                 // Add connection timeout.
-                opts.connectionTimeout(Duration.ofSeconds(((BMap) connectionConfig).getIntValue(CONNECTION_TIMEOUT)));
+                opts.connectionTimeout(Duration.ofSeconds(((BMap) retryConfig).getIntValue(CONNECTION_TIMEOUT)));
 
                 // Add ping interval.
                 opts.pingInterval(Duration.ofMinutes(((BMap) connectionConfig).getIntValue(PING_INTERVAL)));
@@ -92,7 +95,7 @@ public class Init {
                 opts.inboxPrefix(((BMap) connectionConfig).getStringValue(INBOX_PREFIX).getValue());
 
                 // Add NATS connection listener.
-                opts.connectionListener(new DefaultConnectionListener());
+                //opts.connectionListener(new DefaultConnectionListener());
 
                 // Add NATS error listener.
                 if (((BMap) connectionConfig).getBooleanValue(ENABLE_ERROR_LISTENER)) {

@@ -30,14 +30,14 @@ public client class Client {
 
     # Publishes data to a given subject.
     # ```ballerina
-    # nats:Error? result = natsClient->publish(subject, <@untainted>message);
+    # nats:Error? result = natsClient->publishMessage(subject, <@untainted>message);
     # ```
     #
     # + subject - The subject to send the message
     # + data - Data to publish
     # + replyTo - The subject to which the receiver should send the response
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
-    isolated remote function publish(string subject, byte[] data, string? replyTo = ())
+    isolated remote function publishMessage(string subject, byte[] data, string? replyTo = ())
             returns Error? {
         return externPublish(self, subject, data, replyTo);
     }

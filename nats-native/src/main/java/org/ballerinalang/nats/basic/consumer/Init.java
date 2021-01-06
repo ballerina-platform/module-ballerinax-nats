@@ -32,7 +32,6 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.connection.DefaultConnectionListener;
 import org.ballerinalang.nats.connection.DefaultErrorListener;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
@@ -97,7 +96,7 @@ public class Init {
                 opts.inboxPrefix(((BMap) connectionConfig).getStringValue(INBOX_PREFIX).getValue());
 
                 // Add NATS connection listener.
-                opts.connectionListener(new DefaultConnectionListener());
+                //opts.connectionListener(new DefaultConnectionListener());
 
                 // Add NATS error listener.
                 if (((BMap) connectionConfig).getBooleanValue(ENABLE_ERROR_LISTENER)) {

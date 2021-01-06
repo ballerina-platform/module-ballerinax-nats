@@ -51,7 +51,7 @@ public function testProducer() {
     Client? newClient = clientObj;
     string message = "Hello World";
     if (newClient is Client) {
-        Error? result = newClient->publish(SUBJECT_NAME, message.toBytes());
+        Error? result = newClient->publishMessage(SUBJECT_NAME, message.toBytes());
         test:assertEquals(result, (), msg = "Producing a message to the broker caused an error.");
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -69,7 +69,7 @@ public function testConsumerService() {
         Listener sub = new;
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
-        checkpanic newClient->publish(SERVICE_SUBJECT_NAME, message.toBytes());
+        checkpanic newClient->publishMessage(SERVICE_SUBJECT_NAME, message.toBytes());
         runtime:sleep(7000);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
     } else {
