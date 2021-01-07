@@ -31,7 +31,6 @@ ext.stdlibCryptoVersion = project.stdlibCryptoVersion
 ext.stdlibLogVersion = project.stdlibLogVersion
 ext.stdlibTimeVersion = project.stdlibTimeVersion
 ext.stdlibRuntimeVersion = project.stdlibRuntimeVersion
-ext.stdlibSystemVersion = project.stdlibSystemVersion
 ext.stdlibIoVersion = project.stdlibIoVersion
 
 allprojects {
@@ -103,14 +102,6 @@ allprojects {
             }
         }
 
-        maven {
-            url "https://maven.pkg.github.com/ballerina-platform/module-ballerina-system"
-            credentials {
-                username System.getenv("packageUser")
-                password System.getenv("packagePAT")
-            }
-        }
-
     }
 }
 
@@ -126,7 +117,6 @@ subprojects {
         ballerinaStdLibs "org.ballerinalang:crypto-ballerina:${stdlibCryptoVersion}"
         ballerinaStdLibs "org.ballerinalang:time-ballerina:${stdlibTimeVersion}"
         ballerinaStdLibs "org.ballerinalang:runtime-ballerina:${stdlibRuntimeVersion}"
-        ballerinaStdLibs "org.ballerinalang:system-ballerina:${stdlibSystemVersion}"
         ballerinaStdLibs "org.ballerinalang:io-ballerina:${stdlibIoVersion}"
     }
 }
