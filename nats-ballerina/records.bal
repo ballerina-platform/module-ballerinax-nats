@@ -14,28 +14,62 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Configurations related to creating a NATS streaming subscription.
 #
 # + connectionName - Name of the connection (this is optional)
 # + retryConfig - Configurations related to connection reconnect attempts
-# + pingIntervalInMinutes - The interval (in minutes) between the attempts of pinging the server
-# + maxPingsOut - The maximum number of pings the client can have in flight. The default value is two
-# + username - The username for basic authentication
-# + password - The password for basic authentication
-# + token - The token for token-based authentication
+# + ping - Configurations related to pinging the server
+# + auth - Configurations related to authentication
 # + inboxPrefix - The connection's inbox prefix, which all inboxes will start with
 # + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
 #            has subscriptions on the subject being published to
+# + secureSocket - Configurations related to SSL/TLS
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
   RetryConfig retryConfig?;
-  int pingIntervalInMinutes = 2;
-  int maxPingsOut = 2;
-  string username?;
-  string password?;
-  string token?;
+  Ping ping?;
+  Credentials|Tokens auth?;
   string inboxPrefix = "_INBOX.";
   boolean noEcho = false;
+  SecureSocket? secureSocket = ();
+|};
+
+# Configurations related to token based authentication.
+#
+# + token - The token for token-based authentication
+public type Tokens record {|
+  string token?;
+|};
+
+# Configurations related to basic authentication.
+#
+# + username - The username for basic authentication
+# + password - The password for basic authentication
+public type Credentials record {|
+  string username?;
+  string password?;
+|};
+
+# Configurations related to facilitating a secure communication with a remote HTTP endpoint.
+#
+# + trustStore - Configurations associated with the TrustStore
+# + keyStore - Configurations associated with the KeyStore
+# + protocol - The standard name of the requested protocol
+public type SecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
+    string protocol = "TLS";
+|};
+
+# Configurations related to pinging the server
+#
+# + pingIntervalInMinutes - The interval (in minutes) between the attempts of pinging the server
+# + maxPingsOut - The maximum number of pings the client can have in flight. The default value is two
+public type Ping record {|
+  int pingIntervalInMinutes = 2;
+  int maxPingsOut = 2;
 |};
 
 # Configurations related to connection reconnect attempts.
