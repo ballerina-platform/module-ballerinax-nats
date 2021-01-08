@@ -205,7 +205,6 @@ public class DefaultMessageHandler implements MessageHandler {
             this.natsMetricsReporter = natsMetricsReporter;
             this.replyTo = replyTo;
             this.natsConnection = natsConnection;
-
         }
 
         /**
