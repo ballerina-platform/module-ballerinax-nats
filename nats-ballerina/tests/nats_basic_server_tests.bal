@@ -30,7 +30,6 @@ string receivedReplyMessage = "";
 
 @test:BeforeSuite
 function setup() {
-    log:print("Creating a ballerina NATS connection.");
     Client newClient = checkpanic new;
     clientObj = newClient;
 }
