@@ -24,8 +24,8 @@ public client class Client {
     #
     # + url - The NATS Broker URL. For a clustered use case, pass the URLs as a string array
     # + config - Configurations associated with the NATS client to establish a connection with the server
-    public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) {
-        clientInit(self, url, config);
+    public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) returns Error? {
+        return clientInit(self, url, config);
     }
 
     # Publishes data to a given subject.
@@ -64,7 +64,7 @@ public client class Client {
     }
 }
 
-isolated function clientInit(Client clientObj, string|string[] url, ConnectionConfig? config) =
+isolated function clientInit(Client clientObj, string|string[] url, ConnectionConfig? config) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Init"
 } external;

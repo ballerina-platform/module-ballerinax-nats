@@ -27,7 +27,7 @@ string receivedConsumerMessage = "";
 @test:BeforeSuite
 function setup() {
     log:print("Creating a ballerina NATS connection.");
-    Client newClient = new;
+    Client newClient = checkpanic new;
     clientObj = newClient;
 }
 
@@ -66,7 +66,7 @@ public function testConsumerService() {
     string message = "Testing Consumer Service";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = new;
+        Listener sub = checkpanic new;
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage(SERVICE_SUBJECT_NAME, message.toBytes());

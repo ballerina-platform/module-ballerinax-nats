@@ -31,11 +31,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPAR
 public class Constants {
     // Represents the NATS objects.
     public static final String NATS_CONNECTION = "nats_connection";
-    public static final String NATS_LISTENER = "Listener";
-    public static final String NATS_PRODUCER = "Producer";
-
-    // Represents the NATS streaming connection.
-    public static final String NATS_STREAMING_CONNECTION = "nats_streaming_connection";
 
     public static final String NATS_METRIC_UTIL = "nats_metric_util";
 
@@ -63,39 +58,13 @@ public class Constants {
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
 
-    // Represents the NATS message.
-    public static final String NATS_MSG = "NATSMSG";
-
     // Error code for i/o.
     static final String NATS_ERROR = "NatsError";
 
-    // Represents the NATS error detail record.
-    static final String NATS_ERROR_DETAIL_RECORD = "Detail";
-
-    // Represents the object which holds the connection.
-    //public static final BString CONNECTION_OBJ = StringUtils.fromString("conn");
-
-    // Represents the connection url
-    public static final BString URL = StringUtils.fromString("url");
-
-    // Represents the NATS Streaming message.
-    public static final String NATS_STREAMING_MSG = "nats_streaming_message";
-
-    public static final String NATS_BASIC_CONSUMER_ANNOTATION = "SubscriptionConfig";
-
-    public static final String NATS_STREAMING_SUBSCRIPTION_ANNOTATION = "StreamingSubscriptionConfig";
-    public static final BString NATS_STREAMING_MANUAL_ACK = StringUtils.fromString("manualAck");
-
-    public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
-
-    public static final String NATS_STREAMING_LISTENER = "StreamingListener";
-
     public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
 
-    public static final String STREAMING_DISPATCHER_LIST = "StreamingDispatcherList";
-    public static final String STREAMING_SUBSCRIPTION_LIST = "StreamingSubscriptionsList";
-
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
+    public static final String ON_REQUEST_RESOURCE = "onRequest";
 
     public static final String ON_ERROR_RESOURCE = "onError";
 
@@ -113,11 +82,10 @@ public class Constants {
     public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
-    public static final String MODULE = "[ballerina/nats] ";
-    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
+    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "error while setting up secured connection. ";
     public static final String THREAD_INTERRUPTED_ERROR =
-            "Internal error occurred. The current thread got interrupted.";
-    public static final String PRODUCER_ERROR = "Error while publishing message to subject ";
+            "internal error occurred. The current thread got interrupted.";
+    public static final String PRODUCER_ERROR = "error while publishing message to subject ";
 
     // Service annotation fields.
     public static final String SUBSCRIPTION_CONFIG = "ServiceConfig";

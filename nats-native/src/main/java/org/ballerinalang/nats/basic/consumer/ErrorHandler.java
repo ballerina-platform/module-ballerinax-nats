@@ -52,7 +52,7 @@ public class ErrorHandler {
      */
     static void dispatchError(BObject serviceObject, BMap<BString, Object> msgObj, BError e, Runtime runtime,
                               NatsMetricsReporter natsMetricsReporter) {
-        boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
+        boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getMethods())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);

@@ -21,7 +21,7 @@ package org.ballerinalang.nats.basic.consumer;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -44,6 +44,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.nats.Constants.ON_REQUEST_RESOURCE;
 import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
 /**
@@ -73,18 +74,32 @@ public class DefaultMessageHandler implements MessageHandler {
     @Override
     public void onMessage(Message message) {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
+        String replyTo = null;
         BArray msgData = ValueCreator.createArrayValue(message.getData());
         BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Constants.NATS_PACKAGE_ID,
                                                                       Constants.NATS_MESSAGE_OBJ_NAME);
         BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                          StringUtils.fromString(message.getSubject()),
                                                                          StringUtils.fromString(message.getReplyTo()));
-        MemberFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
-        Type[] parameterTypes = onMessage.getParameterTypes();
-        if (parameterTypes.length == 1) {
-            dispatch(populatedRecord);
+        replyTo = message.getReplyTo();
+        if (replyTo != null && getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE) != null) {
+            // If replyTo subject is there and the user has written the onRequest function implementation:
+            MethodType onRequest = getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE);
+            Type[] parameterTypes = onRequest.getParameterTypes();
+            if (parameterTypes.length == 1) {
+                dispatchOnRequest(populatedRecord);
+            } else {
+                throw Utils.createNatsError("invalid onRequest remote function signature");
+            }
         } else {
-            throw Utils.createNatsError("Invalid remote function signature");
+            // Default onMessage behavior
+            MethodType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
+            Type[] parameterTypes = onMessage.getParameterTypes();
+            if (parameterTypes.length == 1) {
+                dispatchOnMessage(populatedRecord);
+            } else {
+                throw Utils.createNatsError("invalid onMessage remote function signature");
+            }
         }
     }
 
@@ -93,9 +108,9 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatch(BMap<BString, Object>  msgObj) {
+    private void dispatchOnRequest(BMap<BString, Object>  msgObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executeResource(msgObj, countDownLatch);
+        executeOnRequestResource(msgObj, countDownLatch);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -106,7 +121,42 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
+    /**
+     * Dispatch only the message to the onMessage resource.
+     *
+     * @param msgObj Message object
+     */
+    private void dispatchOnMessage(BMap<BString, Object>  msgObj) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        executeOnMessageResource(msgObj, countDownLatch);
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
+                                                    NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
+            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
+        }
+    }
+
+    private void executeOnRequestResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
+        String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
+        if (ObserveUtils.isTracingEnabled()) {
+            Map<String, Object> properties = new HashMap<>();
+            NatsObserverContext observerContext = new NatsObserverContext(
+                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
+                    msgObj.getStringValue(Constants.SUBJECT).getValue());
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+            runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, ON_MESSAGE_METADATA,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
+                                      msgObj, true);
+        } else {
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, ON_MESSAGE_METADATA,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
+        }
+    }
+
+    private void executeOnMessageResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();

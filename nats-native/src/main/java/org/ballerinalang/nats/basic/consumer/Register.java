@@ -79,11 +79,13 @@ public class Register {
             if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
                 queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
             }
+            // If the service config is not null, get subject from the config
             subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
             if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
                 setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
             }
         } else if (TypeUtils.getType(annotationData).getTag() == TypeTags.STRING_TAG) {
+            // Else get the service name as the subject
             subject = ((BString) annotationData).getValue();
         } else {
             throw Utils.createNatsError("Subject name cannot be found");
