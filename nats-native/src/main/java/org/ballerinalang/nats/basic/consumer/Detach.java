@@ -32,6 +32,9 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
+
 /**
  * Unsubscribe the consumer from the subject.
  *
@@ -48,7 +51,10 @@ public class Detach {
                 (NatsMetricsReporter) listener.getNativeData(Constants.NATS_METRIC_UTIL);
         BMap<BString, Object> subscriptionConfig = Utils
                 .getSubscriptionConfig(service.getType().getAnnotation(
-                        StringUtils.fromString(Constants.NATS_PACKAGE + ":" + Constants.SUBSCRIPTION_CONFIG)));
+                        StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
+                                                       Utils.getModule().getName() + VERSION_SEPARATOR +
+                                                       Utils.getModule().getVersion() + ":" +
+                                                       Constants.SUBSCRIPTION_CONFIG)));
         if (subscriptionConfig == null) {
             return Utils.createNatsError(
                     "Error occurred while un-subscribing, Cannot find subscription configuration");

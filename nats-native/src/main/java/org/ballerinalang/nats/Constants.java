@@ -18,12 +18,8 @@
 
 package org.ballerinalang.nats;
 
-import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Represents the constants which will be used for NATS.
@@ -45,15 +41,6 @@ public class Constants {
 
     // Represent whether connection close already triggered.
     public static final String CLOSING = "closing";
-
-    public static final String NATS = "nats";
-    public static final String ORG_NAME = "ballerinax";
-    public static final String VERSION = "1.0.7";
-
-    // Represents nats package.
-    public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS + ":" + VERSION;
-
-    public static final Module NATS_PACKAGE_ID = new Module(ORG_NAME, "nats", VERSION);
 
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
@@ -82,7 +69,8 @@ public class Constants {
     public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
-    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "error while setting up secured connection. ";
+    public static final String MODULE = "[ballerina/nats] ";
+    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
     public static final String THREAD_INTERRUPTED_ERROR =
             "internal error occurred. The current thread got interrupted.";
     public static final String PRODUCER_ERROR = "error while publishing message to subject ";
@@ -94,12 +82,6 @@ public class Constants {
     public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");
     public static final BString MAX_MESSAGES = StringUtils.fromString("maxMessages");
     public static final BString MAX_BYTES = StringUtils.fromString("maxBytes");
-
-    // Strand meta data
-    public static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(ORG_NAME, NATS, VERSION,
-                                                                                ON_MESSAGE_RESOURCE);
-    public static final StrandMetadata ON_ERROR_METADATA = new StrandMetadata(ORG_NAME, NATS, VERSION,
-                                                                              ON_ERROR_RESOURCE);
 
     private Constants() {
     }

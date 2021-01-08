@@ -20,6 +20,7 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -32,7 +33,6 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.nats.Constants.ON_ERROR_METADATA;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 
 /**
@@ -56,7 +56,11 @@ public class ErrorHandler {
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE, null, ON_ERROR_METADATA, new ResponseCallback(
+            // Strand meta data
+            StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(),
+                                                         Utils.getModule().getName(),
+                                                         Utils.getModule().getVersion(), ON_ERROR_RESOURCE);
+            runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE, null, metadata, new ResponseCallback(
                                               countDownLatch, msgObj.getStringValue(Constants.SUBJECT).getValue(),
                                               natsMetricsReporter), msgObj, true, e, true);
             try {
