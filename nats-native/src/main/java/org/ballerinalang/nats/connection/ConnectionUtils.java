@@ -93,6 +93,7 @@ public class ConnectionUtils {
             opts.maxPingsOut(Math.toIntExact(((BMap) pingConfig).getIntValue(MAX_PINGS_OUT)));
 
             opts.inboxPrefix(((BMap) connectionConfig).getStringValue(INBOX_PREFIX).getValue());
+            opts.oldRequestStyle();
 
             // Auth configs
             @SuppressWarnings("unchecked")

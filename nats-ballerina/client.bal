@@ -30,30 +30,26 @@ public client class Client {
 
     # Publishes data to a given subject.
     # ```ballerina
-    # nats:Error? result = natsClient->publishMessage(subject, <@untainted>message);
+    # nats:Error? result = natsClient->publishMessage(<@untainted>message);
     # ```
     #
-    # + subject - The subject to send the message
-    # + data - Data to publish
-    # + replyTo - The subject to which the receiver should send the response
+    # + message - Message to be published
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
-    isolated remote function publishMessage(string subject, byte[] data, string? replyTo = ())
-            returns Error? {
-        return externPublish(self, subject, data, replyTo);
+    isolated remote function publishMessage(Message message) returns Error? {
+        return externPublish(self, message.subject, message.content, message?.replyTo);
     }
 
     # Publishes data to a given subject and waits for a response.
     # ```ballerina
-    # nats:Message|nats:Error reqReply = natsClient->request(subject, <@untainted>message);
+    # nats:Message|nats:Error reqReply = natsClient->requestMessage(<@untainted>message);
     # ```
     #
-    # + subject - The subject to send the message
-    # + data - Data to publish
+    # + message - Message to be published
     # + duration - The time (in milliseconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    isolated remote function request(string subject, byte[] data, int? duration = ())
+    isolated remote function requestMessage(Message message, int? duration = ())
             returns Message|Error {
-        return externRequest(self, subject, data, duration);
+        return externRequest(self, message.subject, message.content, duration);
     }
 
     # Closes the NATS client connection.

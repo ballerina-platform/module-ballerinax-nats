@@ -40,7 +40,7 @@ import java.security.cert.CertificateException;
 public class Init {
 
     public static Object clientInit(BObject clientObj, Object urlString, Object connectionConfig) {
-        Connection natsConnection = null;
+        Connection natsConnection;
         try {
             natsConnection = ConnectionUtils.getNatsConnection(urlString, connectionConfig);
         } catch (UnrecoverableKeyException e) {

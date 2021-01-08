@@ -40,13 +40,13 @@ import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.ballerinalang.nats.observability.NatsObserverContext;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.nats.Constants.ON_REQUEST_RESOURCE;
+import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
 /**
@@ -214,7 +214,7 @@ public class DefaultMessageHandler implements MessageHandler {
         @Override
         public void notifySuccess(Object obj) {
             if (replyTo != null) {
-                natsConnection.publish(replyTo, ((String) obj).getBytes(StandardCharsets.UTF_8));
+                natsConnection.publish(replyTo, convertDataIntoByteArray(obj));
             }
             natsMetricsReporter.reportDelivery(subject);
             countDownLatch.countDown();
