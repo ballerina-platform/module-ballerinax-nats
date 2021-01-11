@@ -28,9 +28,9 @@ public type Error NatsError;
 isolated function prepareError(string message, error? err = ()) returns Error {
     NatsError natsError;
     if (err is error) {
-        natsError = NatsError(message, err);
+        natsError = error NatsError(message, err);
     } else {
-        natsError = NatsError(message);
+        natsError = error NatsError(message);
     }
     return natsError;
 }

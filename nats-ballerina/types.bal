@@ -23,4 +23,4 @@ public type Service service object {
 };
 
 # The annotation, which is used to configure the basic subscription.
-public annotation SubscriptionConfigData ServiceConfig on service, class;
+public annotation ServiceConfigData ServiceConfig on service, class;

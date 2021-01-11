@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
+import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import org.ballerinalang.nats.Constants;
@@ -44,6 +45,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.nats.Constants.ON_REQUEST_RESOURCE;
+import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 
 /**
@@ -58,13 +61,15 @@ public class DefaultMessageHandler implements MessageHandler {
     private String connectedUrl;
     private Runtime runtime;
     private NatsMetricsReporter natsMetricsReporter;
+    private Connection natsConnection;
 
-    DefaultMessageHandler(BObject serviceObject, Runtime runtime, String connectedUrl,
+    DefaultMessageHandler(BObject serviceObject, Runtime runtime, Connection natsConnection,
                           NatsMetricsReporter natsMetricsReporter) {
         this.serviceObject = serviceObject;
         this.runtime = runtime;
-        this.connectedUrl = connectedUrl;
+        this.connectedUrl = natsConnection.getConnectedUrl();
         this.natsMetricsReporter = natsMetricsReporter;
+        this.natsConnection = natsConnection;
     }
 
     /**
@@ -79,12 +84,25 @@ public class DefaultMessageHandler implements MessageHandler {
         BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                          StringUtils.fromString(message.getSubject()),
                                                                          StringUtils.fromString(message.getReplyTo()));
-        MemberFunctionType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
-        Type[] parameterTypes = onMessage.getParameterTypes();
-        if (parameterTypes.length == 1) {
-            dispatch(populatedRecord);
+        String replyTo = message.getReplyTo();
+        if (replyTo != null && getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE) != null) {
+            // If replyTo subject is there and the user has written the onRequest function implementation:
+            MethodType onRequest = getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE);
+            Type[] parameterTypes = onRequest.getParameterTypes();
+            if (parameterTypes.length == 1) {
+                dispatchOnRequest(populatedRecord, replyTo);
+            } else {
+                throw Utils.createNatsError("invalid onRequest remote function signature");
+            }
         } else {
-            throw Utils.createNatsError("Invalid remote function signature");
+            // Default onMessage behavior
+            MethodType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
+            Type[] parameterTypes = onMessage.getParameterTypes();
+            if (parameterTypes.length == 1) {
+                dispatchOnMessage(populatedRecord);
+            } else {
+                throw Utils.createNatsError("invalid onMessage remote function signature");
+            }
         }
     }
 
@@ -93,9 +111,9 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatch(BMap<BString, Object>  msgObj) {
+    private void dispatchOnRequest(BMap<BString, Object>  msgObj, String replyTo) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executeResource(msgObj, countDownLatch);
+        executeOnRequestResource(msgObj, countDownLatch, replyTo);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -106,7 +124,46 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
+    /**
+     * Dispatch only the message to the onMessage resource.
+     *
+     * @param msgObj Message object
+     */
+    private void dispatchOnMessage(BMap<BString, Object>  msgObj) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        executeOnMessageResource(msgObj, countDownLatch);
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
+                                                    NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
+            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
+        }
+    }
+
+    private void executeOnRequestResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch,
+                                          String replyTo) {
+        String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
+        StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
+                                                     Utils.getModule().getVersion(), ON_REQUEST_RESOURCE);
+        if (ObserveUtils.isTracingEnabled()) {
+            Map<String, Object> properties = new HashMap<>();
+            NatsObserverContext observerContext = new NatsObserverContext(
+                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
+                    msgObj.getStringValue(Constants.SUBJECT).getValue());
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+            runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, metadata,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
+                                                           this.natsConnection), properties, msgObj, true);
+        } else {
+            runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, metadata,
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
+                                                           this.natsConnection), msgObj, true);
+        }
+    }
+
+    private void executeOnMessageResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                                                      Utils.getModule().getVersion(), ON_MESSAGE_RESOURCE);
@@ -117,8 +174,8 @@ public class DefaultMessageHandler implements MessageHandler {
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), properties,
-                                      msgObj, true);
+                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
+                                      properties, msgObj, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
@@ -132,6 +189,8 @@ public class DefaultMessageHandler implements MessageHandler {
         private CountDownLatch countDownLatch;
         private String subject;
         private NatsMetricsReporter natsMetricsReporter;
+        private String replyTo;
+        private Connection natsConnection;
 
         ResponseCallback(CountDownLatch countDownLatch, String subject, NatsMetricsReporter natsMetricsReporter) {
             this.countDownLatch = countDownLatch;
@@ -139,11 +198,23 @@ public class DefaultMessageHandler implements MessageHandler {
             this.natsMetricsReporter = natsMetricsReporter;
         }
 
+        ResponseCallback(CountDownLatch countDownLatch, String subject, NatsMetricsReporter natsMetricsReporter,
+                         String replyTo, Connection natsConnection) {
+            this.countDownLatch = countDownLatch;
+            this.subject = subject;
+            this.natsMetricsReporter = natsMetricsReporter;
+            this.replyTo = replyTo;
+            this.natsConnection = natsConnection;
+        }
+
         /**
          * {@inheritDoc}
          */
         @Override
         public void notifySuccess(Object obj) {
+            if (replyTo != null) {
+                natsConnection.publish(replyTo, convertDataIntoByteArray(obj));
+            }
             natsMetricsReporter.reportDelivery(subject);
             countDownLatch.countDown();
         }

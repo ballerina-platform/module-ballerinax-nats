@@ -33,20 +33,22 @@ Once connected, publishing is accomplished via one of the below two methods.
 1. Publish with the subject and the message content.
 ```ballerina
 string message = "hello world";
-nats:Error? result = natsClient->publish(subject, message.toBytes());
+nats:Error? result = 
+    natsClient->publishMessage({ content: message.toBytes(), subject: "demo.nats.basic"});
 ```
 
 2. Publish as a request that expects a reply.
 ```ballerina
 string message = "hello world";
-nats:Message|nats:Error reqReply = natsClient->request(subject, message.toBytes(), 5000);
+nats:Message|nats:Error reqReply = 
+    natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5000);
 ```
 
 3. Publish messages with a replyTo subject 
 ```ballerina
 string message = "hello world";
-nats:Error? result = natsClient->publish(subject, message.toBytes(), 
-                         replyToSubject);
+nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: "demo.nats.basic",
+                                                    replyTo: "demo.reply" });
 ```
 
 #### Listening to incoming messages
@@ -54,14 +56,11 @@ nats:Error? result = natsClient->publish(subject, message.toBytes(),
 ##### Listening to messages from a NATS server
 
 ```ballerina
-// Initializes the NATS listener.
-listener nats:Listener subscription = new;
-
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 @nats:ServiceConfig {
     subject: "demo"
 }
-service demo on subscription {
+service demo on new nats:Listener() {
 
     remote function onMessage(nats:Message msg) {
     }

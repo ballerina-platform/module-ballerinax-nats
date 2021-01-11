@@ -22,12 +22,15 @@ import ballerina/test;
 Client? clientObj = ();
 const SUBJECT_NAME = "nats-basic";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
+const ON_REQUEST_SUBJECT = "nats-on-req";
+const REPLY_TO_SUBJECT = "nats-rep";
 string receivedConsumerMessage = "";
+string receivedOnRequestMessage = "";
+string receivedReplyMessage = "";
 
 @test:BeforeSuite
 function setup() {
-    log:print("Creating a ballerina NATS connection.");
-    Client newClient = new;
+    Client newClient = checkpanic new;
     clientObj = newClient;
 }
 
@@ -51,7 +54,7 @@ public function testProducer() {
     Client? newClient = clientObj;
     string message = "Hello World";
     if (newClient is Client) {
-        Error? result = newClient->publish(SUBJECT_NAME, message.toBytes());
+        Error? result = newClient->publishMessage({ content: message.toBytes(), subject: SUBJECT_NAME });
         test:assertEquals(result, (), msg = "Producing a message to the broker caused an error.");
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -66,12 +69,60 @@ public function testConsumerService() {
     string message = "Testing Consumer Service";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = new;
+        Listener sub = checkpanic new;
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
-        checkpanic newClient->publish(SERVICE_SUBJECT_NAME, message.toBytes());
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
         runtime:sleep(7000);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: ["testProducer"],
+    groups: ["nats-basic"]
+}
+public function testOnRequest1() {
+    string message = "Hello from the other side!";
+    Client? newClient = clientObj;
+    if (newClient is Client) {
+        Listener sub = checkpanic new;
+        checkpanic sub.attach(onRequestService);
+        checkpanic sub.attach(onReplyService);
+        checkpanic sub.'start();
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
+                                                    replyTo: REPLY_TO_SUBJECT });
+        runtime:sleep(10000);
+        test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
+        test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: ["testOnRequest1"],
+    groups: ["nats-basic"]
+}
+public function testOnRequest2() {
+    string message = "Hey There Delilah!";
+    Client? newClient = clientObj;
+    if (newClient is Client) {
+        Listener sub = checkpanic new;
+        checkpanic sub.attach(onRequestService);
+        checkpanic sub.'start();
+        Message replyMessage =
+            checkpanic newClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT});
+        runtime:sleep(10000);
+        test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
+
+        byte[] messageContent = <@untainted> replyMessage.content;
+        string|error messageTxt = strings:fromBytes(messageContent);
+        if (messageTxt is string) {
+            test:assertEquals(messageTxt, "Hello Back!", msg = "Message received does not match.");
+        }
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -88,6 +139,43 @@ service object {
         string|error message = strings:fromBytes(messageContent);
         if (message is string) {
             receivedConsumerMessage = message;
+            log:print("Message Received: " + message);
+        }
+    }
+};
+
+Service onRequestService =
+@ServiceConfig {
+    subject: ON_REQUEST_SUBJECT
+}
+service object {
+    remote function onMessage(Message msg) {
+       // ignored
+    }
+
+    remote function onRequest(Message msg) returns string {
+        byte[] messageContent = <@untainted> msg.content;
+
+        string|error message = strings:fromBytes(messageContent);
+        if (message is string) {
+            receivedOnRequestMessage = message;
+            log:print("Message Received: " + message);
+        }
+        return "Hello Back!";
+    }
+};
+
+Service onReplyService =
+@ServiceConfig {
+    subject: REPLY_TO_SUBJECT
+}
+service object {
+    remote function onMessage(Message msg) {
+        byte[] messageContent = <@untainted> msg.content;
+
+        string|error message = strings:fromBytes(messageContent);
+        if (message is string) {
+            receivedReplyMessage = message;
             log:print("Message Received: " + message);
         }
     }

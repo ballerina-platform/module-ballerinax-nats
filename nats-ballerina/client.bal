@@ -24,36 +24,32 @@ public client class Client {
     #
     # + url - The NATS Broker URL. For a clustered use case, pass the URLs as a string array
     # + config - Configurations associated with the NATS client to establish a connection with the server
-    public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) {
-        clientInit(self, url, config);
+    public isolated function init(string|string[] url = DEFAULT_URL, ConnectionConfig? config = ()) returns Error? {
+        return clientInit(self, url, config);
     }
 
     # Publishes data to a given subject.
     # ```ballerina
-    # nats:Error? result = natsClient->publish(subject, <@untainted>message);
+    # nats:Error? result = natsClient->publishMessage(<@untainted>message);
     # ```
     #
-    # + subject - The subject to send the message
-    # + data - Data to publish
-    # + replyTo - The subject to which the receiver should send the response
+    # + message - Message to be published
     # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
-    isolated remote function publish(string subject, byte[] data, string? replyTo = ())
-            returns Error? {
-        return externPublish(self, subject, data, replyTo);
+    isolated remote function publishMessage(Message message) returns Error? {
+        return externPublish(self, message.subject, message.content, message?.replyTo);
     }
 
     # Publishes data to a given subject and waits for a response.
     # ```ballerina
-    # nats:Message|nats:Error reqReply = natsClient->request(subject, <@untainted>message);
+    # nats:Message|nats:Error reqReply = natsClient->requestMessage(<@untainted>message);
     # ```
     #
-    # + subject - The subject to send the message
-    # + data - Data to publish
+    # + message - Message to be published
     # + duration - The time (in milliseconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    isolated remote function request(string subject, byte[] data, int? duration = ())
+    isolated remote function requestMessage(Message message, int? duration = ())
             returns Message|Error {
-        return externRequest(self, subject, data, duration);
+        return externRequest(self, message.subject, message.content, duration);
     }
 
     # Closes the NATS client connection.
@@ -64,7 +60,7 @@ public client class Client {
     }
 }
 
-isolated function clientInit(Client clientObj, string|string[] url, ConnectionConfig? config) =
+isolated function clientInit(Client clientObj, string|string[] url, ConnectionConfig? config) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Init"
 } external;

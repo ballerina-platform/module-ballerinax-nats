@@ -45,16 +45,13 @@ public class Constants {
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
 
-    // Represents the NATS message.
-    public static final String NATS_MSG = "NATSMSG";
-
     // Error code for i/o.
     static final String NATS_ERROR = "NatsError";
-
 
     public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
+    public static final String ON_REQUEST_RESOURCE = "onRequest";
 
     public static final String ON_ERROR_RESOURCE = "onError";
 
@@ -63,12 +60,20 @@ public class Constants {
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
     public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from subject ";
 
+    public static final BString CONNECTION_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
+    public static final BString CONNECTION_KEYSTORE = StringUtils.fromString("keyStore");
+    public static final BString CONNECTION_TRUSTORE = StringUtils.fromString("trustStore");
+    public static final BString CONNECTION_PROTOCOL = StringUtils.fromString("protocol");
+    public static final String KEY_STORE_TYPE = "PKCS12";
+    public static final BString KEY_STORE_PASS = StringUtils.fromString("password");
+    public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
     public static final String MODULE = "[ballerina/nats] ";
+    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
     public static final String THREAD_INTERRUPTED_ERROR =
-            "Internal error occurred. The current thread got interrupted.";
-    public static final String PRODUCER_ERROR = "Error while publishing message to subject ";
+            "internal error occurred. The current thread got interrupted.";
+    public static final String PRODUCER_ERROR = "error while publishing message to subject ";
 
     // Service annotation fields.
     public static final String SUBSCRIPTION_CONFIG = "ServiceConfig";
