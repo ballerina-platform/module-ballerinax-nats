@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
+import ballerina/lang.runtime as runtime;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/test;
 
 Client? clientObj = ();
@@ -73,7 +73,7 @@ public function testConsumerService() {
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
-        runtime:sleep(7000);
+        runtime:sleep(7);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -94,7 +94,7 @@ public function testOnRequest1() {
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
                                                     replyTo: REPLY_TO_SUBJECT });
-        runtime:sleep(10000);
+        runtime:sleep(10);
         test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
         test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
     } else {
@@ -115,7 +115,7 @@ public function testOnRequest2() {
         checkpanic sub.'start();
         Message replyMessage =
             checkpanic newClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT});
-        runtime:sleep(10000);
+        runtime:sleep(10);
         test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
 
         byte[] messageContent = <@untainted> replyMessage.content;
