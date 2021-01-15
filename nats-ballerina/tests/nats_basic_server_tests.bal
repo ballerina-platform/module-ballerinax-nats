@@ -47,7 +47,7 @@ public function testConnection() {
 }
 
 @test:Config {
-    dependsOn: ["testConnection"],
+    dependsOn: [testConnection],
     groups: ["nats-basic"]
 }
 public function testProducer() {
@@ -62,7 +62,7 @@ public function testProducer() {
 }
 
 @test:Config {
-    dependsOn: ["testProducer"],
+    dependsOn: [testProducer],
     groups: ["nats-basic"]
 }
 public function testConsumerService() {
@@ -81,7 +81,7 @@ public function testConsumerService() {
 }
 
 @test:Config {
-    dependsOn: ["testProducer"],
+    dependsOn: [testProducer],
     groups: ["nats-basic"]
 }
 public function testOnRequest1() {
@@ -103,7 +103,7 @@ public function testOnRequest1() {
 }
 
 @test:Config {
-    dependsOn: ["testOnRequest1"],
+    dependsOn: [testOnRequest1],
     groups: ["nats-basic"]
 }
 public function testOnRequest2() {
