@@ -33,14 +33,14 @@ public type ConnectionConfig record {|
   Credentials|Tokens auth?;
   string inboxPrefix = "_INBOX.";
   boolean noEcho = false;
-  SecureSocket? secureSocket = ();
+  SecureSocket secureSocket?;
 |};
 
 # Configurations related to token based authentication.
 #
 # + token - The token for token-based authentication
 public type Tokens record {|
-  string token?;
+  string token;
 |};
 
 # Configurations related to basic authentication.
@@ -48,8 +48,8 @@ public type Tokens record {|
 # + username - The username for basic authentication
 # + password - The password for basic authentication
 public type Credentials record {|
-  string username?;
-  string password?;
+  string username;
+  string password;
 |};
 
 # Configurations related to facilitating a secure communication with a remote HTTP endpoint.
@@ -58,8 +58,8 @@ public type Credentials record {|
 # + keyStore - Configurations associated with the KeyStore
 # + protocol - The standard name of the requested protocol
 public type SecureSocket record {|
-    crypto:TrustStore? trustStore = ();
-    crypto:KeyStore? keyStore = ();
+    crypto:TrustStore trustStore?;
+    crypto:KeyStore keyStore?;
     string protocol = "TLS";
 |};
 
