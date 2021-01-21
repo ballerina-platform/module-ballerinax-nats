@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # The client provides the capability to publish messages to the NATS server.
 # The `nats:Client` needs the nats url to be initialized.

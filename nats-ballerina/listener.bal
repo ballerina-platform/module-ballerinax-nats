@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Represents the NATS server connection to which a subscription service should be bound in order to
 # receive messages of the corresponding subscription.
