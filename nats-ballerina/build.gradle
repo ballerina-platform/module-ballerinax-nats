@@ -146,9 +146,7 @@ task ballerinaTest {
     dependsOn(copyStdlibs)
     dependsOn(":nats-native:build")
     dependsOn(updateTomlVersions)
-    dependsOn(startNatsServer)
     finalizedBy(revertTomlFile)
-    finalizedBy(stopNatsServer)
 
     doLast {
         exec {
@@ -321,4 +319,6 @@ copyStdlibs.dependsOn unpackStdLibs
 updateTomlVersions.dependsOn copyStdlibs
 ballerinaBuild.dependsOn updateTomlVersions
 ballerinaBuild.dependsOn test
+ballerinaBuild.dependsOn startNatsServer
+ballerinaBuild.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
