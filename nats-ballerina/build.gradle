@@ -94,6 +94,7 @@ def artifactLibParent = file("$project.projectDir/build/lib_parent/")
 def tomlVersion = project.version.split("-")[0]
 def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN')
 def originalConfig = ballerinaConfigFile.text
+def originalDependencies = ballerinaDependencyFile.text
 def distributionBinPath =  project.projectDir.absolutePath + "/build/target/extracted-distributions/jballerina-tools-zip/jballerina-tools-${ballerinaLangVersion}/bin"
 
 task updateTomlVersions {
@@ -116,6 +117,7 @@ task updateTomlVersions {
 task revertTomlFile {
     doLast {
         ballerinaConfigFile.text = originalConfig
+        ballerinaDependencyFile.text = originalDependencies
     }
 }
 
