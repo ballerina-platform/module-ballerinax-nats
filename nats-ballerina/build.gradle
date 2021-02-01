@@ -222,7 +222,7 @@ task ballerinaBuild {
 
     def testParams = "--skip-tests"
     gradle.taskGraph.whenReady { graph ->
-        if (graph.hasTask(':nats-ballerina:build')) {
+        if (graph.hasTask(':nats-ballerina:build') || graph.hasTask(':nats-ballerina:publish')) {
             ballerinaTest.enabled = false
         }
         if (graph.hasTask(':nats-ballerina:test')) {
@@ -321,4 +321,6 @@ ballerinaBuild.dependsOn updateTomlVersions
 ballerinaBuild.dependsOn test
 ballerinaBuild.dependsOn startNatsServer
 ballerinaBuild.finalizedBy stopNatsServer
+ballerinaTest.dependsOn startNatsServer
+ballerinaTest.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
