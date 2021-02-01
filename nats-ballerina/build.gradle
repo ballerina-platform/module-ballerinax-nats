@@ -321,4 +321,6 @@ ballerinaBuild.dependsOn updateTomlVersions
 ballerinaBuild.dependsOn test
 ballerinaBuild.dependsOn startNatsServer
 ballerinaBuild.finalizedBy stopNatsServer
+ballerinaTest.dependsOn startNatsServer
+ballerinaTest.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
