@@ -257,29 +257,29 @@ task ballerinaBuild {
     outputs.dir artifactLibParent
 }
 
-task createArtifactZip(type: Zip) {
-    destinationDirectory = file("$buildDir/distributions")
-    from ballerinaBuild
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact source: createArtifactZip, extension: 'zip'
-        }
-    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerinax-nats")
-            credentials {
-                username = System.getenv("packageUser")
-                password = System.getenv("packagePAT")
-            }
-        }
-    }
-}
+//task createArtifactZip(type: Zip) {
+//    destinationDirectory = file("$buildDir/distributions")
+//    from ballerinaBuild
+//}
+//
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            artifact source: createArtifactZip, extension: 'zip'
+//        }
+//    }
+//
+//    repositories {
+//        maven {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerinax-nats")
+//            credentials {
+//                username = System.getenv("packageUser")
+//                password = System.getenv("packagePAT")
+//            }
+//        }
+//    }
+//}
 
 unpackJballerinaTools.dependsOn copyToLib
 unpackStdLibs.dependsOn unpackJballerinaTools
