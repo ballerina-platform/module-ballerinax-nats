@@ -222,11 +222,16 @@ task ballerinaBuild {
 
     def testParams = "--skip-tests"
     gradle.taskGraph.whenReady { graph ->
-        if (graph.hasTask(':nats-ballerina:build') || graph.hasTask(':nats-ballerina:publish')) {
+        if (graph.hasTask(':${packageName}-ballerina:build') || graph.hasTask(':${packageName}-ballerina:publish')) {
             ballerinaTest.enabled = false
         }
-        if (graph.hasTask(':nats-ballerina:test')) {
+        if (graph.hasTask(':${packageName}-ballerina:test')) {
             testParams = "--code-coverage --includes=*"
+        }
+        if (graph.hasTask(':${packageName}-ballerina:publish')) {
+            ballerinaPublish.enabled = true
+        } else {
+            ballerinaPublish.enabled = false
         }
     }
 
@@ -254,19 +259,6 @@ task ballerinaBuild {
             into file("$artifactCacheParent/cache/")
         }
 
-        // Publish to central
-        if (!project.version.endsWith('-SNAPSHOT') && ballerinaCentralAccessToken != null && project.hasProperty("publishToCentral")) {
-            println("Publishing to the ballerina central..")
-            exec {
-                workingDir project.projectDir
-                environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
-                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                    commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push && exit %%ERRORLEVEL%%"
-                } else {
-                    commandLine 'sh', '-c', "$distributionBinPath/bal push"
-                }
-            }
-        }
         // Doc creation and packing
         exec {
             workingDir project.projectDir
@@ -313,6 +305,24 @@ publishing {
     }
 }
 
+task ballerinaPublish {
+    // Pushing module to Ballerina central
+    doLast {
+        if (ballerinaCentralAccessToken != null) {
+            println("Publishing to the ballerina central...")
+            exec {
+                workingDir project.projectDir
+                environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
+                if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                    commandLine 'cmd', '/c', "$distributionBinPath/bal.bat push && exit %%ERRORLEVEL%%"
+                } else {
+                    commandLine 'sh', '-c', "$distributionBinPath/bal push"
+                }
+            }
+        }
+    }
+}
+
 unpackJballerinaTools.dependsOn copyToLib
 unpackStdLibs.dependsOn unpackJballerinaTools
 copyStdlibs.dependsOn unpackStdLibs
@@ -324,3 +334,5 @@ ballerinaBuild.finalizedBy stopNatsServer
 ballerinaTest.dependsOn startNatsServer
 ballerinaTest.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
+ballerinaPublish.dependsOn ballerinaBuild
+publish.dependsOn ballerinaPublish
