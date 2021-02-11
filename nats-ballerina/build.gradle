@@ -19,6 +19,20 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 description = 'Ballerina - Nats Ballerina Generator'
 
+def packageName = "nats"
+def packageOrg = "ballerinax"
+def tomlVersion = project.version.replace("-SNAPSHOT", "")
+def ballerinaConfigFile = new File("$project.projectDir/Ballerina.toml")
+def ballerinaDependencyFile = new File("$project.projectDir/Dependencies.toml")
+def artifactBallerinaDocs = file("$project.projectDir/build/docs_parent/")
+def artifactCacheParent = file("$project.projectDir/build/cache_parent/")
+def artifactLibParent = file("$project.projectDir/build/lib_parent/")
+def artifactCodeCoverageReport = file("$project.projectDir/target/cache/tests_cache/coverage/ballerina.exec")
+def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN')
+def originalConfig = ballerinaConfigFile.text
+def originalDependencies = ballerinaDependencyFile.text
+def distributionBinPath = project.projectDir.absolutePath + "/build/target/extracted-distributions/jballerina-tools-zip/jballerina-tools-${ballerinaLangVersion}/bin"
+
 configurations {
     jbalTools
     externalJars
@@ -28,7 +42,7 @@ dependencies {
     jbalTools("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
-    compile project(':nats-native')
+    compile project(":${packageName}-native")
     externalJars (group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
         transitive = false
     }
@@ -84,24 +98,10 @@ task copyToLib(type: Copy) {
     from configurations.externalJars
 }
 
-def packageName = "nats"
-def packageOrg = "ballerinax"
-def ballerinaConfigFile = new File("$project.projectDir/Ballerina.toml")
-def ballerinaDependencyFile = new File("$project.projectDir/Dependencies.toml")
-def artifactBallerinaDocs = file("$project.projectDir/build/docs_parent/")
-def artifactCacheParent = file("$project.projectDir/build/cache_parent/")
-def artifactLibParent = file("$project.projectDir/build/lib_parent/")
-def artifactCodeCoverageReport = file("$project.projectDir/target/cache/tests_cache/coverage/ballerina.exec")
-def tomlVersion = project.version.split("-")[0]
-def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN')
-def originalConfig = ballerinaConfigFile.text
-def originalDependencies = ballerinaDependencyFile.text
-def distributionBinPath =  project.projectDir.absolutePath + "/build/target/extracted-distributions/jballerina-tools-zip/jballerina-tools-${ballerinaLangVersion}/bin"
-
 task updateTomlVersions {
     doLast {
-        def stdlibDependentCryptoVersion = project.stdlibCryptoVersion.split("-")[0]
-        def stdlibDependentLogVersion = project.stdlibLogVersion.split("-")[0]
+        def stdlibDependentCryptoVersion = project.stdlibCryptoVersion.replace("-SNAPSHOT", "")
+        def stdlibDependentLogVersion = project.stdlibLogVersion.replace("-SNAPSHOT", "")
         def natsClientVersion = project.natsVersion
 
         def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
@@ -126,6 +126,7 @@ def groupParams = ""
 def disableGroups = ""
 def debugParams = ""
 def balJavaDebugParam = ""
+def testParams = ""
 
 task initializeVariables {
     if (project.hasProperty("groups")) {
@@ -139,6 +140,24 @@ task initializeVariables {
     }
     if (project.hasProperty("balJavaDebug")) {
         balJavaDebugParam = "BAL_JAVA_DEBUG=${project.findProperty("balJavaDebug")}"
+    }
+
+    gradle.taskGraph.whenReady { graph ->
+        if (graph.hasTask(":${packageName}-ballerina:build") || graph.hasTask(":${packageName}-ballerina:publish")) {
+            ballerinaTest.enabled = false
+        }
+
+        if (graph.hasTask(":${packageName}-ballerina:test")) {
+            testParams = "--code-coverage --includes=*"
+        } else {
+            testParams = "--skip-tests"
+        }
+
+        if (graph.hasTask(":${packageName}-ballerina:publish")) {
+            ballerinaPublish.enabled = true
+        } else {
+            ballerinaPublish.enabled = false
+        }
     }
 }
 
@@ -220,21 +239,6 @@ task ballerinaBuild {
     inputs.dir file(project.projectDir)
     finalizedBy(revertTomlFile)
 
-    def testParams = "--skip-tests"
-    gradle.taskGraph.whenReady { graph ->
-        if (graph.hasTask(':${packageName}-ballerina:build') || graph.hasTask(':${packageName}-ballerina:publish')) {
-            ballerinaTest.enabled = false
-        }
-        if (graph.hasTask(':${packageName}-ballerina:test')) {
-            testParams = "--code-coverage --includes=*"
-        }
-        if (graph.hasTask(':${packageName}-ballerina:publish')) {
-            ballerinaPublish.enabled = true
-        } else {
-            ballerinaPublish.enabled = false
-        }
-    }
-
     doLast {
 
         // Build and populate caches
@@ -242,10 +246,9 @@ task ballerinaBuild {
             workingDir project.projectDir
             environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$balJavaDebugParam $distributionBinPath/bal.bat build " +
-                        "$testParams ${debugParams} && exit %%ERRORLEVEL%%"
+                commandLine 'cmd', '/c', "$balJavaDebugParam $distributionBinPath/bal.bat build ${testParams} ${debugParams} && exit %%ERRORLEVEL%%"
             } else {
-                commandLine 'sh', '-c', "$balJavaDebugParam $distributionBinPath/bal build $testParams ${debugParams}"
+                commandLine 'sh', '-c', "$balJavaDebugParam $distributionBinPath/bal build ${testParams} ${debugParams}"
             }
         }
         copy {
@@ -296,7 +299,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerinax-nats")
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-${packageOrg}-${packageName}")
             credentials {
                 username = System.getenv("packageUser")
                 password = System.getenv("packagePAT")
