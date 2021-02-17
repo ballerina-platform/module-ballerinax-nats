@@ -99,20 +99,18 @@ task copyToLib(type: Copy) {
 }
 
 task updateTomlVersions {
-    doLast {
-        def stdlibDependentCryptoVersion = project.stdlibCryptoVersion.replace("-SNAPSHOT", "")
-        def stdlibDependentLogVersion = project.stdlibLogVersion.replace("-SNAPSHOT", "")
-        def natsClientVersion = project.natsVersion
+    def stdlibDependentCryptoVersion = project.stdlibCryptoVersion.replace("-SNAPSHOT", "")
+    def stdlibDependentLogVersion = project.stdlibLogVersion.replace("-SNAPSHOT", "")
+    def natsClientVersion = project.natsVersion
 
-        def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
-        newConfig = newConfig.replace("@toml.version@", tomlVersion)
-        newConfig = newConfig.replace("@nats.client.version@", natsClientVersion)
-        ballerinaConfigFile.text = newConfig
+    def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
+    newConfig = newConfig.replace("@toml.version@", tomlVersion)
+    newConfig = newConfig.replace("@nats.client.version@", natsClientVersion)
+    ballerinaConfigFile.text = newConfig
 
-        def newDependencyConfig = ballerinaDependencyFile.text.replace("@stdlib.log.version@", stdlibDependentLogVersion)
-        newDependencyConfig = newDependencyConfig.replace("@stdlib.crypto.version@", stdlibDependentCryptoVersion)
-        ballerinaDependencyFile.text = newDependencyConfig
-    }
+    def newDependencyConfig = ballerinaDependencyFile.text.replace("@stdlib.log.version@", stdlibDependentLogVersion)
+    newDependencyConfig = newDependencyConfig.replace("@stdlib.crypto.version@", stdlibDependentCryptoVersion)
+    ballerinaDependencyFile.text = newDependencyConfig
 }
 
 task revertTomlFile {
@@ -143,8 +141,10 @@ task initializeVariables {
     }
 
     gradle.taskGraph.whenReady { graph ->
-        if (graph.hasTask(":${packageName}-ballerina:build") || graph.hasTask(":${packageName}-ballerina:publish")) {
+        if (graph.hasTask(":${packageName}-ballerina:build")) {
             ballerinaTest.enabled = false
+        } else {
+            ballerinaTest.enabled = true
         }
 
         if (graph.hasTask(":${packageName}-ballerina:test")) {
@@ -153,8 +153,9 @@ task initializeVariables {
             testParams = "--skip-tests"
         }
 
-        if (graph.hasTask(":${packageName}-ballerina:publish")) {
+        if (graph.hasTask(":${packageName}-ballerina:publish") || graph.hasTask(":${packageName}-ballerina:publishToMavenLocal")) {
             ballerinaPublish.enabled = true
+            ballerinaTest.enabled = false
         } else {
             ballerinaPublish.enabled = false
         }
@@ -299,7 +300,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/ballerina-platform/module-${packageOrg}-${packageName}")
+            url = uri("https://maven.pkg.github.com/aashikam/publishing_stdlibs")
             credentials {
                 username = System.getenv("packageUser")
                 password = System.getenv("packagePAT")
@@ -322,6 +323,8 @@ task ballerinaPublish {
                     commandLine 'sh', '-c', "$distributionBinPath/bal push"
                 }
             }
+        } else {
+            println("Central Access Token is Not Present")
         }
     }
 }
@@ -339,3 +342,6 @@ ballerinaTest.finalizedBy stopNatsServer
 build.dependsOn ballerinaBuild
 ballerinaPublish.dependsOn ballerinaBuild
 publish.dependsOn ballerinaPublish
+ballerinaPublish.dependsOn updateTomlVersions
+ballerinaPublish.dependsOn initializeVariables
+ballerinaPublish.finalizedBy revertTomlFile

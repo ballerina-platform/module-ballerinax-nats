@@ -120,10 +120,10 @@ release {
 
     buildTasks = ['build']
     versionPropertyFile = 'gradle.properties'
-    tagTemplate = 'v$version'
+    tagTemplate = 'vc$version'
 
     git {
-        requireBranch = "release-${moduleVersion}"
+        requireBranch = null
         pushToRemote = 'origin'
     }
 }
