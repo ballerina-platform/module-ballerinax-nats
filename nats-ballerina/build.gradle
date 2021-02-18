@@ -143,8 +143,10 @@ task initializeVariables {
     }
 
     gradle.taskGraph.whenReady { graph ->
-        if (graph.hasTask(":${packageName}-ballerina:build") || graph.hasTask(":${packageName}-ballerina:publish")) {
+        if (graph.hasTask(":${packageName}-ballerina:build")) {
             ballerinaTest.enabled = false
+        } else {
+            ballerinaTest.enabled = true
         }
 
         if (graph.hasTask(":${packageName}-ballerina:test")) {
@@ -153,8 +155,9 @@ task initializeVariables {
             testParams = "--skip-tests"
         }
 
-        if (graph.hasTask(":${packageName}-ballerina:publish")) {
+        if (graph.hasTask(":${packageName}-ballerina:publish") || graph.hasTask(":${packageName}-ballerina:publishToMavenLocal")) {
             ballerinaPublish.enabled = true
+            ballerinaTest.enabled = false
         } else {
             ballerinaPublish.enabled = false
         }
@@ -162,11 +165,6 @@ task initializeVariables {
 }
 
 task ballerinaTest {
-    dependsOn(copyStdlibs)
-    dependsOn(":nats-native:build")
-    dependsOn(updateTomlVersions)
-    finalizedBy(revertTomlFile)
-
     doLast {
         exec {
             workingDir project.projectDir
@@ -181,10 +179,6 @@ task ballerinaTest {
             }
         }
     }
-}
-
-test {
-    dependsOn(ballerinaTest)
 }
 
 task startNatsServer() {
@@ -234,10 +228,7 @@ task stopNatsServer() {
 }
 
 task ballerinaBuild {
-    dependsOn(":nats-native:build")
-    dependsOn(initializeVariables)
     inputs.dir file(project.projectDir)
-    finalizedBy(revertTomlFile)
 
     doLast {
 
@@ -322,6 +313,8 @@ task ballerinaPublish {
                     commandLine 'sh', '-c', "$distributionBinPath/bal push"
                 }
             }
+        } else {
+            println("Central Access Token is Not Present")
         }
     }
 }
@@ -330,12 +323,27 @@ unpackJballerinaTools.dependsOn copyToLib
 unpackStdLibs.dependsOn unpackJballerinaTools
 copyStdlibs.dependsOn unpackStdLibs
 updateTomlVersions.dependsOn copyStdlibs
-ballerinaBuild.dependsOn updateTomlVersions
-ballerinaBuild.dependsOn test
-ballerinaBuild.dependsOn startNatsServer
-ballerinaBuild.finalizedBy stopNatsServer
+
 ballerinaTest.dependsOn startNatsServer
+ballerinaTest.dependsOn ":${packageName}-native:build"
+ballerinaTest.dependsOn updateTomlVersions
+ballerinaTest.dependsOn initializeVariables
 ballerinaTest.finalizedBy stopNatsServer
+ballerinaTest.finalizedBy revertTomlFile
+test.dependsOn ballerinaTest
+
+ballerinaBuild.dependsOn updateTomlVersions
+ballerinaBuild.dependsOn ":${packageName}-native:build"
+ballerinaBuild.dependsOn initializeVariables
+ballerinaBuild.dependsOn startNatsServer
+ballerinaBuild.finalizedBy revertTomlFile
+ballerinaBuild.finalizedBy stopNatsServer
+ballerinaBuild.dependsOn test
 build.dependsOn ballerinaBuild
+
 ballerinaPublish.dependsOn ballerinaBuild
+ballerinaPublish.dependsOn updateTomlVersions
+ballerinaPublish.dependsOn initializeVariables
+ballerinaPublish.dependsOn ":${packageName}-native:build"
+ballerinaPublish.finalizedBy revertTomlFile
 publish.dependsOn ballerinaPublish

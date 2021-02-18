@@ -117,6 +117,7 @@ if (moduleVersion.indexOf('-') != -1) {
 
 release {
     failOnPublishNeeded = false
+    failOnSnapshotDependencies = true
 
     buildTasks = ['build']
     versionPropertyFile = 'gradle.properties'
