@@ -46,7 +46,7 @@ public class Constants {
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
 
     // Error code for i/o.
-    static final String NATS_ERROR = "NatsError";
+    static final String NATS_ERROR = "Error";
 
     public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
 
