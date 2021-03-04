@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
@@ -48,11 +49,11 @@ import javax.net.ssl.TrustManagerFactory;
  * Creates the NATS connection from the user given connection configurations.
  */
 public class ConnectionUtils {
-    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
+    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWait");
     private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
     private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
-    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
-    private static final BString PING_INTERVAL = StringUtils.fromString("pingIntervalInMinutes");
+    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeout");
+    private static final BString PING_INTERVAL = StringUtils.fromString("pingInterval");
     private static final BString MAX_PINGS_OUT = StringUtils.fromString("maxPingsOut");
     private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
     private static final BString NO_ECHO = StringUtils.fromString("noEcho");
@@ -82,15 +83,16 @@ public class ConnectionUtils {
             @SuppressWarnings("unchecked")
             BMap<BString, Object> retryConfig = connectionConfig.getMapValue(RETRY_CONFIG);
             opts.maxReconnects(Math.toIntExact(retryConfig.getIntValue(MAX_RECONNECT)));
-            opts.reconnectWait(Duration.ofSeconds(retryConfig.getIntValue(RECONNECT_WAIT)));
-            opts.connectionTimeout(Duration.ofSeconds(retryConfig.getIntValue(CONNECTION_TIMEOUT)));
+            opts.reconnectWait(Duration.ofSeconds(((BDecimal) retryConfig.get(RECONNECT_WAIT)).intValue()));
+            opts.connectionTimeout(Duration.ofSeconds(
+                    ((BDecimal) retryConfig.get(CONNECTION_TIMEOUT)).intValue()));
         }
 
         // Ping configs
         if (connectionConfig.containsKey(PING_CONFIG)) {
             @SuppressWarnings("unchecked")
             BMap<BString, Object> pingConfig = connectionConfig.getMapValue(PING_CONFIG);
-            opts.pingInterval(Duration.ofMinutes(pingConfig.getIntValue(PING_INTERVAL)));
+            opts.pingInterval(Duration.ofSeconds(((BDecimal) pingConfig.get(PING_INTERVAL)).intValue()));
             opts.maxPingsOut(Math.toIntExact(pingConfig.getIntValue(MAX_PINGS_OUT)));
         }
 
