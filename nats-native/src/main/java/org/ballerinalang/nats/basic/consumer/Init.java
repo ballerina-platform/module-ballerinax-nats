@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
@@ -46,7 +47,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  */
 public class Init {
 
-    public static Object consumerInit(BObject listenerObject, Object urlString, Object connectionConfig) {
+    public static Object consumerInit(BObject listenerObject, Object urlString, BMap connectionConfig) {
         Connection natsConnection = null;
         try {
             natsConnection = ConnectionUtils.getNatsConnection(urlString, connectionConfig);

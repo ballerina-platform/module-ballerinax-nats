@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
@@ -48,11 +49,11 @@ import javax.net.ssl.TrustManagerFactory;
  * Creates the NATS connection from the user given connection configurations.
  */
 public class ConnectionUtils {
-    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWaitInSeconds");
+    private static final BString RECONNECT_WAIT = StringUtils.fromString("reconnectWait");
     private static final BString CONNECTION_NAME = StringUtils.fromString("connectionName");
     private static final BString MAX_RECONNECT = StringUtils.fromString("maxReconnect");
-    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeoutInSeconds");
-    private static final BString PING_INTERVAL = StringUtils.fromString("pingIntervalInMinutes");
+    private static final BString CONNECTION_TIMEOUT = StringUtils.fromString("connectionTimeout");
+    private static final BString PING_INTERVAL = StringUtils.fromString("pingInterval");
     private static final BString MAX_PINGS_OUT = StringUtils.fromString("maxPingsOut");
     private static final BString INBOX_PREFIX = StringUtils.fromString("inboxPrefix");
     private static final BString NO_ECHO = StringUtils.fromString("noEcho");
@@ -63,7 +64,7 @@ public class ConnectionUtils {
     private static final BString PASSWORD = StringUtils.fromString("password");
     private static final BString TOKEN = StringUtils.fromString("token");
 
-    public static Connection getNatsConnection(Object urlString, Object connectionConfig)
+    public static Connection getNatsConnection(Object urlString, BMap connectionConfig)
             throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
                    KeyManagementException, IOException, InterruptedException {
         Options.Builder opts = new Options.Builder();
@@ -75,29 +76,32 @@ public class ConnectionUtils {
             opts.servers(serverUrls);
         }
 
-        if (TypeUtils.getType(connectionConfig).getTag() == TypeTags.RECORD_TYPE_TAG) {
+        opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME).getValue());
 
-            opts.connectionName(((BMap) connectionConfig).getStringValue(CONNECTION_NAME).getValue());
-
-            // Retry configs
+        // Retry configs
+        if (connectionConfig.containsKey(RETRY_CONFIG)) {
             @SuppressWarnings("unchecked")
-            BMap<BString, Object> retryConfig = ((BMap) connectionConfig).getMapValue(RETRY_CONFIG);
-            opts.maxReconnects(Math.toIntExact(((BMap) retryConfig).getIntValue(MAX_RECONNECT)));
-            opts.reconnectWait(Duration.ofSeconds(((BMap) retryConfig).getIntValue(RECONNECT_WAIT)));
-            opts.connectionTimeout(Duration.ofSeconds(((BMap) retryConfig).getIntValue(CONNECTION_TIMEOUT)));
+            BMap<BString, Object> retryConfig = connectionConfig.getMapValue(RETRY_CONFIG);
+            opts.maxReconnects(Math.toIntExact(retryConfig.getIntValue(MAX_RECONNECT)));
+            opts.reconnectWait(Duration.ofSeconds(((BDecimal) retryConfig.get(RECONNECT_WAIT)).intValue()));
+            opts.connectionTimeout(Duration.ofSeconds(
+                    ((BDecimal) retryConfig.get(CONNECTION_TIMEOUT)).intValue()));
+        }
 
-            // Ping configs
+        // Ping configs
+        if (connectionConfig.containsKey(PING_CONFIG)) {
             @SuppressWarnings("unchecked")
-            BMap<BString, Object> pingConfig = ((BMap) connectionConfig).getMapValue(PING_CONFIG);
-            opts.pingInterval(Duration.ofMinutes(((BMap) pingConfig).getIntValue(PING_INTERVAL)));
-            opts.maxPingsOut(Math.toIntExact(((BMap) pingConfig).getIntValue(MAX_PINGS_OUT)));
+            BMap<BString, Object> pingConfig = connectionConfig.getMapValue(PING_CONFIG);
+            opts.pingInterval(Duration.ofSeconds(((BDecimal) pingConfig.get(PING_INTERVAL)).intValue()));
+            opts.maxPingsOut(Math.toIntExact(pingConfig.getIntValue(MAX_PINGS_OUT)));
+        }
 
-            opts.inboxPrefix(((BMap) connectionConfig).getStringValue(INBOX_PREFIX).getValue());
-            opts.oldRequestStyle();
+        opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX).getValue());
+        opts.oldRequestStyle();
 
-            // Auth configs
-            @SuppressWarnings("unchecked")
-            Object authConfig = ((BMap) connectionConfig).getObjectValue(AUTH_CONFIG);
+        // Auth configs
+        if (connectionConfig.containsKey(AUTH_CONFIG)) {
+            Object authConfig = connectionConfig.getObjectValue(AUTH_CONFIG);
             if (TypeUtils.getType(authConfig).getTag() == TypeTags.RECORD_TYPE_TAG) {
                 if (((BMap) authConfig).containsKey(USERNAME) && ((BMap) authConfig).containsKey(PASSWORD)) {
                     // Credentials based auth
@@ -108,18 +112,18 @@ public class ConnectionUtils {
                     opts.token(((BMap) authConfig).getStringValue(TOKEN).getValue().toCharArray());
                 }
             }
+        }
 
-            // Add noEcho.
-            if (((BMap) connectionConfig).getBooleanValue(NO_ECHO)) {
-                opts.noEcho();
-            }
+        // Add noEcho.
+        if (connectionConfig.getBooleanValue(NO_ECHO)) {
+            opts.noEcho();
+        }
 
-            // Secure socket configs
-            BMap secureSocket = ((BMap) connectionConfig).getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
-            if (secureSocket != null) {
-                SSLContext sslContext = getSSLContext(secureSocket);
-                opts.sslContext(sslContext);
-            }
+        // Secure socket configs
+        if (connectionConfig.containsKey(Constants.CONNECTION_CONFIG_SECURE_SOCKET)) {
+            BMap secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
+            SSLContext sslContext = getSSLContext(secureSocket);
+            opts.sslContext(sslContext);
         }
         return Nats.connect(opts.build());
     }
