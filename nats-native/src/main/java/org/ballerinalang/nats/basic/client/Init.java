@@ -40,10 +40,10 @@ import java.security.cert.CertificateException;
  */
 public class Init {
 
-    public static Object clientInit(BObject clientObj, Object urlString, BMap connectionConfig) {
+    public static Object clientInit(BObject clientObj, BMap connectionConfig) {
         Connection natsConnection;
         try {
-            natsConnection = ConnectionUtils.getNatsConnection(urlString, connectionConfig);
+            natsConnection = ConnectionUtils.getNatsConnection(connectionConfig);
         } catch (UnrecoverableKeyException e) {
             return Utils.createNatsError(
                     Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "The key in the keystore cannot be recovered.");
