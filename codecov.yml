@@ -1,0 +1,8 @@
+codecov:
+  require_ci_to_pass: no
+
+fixes:
+  - "ballerinax/nats/*/::nats-ballerina/"
+
+ignore:
+  - "**/tests"

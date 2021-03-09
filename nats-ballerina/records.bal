@@ -18,6 +18,7 @@ import ballerina/crypto;
 
 # Configurations related to creating a NATS streaming subscription.
 #
+# + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
 # + connectionName - Name of the connection (this is optional)
 # + retryConfig - Configurations related to connection reconnect attempts
 # + ping - Configurations related to pinging the server
@@ -27,6 +28,7 @@ import ballerina/crypto;
 #            has subscriptions on the subject being published to
 # + secureSocket - Configurations related to SSL/TLS
 public type ConnectionConfig record {|
+  string|string[] url = DEFAULT_URL;
   string connectionName = "ballerina-nats";
   RetryConfig retryConfig?;
   Ping ping?;
@@ -65,10 +67,10 @@ public type SecureSocket record {|
 
 # Configurations related to pinging the server
 #
-# + pingIntervalInMinutes - The interval (in minutes) between the attempts of pinging the server
+# + pingInterval - The interval (in seconds) between the attempts of pinging the server
 # + maxPingsOut - The maximum number of pings the client can have in flight. The default value is two
 public type Ping record {|
-  int pingIntervalInMinutes = 2;
+  decimal pingInterval = 120;
   int maxPingsOut = 2;
 |};
 
@@ -79,12 +81,12 @@ public type Ping record {|
 #                  over its server list one time regardless of the `maxReconnects` value that is set.
 #                  Use 0 to turn off auto reconnecting.
 #                  Use -1 to turn on infinite reconnects.
-# + reconnectWaitInSeconds - The time(in seconds) to wait between the reconnect attempts to reconnect to the same server
-# + connectionTimeoutInSeconds - The timeout (in seconds) for the connection attempts
+# + reconnectWait - The time(in seconds) to wait between the reconnect attempts to reconnect to the same server
+# + connectionTimeout - The timeout (in seconds) for the connection attempts
 public type RetryConfig record {|
   int maxReconnect = 60;
-  int reconnectWaitInSeconds = 2;
-  int connectionTimeoutInSeconds = 2;
+  decimal reconnectWait = 2;
+  decimal connectionTimeout = 2;
 |};
 
 # Represents the message, which a NATS server sends to its subscribed services.
