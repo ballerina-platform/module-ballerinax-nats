@@ -63,11 +63,13 @@ public class ConnectionUtils {
     private static final BString USERNAME = StringUtils.fromString("username");
     private static final BString PASSWORD = StringUtils.fromString("password");
     private static final BString TOKEN = StringUtils.fromString("token");
+    private static final BString URLS = StringUtils.fromString("url");
 
-    public static Connection getNatsConnection(Object urlString, BMap connectionConfig)
+    public static Connection getNatsConnection(BMap connectionConfig)
             throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
                    KeyManagementException, IOException, InterruptedException {
         Options.Builder opts = new Options.Builder();
+        Object urlString = connectionConfig.get(URLS);
         if (TypeUtils.getType(urlString).getTag() == TypeTags.ARRAY_TAG) {
             String[] serverUrls = ((BArray) urlString).getStringArray();
             opts.servers(serverUrls);
