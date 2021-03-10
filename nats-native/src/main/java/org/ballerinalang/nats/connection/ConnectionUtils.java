@@ -193,7 +193,7 @@ public class ConnectionUtils {
             sslContext = SSLContext.getDefault();
         }
         sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
-                         trustManagerFactory.getTrustManagers(), null);
+                         trustManagerFactory.getTrustManagers(), new SecureRandom());
         return sslContext;
     }
 }
