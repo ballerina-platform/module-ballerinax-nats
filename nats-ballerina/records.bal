@@ -54,16 +54,25 @@ public type Credentials record {|
   string password;
 |};
 
-# Configurations related to facilitating a secure communication with a remote HTTP endpoint.
+# Configurations related to facilitating a secure communication.
 #
-# + trustStore - Configurations associated with the TrustStore
-# + keyStore - Configurations associated with the KeyStore
-# + protocol - The standard name of the requested protocol
+# + cert - Configurations associated with `crypto:TrustStore`
+# + key - Configurations associated with `crypto:KeyStore`
+# + protocol - SSL/TLS protocol related options
 public type SecureSocket record {|
-    crypto:TrustStore trustStore?;
-    crypto:KeyStore keyStore?;
-    string protocol = "TLS";
+    crypto:TrustStore cert;
+    crypto:KeyStore key?;
+    record {|
+        Protocol name;
+    |} protocol?;
 |};
+
+# Represents protocol options.
+public enum Protocol {
+   SSL,
+   TLS,
+   DTLS
+}
 
 # Configurations related to pinging the server
 #
