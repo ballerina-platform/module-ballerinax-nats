@@ -165,7 +165,6 @@ public class ConnectionUtils {
         @SuppressWarnings("unchecked")
         BMap<BString, Object> cryptoTrustStore =
                 (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_TRUSTORE);
-        TrustManagerFactory trustManagerFactory;
         KeyStore trustStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
         char[] trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).getValue()
                 .toCharArray();
@@ -178,25 +177,20 @@ public class ConnectionUtils {
             throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION
                                                 + "truststore path doesn't exist.");
         }
-        trustManagerFactory =
+        TrustManagerFactory trustManagerFactory =
                 TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(trustStore);
 
         // protocol
-        String protocol = null;
+        SSLContext sslContext;
         if (secureSocket.containsKey(Constants.CONNECTION_PROTOCOL)) {
             @SuppressWarnings("unchecked")
             BMap<BString, Object> protocolRecord =
                     (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_PROTOCOL);
-            protocol = protocolRecord.getStringValue(Constants.CONNECTION_PROTOCOL_NAME).getValue();
-        }
-
-        // SSL Context
-        SSLContext sslContext;
-        if (protocol == null) {
-            sslContext = SSLContext.getDefault();
-        } else {
+            String protocol = protocolRecord.getStringValue(Constants.CONNECTION_PROTOCOL_NAME).getValue();
             sslContext = SSLContext.getInstance(protocol);
+        } else {
+            sslContext = SSLContext.getDefault();
         }
         sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
                          trustManagerFactory.getTrustManagers(), null);
