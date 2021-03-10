@@ -139,7 +139,7 @@ service object {
         string|error message = strings:fromBytes(messageContent);
         if (message is string) {
             receivedConsumerMessage = message;
-            log:print("Message Received: " + message);
+            log:printInfo("Message Received: " + message);
         }
     }
 };
@@ -159,7 +159,7 @@ service object {
         string|error message = strings:fromBytes(messageContent);
         if (message is string) {
             receivedOnRequestMessage = message;
-            log:print("Message Received: " + message);
+            log:printInfo("Message Received: " + message);
         }
         return "Hello Back!";
     }
@@ -176,7 +176,7 @@ service object {
         string|error message = strings:fromBytes(messageContent);
         if (message is string) {
             receivedReplyMessage = message;
-            log:print("Message Received: " + message);
+            log:printInfo("Message Received: " + message);
         }
     }
 };
