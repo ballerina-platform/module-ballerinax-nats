@@ -37,6 +37,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
@@ -136,12 +137,15 @@ public class ConnectionUtils {
      * @param secureSocket secureSocket record.
      * @return Initialized SSLContext.
      */
-    private static SSLContext getSSLContext(BMap secureSocket)
+    private static SSLContext getSSLContext(BMap<BString, Object> secureSocket)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
                    UnrecoverableKeyException, KeyManagementException {
-        BMap cryptoKeyStore = secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
+        // Keystore
         KeyManagerFactory keyManagerFactory = null;
-        if (cryptoKeyStore != null) {
+        if (secureSocket.containsKey(Constants.CONNECTION_KEYSTORE)) {
+            @SuppressWarnings("unchecked")
+            BMap<BString, Object> cryptoKeyStore =
+                    (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
             char[] keyPassphrase = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PASS).getValue().toCharArray();
             String keyFilePath = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
             KeyStore keyStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
@@ -158,30 +162,39 @@ public class ConnectionUtils {
             keyManagerFactory.init(keyStore, keyPassphrase);
         }
 
-        BMap cryptoTrustStore = secureSocket.getMapValue(Constants.CONNECTION_TRUSTORE);
-        TrustManagerFactory trustManagerFactory = null;
-        if (cryptoTrustStore != null) {
-            KeyStore trustStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
-            char[] trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).getValue()
-                    .toCharArray();
-            String trustFilePath = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
-            if (trustFilePath != null) {
-                try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
-                    trustStore.load(trustFileInputStream, trustPassphrase);
-                }
-            } else {
-                throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION
-                                                    + "truststore path doesn't exist.");
+        // Truststore
+        @SuppressWarnings("unchecked")
+        BMap<BString, Object> cryptoTrustStore =
+                (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_TRUSTORE);
+        KeyStore trustStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
+        char[] trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).getValue()
+                .toCharArray();
+        String trustFilePath = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
+        if (trustFilePath != null) {
+            try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
+                trustStore.load(trustFileInputStream, trustPassphrase);
             }
-            trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(trustStore);
+        } else {
+            throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION
+                                                + "truststore path doesn't exist.");
         }
+        TrustManagerFactory trustManagerFactory =
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(trustStore);
 
-        String tlsVersion = secureSocket.getStringValue(Constants.CONNECTION_PROTOCOL).getValue();
-        SSLContext sslContext = SSLContext.getInstance(tlsVersion);
+        // protocol
+        SSLContext sslContext;
+        if (secureSocket.containsKey(Constants.CONNECTION_PROTOCOL)) {
+            @SuppressWarnings("unchecked")
+            BMap<BString, Object> protocolRecord =
+                    (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_PROTOCOL);
+            String protocol = protocolRecord.getStringValue(Constants.CONNECTION_PROTOCOL_NAME).getValue();
+            sslContext = SSLContext.getInstance(protocol);
+        } else {
+            sslContext = SSLContext.getDefault();
+        }
         sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
-                        trustManagerFactory != null ? trustManagerFactory.getTrustManagers() : null, null);
+                         trustManagerFactory.getTrustManagers(), new SecureRandom());
         return sslContext;
     }
 }
