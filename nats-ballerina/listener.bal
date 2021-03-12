@@ -23,7 +23,7 @@ public class Listener {
     # Creates a new NATS Listener.
     #
     # + connection - An established NATS connection.
-    public isolated function init(*ConnectionConfig config) returns Error? {
+    public isolated function init(*ConnectionConfiguration config) returns Error? {
         return consumerInit(self, config);
     }
 
@@ -91,7 +91,7 @@ isolated function basicImmediateStop(Listener lis) =
     'class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
 } external;
 
-isolated function consumerInit(Listener lis, *ConnectionConfig config) returns Error? =
+isolated function consumerInit(Listener lis, *ConnectionConfiguration config) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Init"
 } external;
