@@ -23,7 +23,7 @@ public client class Client {
     # Creates a new `nats:Client`.
     #
     # + config - Configurations associated with the NATS client to establish a connection with the server
-    public isolated function init(*ConnectionConfig config) returns Error? {
+    public isolated function init(*ConnectionConfiguration config) returns Error? {
         return clientInit(self, config);
     }
 
@@ -59,7 +59,7 @@ public client class Client {
     }
 }
 
-isolated function clientInit(Client clientObj, *ConnectionConfig config) returns Error? =
+isolated function clientInit(Client clientObj, *ConnectionConfiguration config) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Init"
 } external;

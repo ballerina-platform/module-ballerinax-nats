@@ -27,7 +27,7 @@ import ballerina/crypto;
 # + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
 #            has subscriptions on the subject being published to
 # + secureSocket - Configurations related to SSL/TLS
-public type ConnectionConfig record {|
+public type ConnectionConfiguration record {|
   string|string[] url = DEFAULT_URL;
   string connectionName = "ballerina-nats";
   RetryConfig retryConfig?;
