@@ -25,12 +25,14 @@ def platform = "java11"
 def tomlVersion = project.version.replace("-SNAPSHOT", "")
 def ballerinaConfigFile = new File("$project.projectDir/Ballerina.toml")
 def ballerinaDependencyFile = new File("$project.projectDir/Dependencies.toml")
+def ballerinaCompilerPluginFile = new File("$project.projectDir/CompilerPlugin.toml")
 def artifactBallerinaDocs = file("$project.projectDir/build/docs_parent/")
 def artifactCacheParent = file("$project.projectDir/build/cache_parent/")
 def artifactLibParent = file("$project.projectDir/build/lib_parent/")
 def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN')
 def originalConfig = ballerinaConfigFile.text
 def originalDependencies = ballerinaDependencyFile.text
+def originalCompilerPlugin = ballerinaCompilerPluginFile.text
 def distributionBinPath = project.projectDir.absolutePath + "/build/target/extracted-distributions/jballerina-tools-zip/jballerina-tools-${ballerinaLangVersion}/bin"
 
 configurations {
@@ -112,6 +114,9 @@ task updateTomlVersions {
         def newDependencyConfig = ballerinaDependencyFile.text.replace("@stdlib.log.version@", stdlibDependentLogVersion)
         newDependencyConfig = newDependencyConfig.replace("@stdlib.crypto.version@", stdlibDependentCryptoVersion)
         ballerinaDependencyFile.text = newDependencyConfig
+
+        def newPluginConfig = ballerinaCompilerPluginFile.text.replace("@project.version@", project.version)
+        ballerinaCompilerPluginFile.text = newPluginConfig
     }
 }
 
@@ -119,6 +124,7 @@ task revertTomlFile {
     doLast {
         ballerinaConfigFile.text = originalConfig
         ballerinaDependencyFile.text = originalDependencies
+        ballerinaCompilerPluginFile.text = originalCompilerPlugin
     }
 }
 
@@ -332,6 +338,7 @@ updateTomlVersions.dependsOn copyStdlibs
 
 ballerinaTest.dependsOn startNatsServer
 ballerinaTest.dependsOn ":${packageName}-native:build"
+ballerinaTest.dependsOn ":${packageName}-compiler-plugin:build"
 ballerinaTest.dependsOn updateTomlVersions
 ballerinaTest.dependsOn initializeVariables
 ballerinaTest.finalizedBy stopNatsServer
@@ -340,6 +347,7 @@ test.dependsOn ballerinaTest
 
 ballerinaBuild.dependsOn updateTomlVersions
 ballerinaBuild.dependsOn ":${packageName}-native:build"
+ballerinaBuild.dependsOn ":${packageName}-compiler-plugin:build"
 ballerinaBuild.dependsOn initializeVariables
 ballerinaBuild.dependsOn startNatsServer
 ballerinaBuild.finalizedBy revertTomlFile

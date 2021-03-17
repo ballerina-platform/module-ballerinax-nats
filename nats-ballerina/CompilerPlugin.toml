@@ -1,0 +1,6 @@
+[plugin]
+id = "nats-compiler-plugin"
+class = "org.ballerinalang.nats.plugin.NatsCompilerPlugin"
+
+[[dependency]]
+path = "../nats-compiler-plugin/build/libs/nats-compiler-plugin-@project.version@.jar"
