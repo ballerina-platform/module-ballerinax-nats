@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -35,6 +36,7 @@ import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
+import java.math.BigDecimal;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +50,8 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  * @since 0.995
  */
 public class Request {
-
+    private static final BigDecimal MILLISECOND_MULTIPLIER = new BigDecimal(1000);
+    
     @SuppressWarnings("unused")
     public static Object externRequest(Environment environment, BObject clientObj, BString subject, BArray data,
                                        Object duration) {
@@ -67,8 +70,10 @@ public class Request {
             Message reply;
             Future<Message> incoming = natsConnection.request(subject.getValue(), byteContent);
             natsMetricsReporter.reportRequest(subject.getValue(), byteContent.length);
-            if (TypeUtils.getType(duration).getTag() == TypeTags.INT_TAG) {
-                reply = incoming.get((Long) duration, TimeUnit.MILLISECONDS);
+            if (TypeUtils.getType(duration).getTag() == TypeTags.DECIMAL_TAG) {
+                BigDecimal valueInSeconds = ((BDecimal) duration).decimalValue();
+                int valueInMilliSeconds = (valueInSeconds).multiply(MILLISECOND_MULTIPLIER).intValue();
+                reply = incoming.get(valueInMilliSeconds, TimeUnit.MILLISECONDS);
             } else {
                 reply = incoming.get();
             }

@@ -50,7 +50,7 @@ nats:Error? result =
 ```ballerina
 string message = "hello world";
 nats:Message|nats:Error reqReply = 
-    natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5000);
+    natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5);
 ```
 
 3. Publish messages with a replyTo subject 

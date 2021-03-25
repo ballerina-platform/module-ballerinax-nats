@@ -45,9 +45,9 @@ public client class Client {
     # ```
     #
     # + message - Message to be published
-    # + duration - The time (in milliseconds) to wait for the response
+    # + duration - The time (in seconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    isolated remote function requestMessage(Message message, int? duration = ())
+    isolated remote function requestMessage(Message message, decimal? duration = ())
             returns Message|Error {
         return externRequest(self, message.subject, message.content, duration);
     }
@@ -70,7 +70,7 @@ isolated function closeConnection(Client clientObj) returns Error? =
     'class: "org.ballerinalang.nats.basic.client.CloseConnection"
 } external;
 
-isolated function externRequest(Client clientObj, string subject, byte[] data, int? duration = ())
+isolated function externRequest(Client clientObj, string subject, byte[] data, decimal? duration = ())
 returns Message | Error = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Request"
 } external;
