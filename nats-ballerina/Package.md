@@ -27,8 +27,8 @@ nats:Client natsClient = new("nats://serverone:4222");
 3. Connect to one or more servers with custom configurations 
 ```ballerina
 nats:ConnectionConfiguration config = {
-    connectionName = "my-nats",
-    noEcho = true
+    connectionName: "my-nats",
+    noEcho: true
 };
 nats:Client natsClient = new(["nats://serverone:4222",  "nats://servertwo:4222"],  config);
 ```
