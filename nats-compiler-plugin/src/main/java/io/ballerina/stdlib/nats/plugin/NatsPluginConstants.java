@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,13 +16,14 @@
  * under the License.
  */
 
-module io.ballerina.stdlib.nats.runtime {
-    requires jnats;
-    requires io.ballerina.runtime;
-    requires org.slf4j;
-    requires io.ballerina.lang;
-    exports org.ballerinalang.nats.basic.consumer;
-    exports org.ballerinalang.nats.basic.client;
-    exports org.ballerinalang.nats.connection;
-    exports org.ballerinalang.nats.observability;
+package io.ballerina.stdlib.nats.plugin;
+
+/**
+ * NATS compiler plugin constants.
+ */
+public class NatsPluginConstants {
+    // compiler plugin constants
+    public static final String PACKAGE = "nats";
+
+    private NatsPluginConstants () {}
 }

@@ -16,18 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.plugin;
-
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.plugins.CodeAnalysisContext;
-import io.ballerina.projects.plugins.CodeAnalyzer;
+package io.ballerina.stdlib.nats.plugin;
 
 /**
- * NATS Code Analyzer.
+ * NATS remote function validator.
  */
-public class NatsCodeAnalyzer extends CodeAnalyzer {
-    @Override
-    public void init(CodeAnalysisContext codeAnalysisContext) {
-        codeAnalysisContext.addSyntaxNodeAnalysisTask(new NatsServiceValidator(), SyntaxKind.SERVICE_DECLARATION);
-    }
+public class NatsRemoteFunctionValidator {
+
 }

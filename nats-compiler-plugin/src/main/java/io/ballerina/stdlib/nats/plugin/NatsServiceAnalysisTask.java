@@ -16,18 +16,17 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.plugin;
+package io.ballerina.stdlib.nats.plugin;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.AnalysisTask;
+import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 
 /**
- * NATS Compiler plugin.
+ * NATS service compilation analysis task.
  */
-public class NatsCompilerPlugin extends CompilerPlugin {
-
+public class NatsServiceAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
     @Override
-    public void init(CompilerPluginContext compilerPluginContext) {
-        compilerPluginContext.addCodeAnalyzer(new NatsCodeAnalyzer());
+    public void perform(SyntaxNodeAnalysisContext analysisContext) {
+        new NatsServiceValidator(analysisContext, NatsPluginConstants.PACKAGE).validate();
     }
 }
