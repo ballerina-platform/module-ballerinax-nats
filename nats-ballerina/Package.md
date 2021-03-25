@@ -65,13 +65,13 @@ nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: 
 ##### Listening to messages from a NATS server
 
 ```ballerina
-// Binds the consumer to listen to the messages published to the 'demo' subject.
+// Binds the consumer to listen to the messages published to the 'demo.example.*' subject.
 @nats:ServiceConfig {
-    subject: "demo"
+    subject: "demo.example.*"
 }
-service demo on new nats:Listener() {
+service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
-    remote function onMessage(nats:Message msg) {
+    remote function onMessage(nats:Message message) {
     }
 }
 ```
