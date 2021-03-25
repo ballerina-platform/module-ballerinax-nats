@@ -28,7 +28,6 @@ import ballerina/crypto;
 #            has subscriptions on the subject being published to
 # + secureSocket - Configurations related to SSL/TLS
 public type ConnectionConfiguration record {|
-  string|string[] url = DEFAULT_URL;
   string connectionName = "ballerina-nats";
   RetryConfig retryConfig?;
   Ping ping?;
