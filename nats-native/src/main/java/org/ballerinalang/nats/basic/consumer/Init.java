@@ -47,10 +47,10 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  */
 public class Init {
 
-    public static Object consumerInit(BObject listenerObject, BMap connectionConfig) {
+    public static Object consumerInit(BObject listenerObject, Object url, BMap connectionConfig) {
         Connection natsConnection = null;
         try {
-            natsConnection = ConnectionUtils.getNatsConnection(connectionConfig);
+            natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
         } catch (UnrecoverableKeyException e) {
             return Utils.createNatsError(
                     Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "The key in the keystore cannot be recovered.");
