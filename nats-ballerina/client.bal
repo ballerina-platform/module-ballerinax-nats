@@ -22,9 +22,10 @@ public client class Client {
 
     # Creates a new `nats:Client`.
     #
+    # + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
     # + config - Configurations associated with the NATS client to establish a connection with the server
-    public isolated function init(*ConnectionConfiguration config) returns Error? {
-        return clientInit(self, config);
+    public isolated function init(string|string[] url, *ConnectionConfiguration config) returns Error? {
+        return clientInit(self, url, config);
     }
 
     # Publishes data to a given subject.
@@ -44,9 +45,9 @@ public client class Client {
     # ```
     #
     # + message - Message to be published
-    # + duration - The time (in milliseconds) to wait for the response
+    # + duration - The time (in seconds) to wait for the response
     # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
-    isolated remote function requestMessage(Message message, int? duration = ())
+    isolated remote function requestMessage(Message message, decimal? duration = ())
             returns Message|Error {
         return externRequest(self, message.subject, message.content, duration);
     }
@@ -59,7 +60,7 @@ public client class Client {
     }
 }
 
-isolated function clientInit(Client clientObj, *ConnectionConfiguration config) returns Error? =
+isolated function clientInit(Client clientObj, string|string[] url, *ConnectionConfiguration config) returns Error? =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Init"
 } external;
@@ -69,7 +70,7 @@ isolated function closeConnection(Client clientObj) returns Error? =
     'class: "org.ballerinalang.nats.basic.client.CloseConnection"
 } external;
 
-isolated function externRequest(Client clientObj, string subject, byte[] data, int? duration = ())
+isolated function externRequest(Client clientObj, string subject, byte[] data, decimal? duration = ())
 returns Message | Error = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Request"
 } external;

@@ -18,9 +18,7 @@
 public const string DEFAULT_URL = "nats://localhost:4222";
 
 # The NATS service type
-public type Service service object {
-    remote function onMessage(Message message);
-};
+public type Service service object {};
 
 # The annotation, which is used to configure the basic subscription.
 public annotation ServiceConfigData ServiceConfig on service, class;
