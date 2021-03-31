@@ -26,7 +26,14 @@ import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
  */
 public class NatsServiceAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
     @Override
-    public void perform(SyntaxNodeAnalysisContext analysisContext) {
-        new NatsServiceValidator(analysisContext, NatsPluginConstants.PACKAGE).validate();
+    public void perform(SyntaxNodeAnalysisContext context) {
+        if (!isNatsService(context)) {
+            return;
+        }
+        new NatsServiceValidator(context).validate();
+    }
+
+    private boolean isNatsService(SyntaxNodeAnalysisContext context) {
+        return true;
     }
 }

@@ -18,7 +18,6 @@ import ballerina/crypto;
 
 # Configurations related to creating a NATS streaming subscription.
 #
-# + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
 # + connectionName - Name of the connection (this is optional)
 # + retryConfig - Configurations related to connection reconnect attempts
 # + ping - Configurations related to pinging the server

@@ -44,14 +44,221 @@ public class NatsCompilerPluginTest {
             .toAbsolutePath();
 
     @Test
-    public void testCompilerPlugin() {
-        Package currentPackage = loadPackage("sample_package_1");
+    public void testValidService1() {
+        Package currentPackage = loadPackage("valid_service_1");
         PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+    }
 
+    @Test
+    public void testValidService2() {
+        Package currentPackage = loadPackage("valid_service_2");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+    }
+
+    @Test
+    public void testValidService3() {
+        Package currentPackage = loadPackage("valid_service_3");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+    }
+
+    @Test
+    public void testValidService4() {
+        Package currentPackage = loadPackage("valid_service_4");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+    }
+
+    @Test
+    public void testInvalidService1() {
+        Package currentPackage = loadPackage("invalid_service_1");
+        PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
         Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.NO_ON_MESSAGE_OR_ON_REQUEST);
+    }
+
+    @Test
+    public void testInvalidService2() {
+        Package currentPackage = loadPackage("invalid_service_2");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.ON_MESSAGE_OR_ON_REQUEST);
+    }
+
+    @Test
+    public void testInvalidService3() {
+        Package currentPackage = loadPackage("invalid_service_3");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.INVALID_REMOTE_FUNCTION);
+    }
+
+    @Test
+    public void testInvalidService4() {
+        Package currentPackage = loadPackage("invalid_service_4");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 3);
+        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                    PluginConstants.FUNCTION_SHOULD_BE_REMOTE);
+        }
+    }
+
+    @Test
+    public void testInvalidService5() {
+        Package currentPackage = loadPackage("invalid_service_5");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.MUST_HAVE_MESSAGE);
+    }
+
+    @Test
+    public void testInvalidService6() {
+        Package currentPackage = loadPackage("invalid_service_6");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.ONLY_PARAMS_ALLOWED);
+    }
+
+    @Test
+    public void testInvalidService7() {
+        Package currentPackage = loadPackage("invalid_service_7");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
+        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
+        }
+    }
+
+    @Test
+    public void testInvalidService8() {
+        Package currentPackage = loadPackage("invalid_service_8");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.INVALID_RETURN_TYPE_ERROR_OR_NIL);
+    }
+
+    @Test
+    public void testInvalidService9() {
+        Package currentPackage = loadPackage("invalid_service_9");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
+        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
+        }
+    }
+
+    @Test
+    public void testInvalidService10() {
+        Package currentPackage = loadPackage("invalid_service_10");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
+        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                    PluginConstants.INVALID_RETURN_TYPE_ANY_DATA);
+        }
+    }
+
+    @Test
+    public void testInvalidService11() {
+        Package currentPackage = loadPackage("invalid_service_11");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
+        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
+        }
+    }
+
+    @Test
+    public void testInvalidService12() {
+        Package currentPackage = loadPackage("invalid_service_12");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.MUST_HAVE_MESSAGE_AND_ERROR);
+    }
+
+    @Test
+    public void testInvalidService13() {
+        Package currentPackage = loadPackage("invalid_service_13");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                PluginConstants.ONLY_PARAMS_ALLOWED_ON_ERROR);
+    }
+
+    @Test
+    public void testInvalidService14() {
+        Package currentPackage = loadPackage("invalid_service_14");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
+        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                    PluginConstants.INVALID_FUNCTION_PARAM_ERROR);
+        }
     }
 
     private Package loadPackage(String path) {
