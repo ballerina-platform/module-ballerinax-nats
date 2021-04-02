@@ -30,7 +30,7 @@ string receivedReplyMessage = "";
 
 @test:BeforeSuite
 function setup() {
-    Client newClient = checkpanic new;
+    Client newClient = checkpanic new(DEFAULT_URL);
     clientObj = newClient;
 }
 
@@ -69,7 +69,7 @@ public function testConsumerService() {
     string message = "Testing Consumer Service";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = checkpanic new;
+        Listener sub = checkpanic new(DEFAULT_URL);
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
@@ -88,7 +88,7 @@ public function testOnRequest1() {
     string message = "Hello from the other side!";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = checkpanic new;
+        Listener sub = checkpanic new(DEFAULT_URL);
         checkpanic sub.attach(onRequestService);
         checkpanic sub.attach(onReplyService);
         checkpanic sub.'start();
@@ -110,7 +110,7 @@ public function testOnRequest2() {
     string message = "Hey There Delilah!";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = checkpanic new;
+        Listener sub = checkpanic new(DEFAULT_URL);
         checkpanic sub.attach(onRequestService);
         checkpanic sub.'start();
         Message replyMessage =

@@ -14,14 +14,23 @@ below functionalities.
 First step is setting up the connection with the NATS Basic server. The following ways can be used to connect to a
 NATS Basic server.
 
-1. Connect to a server using the URL
+1. Connect to a server using the default URL
 ```ballerina
-nats:Client natsClient = new("nats://localhost:4222");
+nats:Client natsClient = new(nats:DEFAULT_URL);
 ```
 
-2. Connect to one or more servers with a custom configuration
+2. Connect to a server using the URL
 ```ballerina
-nats:Client natsClient = new({"nats://serverone:4222",  "nats://servertwo:4222"},  config);
+nats:Client natsClient = new("nats://serverone:4222");
+```
+
+3. Connect to one or more servers with custom configurations 
+```ballerina
+nats:ConnectionConfiguration config = {
+    connectionName: "my-nats",
+    noEcho: true
+};
+nats:Client natsClient = new(["nats://serverone:4222",  "nats://servertwo:4222"],  config);
 ```
 
 #### Publishing messages
@@ -41,7 +50,7 @@ nats:Error? result =
 ```ballerina
 string message = "hello world";
 nats:Message|nats:Error reqReply = 
-    natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5000);
+    natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5);
 ```
 
 3. Publish messages with a replyTo subject 
@@ -56,13 +65,13 @@ nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: 
 ##### Listening to messages from a NATS server
 
 ```ballerina
-// Binds the consumer to listen to the messages published to the 'demo' subject.
+// Binds the consumer to listen to the messages published to the 'demo.example.*' subject.
 @nats:ServiceConfig {
-    subject: "demo"
+    subject: "demo.example.*"
 }
-service demo on new nats:Listener() {
+service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
-    remote function onMessage(nats:Message msg) {
+    remote function onMessage(nats:Message message) {
     }
 }
 ```
