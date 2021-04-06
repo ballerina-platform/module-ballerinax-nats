@@ -82,7 +82,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.NO_ON_MESSAGE_OR_ON_REQUEST);
     }
@@ -94,7 +94,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.ON_MESSAGE_OR_ON_REQUEST);
     }
@@ -106,7 +106,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.INVALID_REMOTE_FUNCTION);
     }
@@ -120,7 +120,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                     PluginConstants.FUNCTION_SHOULD_BE_REMOTE);
         }
@@ -133,7 +133,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.MUST_HAVE_MESSAGE);
     }
@@ -145,7 +145,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.ONLY_PARAMS_ALLOWED);
     }
@@ -159,7 +159,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                     PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
         }
@@ -172,7 +172,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.INVALID_RETURN_TYPE_ERROR_OR_NIL);
     }
@@ -186,7 +186,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                     PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
         }
@@ -201,7 +201,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                     PluginConstants.INVALID_RETURN_TYPE_ANY_DATA);
         }
@@ -216,7 +216,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                     PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
         }
@@ -229,7 +229,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.MUST_HAVE_MESSAGE_AND_ERROR);
     }
@@ -241,7 +241,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
         Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                 PluginConstants.ONLY_PARAMS_ALLOWED_ON_ERROR);
     }
@@ -255,7 +255,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), "NATS_101");
+            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
             Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
                     PluginConstants.INVALID_FUNCTION_PARAM_ERROR);
         }
