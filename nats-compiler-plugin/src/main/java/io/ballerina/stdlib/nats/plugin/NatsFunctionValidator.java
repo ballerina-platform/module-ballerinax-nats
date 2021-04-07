@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Arrays;
@@ -73,10 +74,11 @@ public class NatsFunctionValidator {
 
     private void validateMandatoryFunction() {
         if (Objects.isNull(onMessage) && Objects.isNull(onRequest)) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.NO_ON_MESSAGE_OR_ON_REQUEST,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(
+                    CompilationErrors.NO_ON_MESSAGE_OR_ON_REQUEST,
                     DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
         } else if (!Objects.isNull(onMessage) && !Objects.isNull(onRequest)) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.ON_MESSAGE_OR_ON_REQUEST,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.ON_MESSAGE_OR_ON_REQUEST,
                     DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
         }
     }
@@ -84,7 +86,7 @@ public class NatsFunctionValidator {
     private void validateOnMessage() {
         if (!isRemoteFunction(context, onMessage)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(
-                    PluginConstants.FUNCTION_SHOULD_BE_REMOTE,
+                    CompilationErrors.FUNCTION_SHOULD_BE_REMOTE,
                     DiagnosticSeverity.ERROR, onMessage.functionSignature().location()));
         }
         SeparatedNodeList<ParameterNode> parameters = onMessage.functionSignature().parameters();
@@ -95,7 +97,7 @@ public class NatsFunctionValidator {
     private void validateOnRequest() {
         if (!isRemoteFunction(context, onRequest)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(
-                    PluginConstants.FUNCTION_SHOULD_BE_REMOTE,
+                    CompilationErrors.FUNCTION_SHOULD_BE_REMOTE,
                     DiagnosticSeverity.ERROR, onRequest.functionSignature().location()));
         }
         SeparatedNodeList<ParameterNode> parameters = onRequest.functionSignature().parameters();
@@ -106,7 +108,7 @@ public class NatsFunctionValidator {
     private void validateOnError() {
         if (!isRemoteFunction(context, onError)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(
-                    PluginConstants.FUNCTION_SHOULD_BE_REMOTE,
+                    CompilationErrors.FUNCTION_SHOULD_BE_REMOTE,
                     DiagnosticSeverity.ERROR, onError.functionSignature().location()));
         }
         SeparatedNodeList<ParameterNode> parameters = onError.functionSignature().parameters();
@@ -120,11 +122,11 @@ public class NatsFunctionValidator {
             validateFirstParam(functionDefinitionNode, parameters.get(0));
         }
         if (parameters.size() < 1) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.MUST_HAVE_MESSAGE,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.MUST_HAVE_MESSAGE,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }
         if (parameters.size() > 1) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.ONLY_PARAMS_ALLOWED,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.ONLY_PARAMS_ALLOWED,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }
     }
@@ -136,11 +138,11 @@ public class NatsFunctionValidator {
             validateErrorParam(functionDefinitionNode, parameters.get(1));
         }
         if (parameters.size() < 2) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.MUST_HAVE_MESSAGE_AND_ERROR,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.MUST_HAVE_MESSAGE_AND_ERROR,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }
         if (parameters.size() > 2) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.ONLY_PARAMS_ALLOWED_ON_ERROR,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.ONLY_PARAMS_ALLOWED_ON_ERROR,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }
     }
@@ -151,7 +153,7 @@ public class NatsFunctionValidator {
         Node parameterTypeNode = requiredParameterNode.typeName();
         if (!parameterTypeNode.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(
-                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE,
+                    CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
         } else {
             Token modulePrefix = ((QualifiedNameReferenceNode) parameterTypeNode).modulePrefix();
@@ -159,7 +161,7 @@ public class NatsFunctionValidator {
             if (!modulePrefix.text().equals(PluginConstants.PACKAGE_PREFIX) ||
                     !identifierToken.text().equals(PluginConstants.MESSAGE)) {
                 context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE,
+                        CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                         DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
             }
         }
@@ -176,7 +178,7 @@ public class NatsFunctionValidator {
                     !returnType.equals(PluginConstants.NATS_ERROR_OR_NIL) &&
                     !returnType.equals(PluginConstants.NIL_OR_NATS_ERROR)) {
                 context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        PluginConstants.INVALID_RETURN_TYPE_ERROR_OR_NIL,
+                        CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
                         DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
             }
         }
@@ -190,7 +192,7 @@ public class NatsFunctionValidator {
             String returnType = returnNodeType.toString().split(" ")[0];
             if (!Arrays.asList(PluginConstants.ANY_DATA_RETURN_VALUES).contains(returnType)) {
                 context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        PluginConstants.INVALID_RETURN_TYPE_ANY_DATA,
+                        CompilationErrors.INVALID_RETURN_TYPE_ANY_DATA,
                         DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
             }
         }
@@ -201,19 +203,19 @@ public class NatsFunctionValidator {
         Node parameterTypeNode = requiredParameterNode.typeName();
         if (!parameterTypeNode.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(
-                    PluginConstants.INVALID_FUNCTION_PARAM_ERROR,
+                    CompilationErrors.INVALID_FUNCTION_PARAM_ERROR,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
         } else {
             Token modulePrefix = ((QualifiedNameReferenceNode) parameterTypeNode).modulePrefix();
             IdentifierToken identifierToken = ((QualifiedNameReferenceNode) parameterTypeNode).identifier();
             if (!modulePrefix.text().equals(PluginConstants.PACKAGE_PREFIX)) {
                 context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        PluginConstants.INVALID_FUNCTION_PARAM_ERROR,
+                        CompilationErrors.INVALID_FUNCTION_PARAM_ERROR,
                         DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
             }
             if (!identifierToken.text().equalsIgnoreCase(PluginConstants.ERROR)) {
                 context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        PluginConstants.INVALID_FUNCTION_PARAM_ERROR,
+                        CompilationErrors.INVALID_FUNCTION_PARAM_ERROR,
                         DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
             }
         }

@@ -25,11 +25,11 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,7 +39,6 @@ import java.nio.file.Paths;
 public class NatsCompilerPluginTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources", "ballerina_sources")
             .toAbsolutePath();
-    private static final PrintStream OUT = System.out;
     private static final Path DISTRIBUTION_PATH = Paths.get("build", "target", "ballerina-distribution")
             .toAbsolutePath();
 
@@ -82,9 +81,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.NO_ON_MESSAGE_OR_ON_REQUEST);
+        assertDiagnostic(diagnostic, CompilationErrors.NO_ON_MESSAGE_OR_ON_REQUEST);
     }
 
     @Test
@@ -94,9 +91,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.ON_MESSAGE_OR_ON_REQUEST);
+        assertDiagnostic(diagnostic, CompilationErrors.ON_MESSAGE_OR_ON_REQUEST);
     }
 
     @Test
@@ -106,9 +101,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.INVALID_REMOTE_FUNCTION);
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_REMOTE_FUNCTION);
     }
 
     @Test
@@ -120,9 +113,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                    PluginConstants.FUNCTION_SHOULD_BE_REMOTE);
+            assertDiagnostic(diagnostic, CompilationErrors.FUNCTION_SHOULD_BE_REMOTE);
         }
     }
 
@@ -133,9 +124,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.MUST_HAVE_MESSAGE);
+        assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE);
     }
 
     @Test
@@ -145,9 +134,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.ONLY_PARAMS_ALLOWED);
+        assertDiagnostic(diagnostic, CompilationErrors.ONLY_PARAMS_ALLOWED);
     }
 
     @Test
@@ -159,9 +146,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
+            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
         }
     }
 
@@ -172,9 +157,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.INVALID_RETURN_TYPE_ERROR_OR_NIL);
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL);
     }
 
     @Test
@@ -186,9 +169,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
+            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
         }
     }
 
@@ -201,9 +182,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                    PluginConstants.INVALID_RETURN_TYPE_ANY_DATA);
+            assertDiagnostic(diagnostic, CompilationErrors.INVALID_RETURN_TYPE_ANY_DATA);
         }
     }
 
@@ -216,9 +195,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                    PluginConstants.INVALID_FUNCTION_PARAM_MESSAGE);
+            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
         }
     }
 
@@ -229,9 +206,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.MUST_HAVE_MESSAGE_AND_ERROR);
+        assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE_AND_ERROR);
     }
 
     @Test
@@ -241,9 +216,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                PluginConstants.ONLY_PARAMS_ALLOWED_ON_ERROR);
+        assertDiagnostic(diagnostic, CompilationErrors.ONLY_PARAMS_ALLOWED_ON_ERROR);
     }
 
     @Test
@@ -255,9 +228,7 @@ public class NatsCompilerPluginTest {
         Object[] diagnostics = diagnosticResult.diagnostics().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), PluginConstants.DIAGNOSTIC_CODE);
-            Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
-                    PluginConstants.INVALID_FUNCTION_PARAM_ERROR);
+            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_ERROR);
         }
     }
 
@@ -265,6 +236,12 @@ public class NatsCompilerPluginTest {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
         BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
         return project.currentPackage();
+    }
+
+    private void assertDiagnostic(Diagnostic diagnostic, CompilationErrors error) {
+        Assert.assertEquals(diagnostic.diagnosticInfo().code(), error.getErrorCode());
+        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(),
+                error.getError());
     }
 
     private static ProjectEnvironmentBuilder getEnvironmentBuilder() {

@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Optional;
@@ -76,7 +77,7 @@ public class NatsServiceValidator {
 
     public void validateNonNatsFunction(FunctionDefinitionNode functionDefinitionNode) {
         if (isRemoteFunction(context, functionDefinitionNode)) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(PluginConstants.INVALID_REMOTE_FUNCTION,
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_REMOTE_FUNCTION,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
         }
     }

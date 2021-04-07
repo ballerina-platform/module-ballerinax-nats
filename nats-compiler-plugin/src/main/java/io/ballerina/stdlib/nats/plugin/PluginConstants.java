@@ -25,7 +25,6 @@ public class PluginConstants {
     // compiler plugin constants
     public static final String PACKAGE_PREFIX = "nats";
     public static final String REMOTE_QUALIFIER = "REMOTE";
-    public static final String DIAGNOSTIC_CODE = "NATS_101";
     public static final String ON_MESSAGE_FUNC = "onMessage";
     public static final String ON_REQUEST_FUNC = "onRequest";
     public static final String ON_ERROR_FUNC = "onError";
@@ -42,33 +41,53 @@ public class PluginConstants {
     public static final String NIL_OR_ERROR = "()|" + ERROR;
     public static final String NATS_ERROR_OR_NIL = NATS_ERROR + NIL;
     public static final String NIL_OR_NATS_ERROR = "()|" + NATS_ERROR;
-
-    // errors for service validations
-    public static final String ON_MESSAGE_OR_ON_REQUEST = "Only one of either onMessage or onRequest is allowed.";
-    public static final String NO_ON_MESSAGE_OR_ON_REQUEST =
-            "Service must have either remote function onMessage or onRequest.";
-    public static final String INVALID_REMOTE_FUNCTION = "Invalid remote function.";
-    public static final String FUNCTION_SHOULD_BE_REMOTE = "Function must have the remote qualifier.";
-    public static final String MUST_HAVE_MESSAGE = "Must have the function parameter nats:Message.";
-    public static final String MUST_HAVE_MESSAGE_AND_ERROR = "Must have the function parameters nats:Message and " +
-            "nats:Error.";
-    public static final String INVALID_FUNCTION_PARAM = "Invalid function parameter.";
-    public static final String INVALID_FUNCTION_PARAM_ERROR = INVALID_FUNCTION_PARAM + " Only nats:Error" +
-            " is allowed.";
-    public static final String INVALID_FUNCTION_PARAM_MESSAGE = INVALID_FUNCTION_PARAM + " Only nats:Message" +
-            " is allowed.";
-    public static final String ONLY_PARAMS_ALLOWED = "Invalid function parameter count. Only nats:Message is allowed.";
-    public static final String ONLY_PARAMS_ALLOWED_ON_ERROR
-            = "Invalid function parameter count. Only nats:Message and nats:Error are allowed.";
-    public static final String INVALID_RETURN_TYPE_ERROR_OR_NIL =
-            "Invalid return type. Only error? or nats:Error? is allowed.";
-    public static final String INVALID_RETURN_TYPE_ANY_DATA =
-            "Invalid return type. Only anydata or error is allowed.";
     static final String[] ANY_DATA_RETURN_VALUES = {ERROR, NATS_ERROR, ERROR_OR_NIL, NATS_ERROR_OR_NIL,
             NIL_OR_ERROR, NIL_OR_NATS_ERROR, "string", "int", "float", "decimal", "boolean", "xml", "anydata",
             "string|error", "int|error", "float|error", "decimal|error", "boolean|error", "xml|error", "anydata|error",
             "error|string", "error|int", "float|error", "error|decimal", "error|boolean", "error|boolean",
             "error|anydata", "string?", "anydata?", "int?", "float?", "decimal?", "xml?", "boolean?"};
+
+    /**
+     * Compilation errors.
+     */
+    enum CompilationErrors {
+        ON_MESSAGE_OR_ON_REQUEST("Only one of either onMessage or onRequest is allowed.", "NATS_101"),
+        NO_ON_MESSAGE_OR_ON_REQUEST("Service must have either remote function onMessage or onRequest.",
+                "NATS_102"),
+        INVALID_REMOTE_FUNCTION("Invalid remote function.", "NATS_103"),
+        FUNCTION_SHOULD_BE_REMOTE("Function must have the remote qualifier.", "NATS_104"),
+        MUST_HAVE_MESSAGE("Must have the function parameter nats:Message.", "NATS_105"),
+        MUST_HAVE_MESSAGE_AND_ERROR("Must have the function parameters nats:Message and nats:Error.",
+                "NATS_106"),
+        INVALID_FUNCTION_PARAM("Invalid function parameter.", "NATS_107"),
+        INVALID_FUNCTION_PARAM_MESSAGE("Invalid function parameter. Only nats:Message is allowed.",
+                "NATS_108"),
+        INVALID_FUNCTION_PARAM_ERROR("Invalid function parameter. Only nats:Error is allowed.",
+                "NATS_109"),
+        ONLY_PARAMS_ALLOWED("Invalid function parameter count. Only nats:Message is allowed.",
+                "NATS_110"),
+        ONLY_PARAMS_ALLOWED_ON_ERROR("Invalid function parameter count. Only nats:Message and nats:Error are allowed.",
+                "NATS_111"),
+        INVALID_RETURN_TYPE_ERROR_OR_NIL("Invalid return type. Only error? or nats:Error? is allowed.",
+                "NATS_112"),
+        INVALID_RETURN_TYPE_ANY_DATA("Invalid return type. Only anydata or error is allowed.",
+                "NATS_113"),;
+
+        private final String error;
+        private final String errorCode;
+
+        CompilationErrors(String error, String errorCode) {
+            this.error = error;
+            this.errorCode = errorCode;
+        }
+
+        String getError() {
+            return error;
+        }
+        String getErrorCode() {
+            return errorCode;
+        }
+    }
 
     private PluginConstants() {
     }

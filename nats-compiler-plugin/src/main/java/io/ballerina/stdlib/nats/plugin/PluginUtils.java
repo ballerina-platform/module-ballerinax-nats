@@ -37,9 +37,11 @@ import java.util.Optional;
  */
 public class PluginUtils {
 
-    public static Diagnostic getDiagnostic(String message, DiagnosticSeverity severity, Location location) {
-        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(PluginConstants.DIAGNOSTIC_CODE, message,
-                severity);
+    public static Diagnostic getDiagnostic(PluginConstants.CompilationErrors error,
+                                           DiagnosticSeverity severity, Location location) {
+        String errorMessage = error.getError();
+        String diagnosticCode = error.getErrorCode();
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticCode, errorMessage, severity);
         return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
     }
 
