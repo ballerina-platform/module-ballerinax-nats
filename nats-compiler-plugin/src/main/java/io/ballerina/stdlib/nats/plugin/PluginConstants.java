@@ -24,6 +24,7 @@ package io.ballerina.stdlib.nats.plugin;
 public class PluginConstants {
     // compiler plugin constants
     public static final String PACKAGE_PREFIX = "nats";
+    public static final String PACKAGE_ORG = "ballerinax";
     public static final String REMOTE_QUALIFIER = "REMOTE";
     public static final String ON_MESSAGE_FUNC = "onMessage";
     public static final String ON_REQUEST_FUNC = "onRequest";
@@ -71,7 +72,17 @@ public class PluginConstants {
         INVALID_RETURN_TYPE_ERROR_OR_NIL("Invalid return type. Only error? or nats:Error? is allowed.",
                 "NATS_112"),
         INVALID_RETURN_TYPE_ANY_DATA("Invalid return type. Only anydata or error is allowed.",
-                "NATS_113"),;
+                "NATS_113"),
+        INVALID_MULTIPLE_LISTENERS("Multiple listener attachments. Only one nats:Listener is allowed.",
+                "NATS_114"),
+        INVALID_ANNOTATION_NUMBER("Only one service config annotation is allowed.",
+                "NATS_115"),
+        NO_ANNOTATION("No @nats:ServiceConfig{} annotation is found.",
+                "NATS_116"),
+        INVALID_ANNOTATION("Invalid service config annotation. Only @nats:ServiceConfig{} is allowed.",
+                "NATS_117"),
+        INVALID_SERVICE_NAME("Invalid service name. Only string literals are allowed.",
+                "NATS_118");
 
         private final String error;
         private final String errorCode;

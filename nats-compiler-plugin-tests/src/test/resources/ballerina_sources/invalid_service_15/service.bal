@@ -16,28 +16,16 @@
 
 import ballerinax/nats;
 
-listener nats:Listener subscription = new(nats:DEFAULT_URL);
+listener nats:Listener subscription1 = new(nats:DEFAULT_URL);
+listener nats:Listener subscription2 = new(nats:DEFAULT_URL);
 
 @nats:ServiceConfig {
     subject: "demo.bbe.*"
 }
-service nats:Service on subscription {
+service nats:Service on subscription1, subscription2 {
 
     remote function onMessage(nats:Message message) {
     }
 }
 
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) {
-    }
-}
-
-service "hello" on subscription {
-
-    remote function onRequest(nats:Message message) {
-    }
-}

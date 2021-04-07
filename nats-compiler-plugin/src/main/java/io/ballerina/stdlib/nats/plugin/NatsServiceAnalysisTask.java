@@ -18,8 +18,21 @@
 
 package io.ballerina.stdlib.nats.plugin;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * NATS service compilation analysis task.
@@ -34,6 +47,40 @@ public class NatsServiceAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisC
     }
 
     private boolean isNatsService(SyntaxNodeAnalysisContext context) {
-        return true;
+        boolean isNatsService = false;
+        SemanticModel semanticModel = context.semanticModel();
+        ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
+        Optional<Symbol> symbol = semanticModel.symbol(serviceDeclarationNode);
+        if (symbol.isPresent()) {
+            ServiceDeclarationSymbol serviceDeclarationSymbol = (ServiceDeclarationSymbol) symbol.get();
+            List<TypeSymbol> listeners = serviceDeclarationSymbol.listenerTypes();
+            if (listeners.size() > 1) {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_MULTIPLE_LISTENERS,
+                        DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+            } else {
+                if (listeners.get(0).typeKind() == TypeDescKind.UNION) {
+                    UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) listeners.get(0);
+                    List<TypeSymbol> members = unionTypeSymbol.memberTypeDescriptors();
+                    for (TypeSymbol memberSymbol : members) {
+                        Optional<ModuleSymbol> module = memberSymbol.getModule();
+                        if (module.isPresent()) {
+                            String moduleName = module.get().id().moduleName();
+                            String orgName = module.get().id().orgName();
+                            isNatsService = moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
+                                    orgName.equals(PluginConstants.PACKAGE_ORG);
+                        }
+                    }
+                } else {
+                    Optional<ModuleSymbol> module = listeners.get(0).getModule();
+                    if (module.isPresent()) {
+                        String moduleName = module.get().id().moduleName();
+                        String orgName = module.get().id().orgName();
+                        isNatsService = moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
+                                orgName.equals(PluginConstants.PACKAGE_ORG);
+                    }
+                }
+            }
+        }
+        return isNatsService;
     }
 }

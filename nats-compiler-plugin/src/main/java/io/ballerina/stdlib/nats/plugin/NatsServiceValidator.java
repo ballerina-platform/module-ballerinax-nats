@@ -18,7 +18,14 @@
 
 package io.ballerina.stdlib.nats.plugin;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
+import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
+import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -28,6 +35,7 @@ import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.stdlib.nats.plugin.PluginUtils.getMethodSymbol;
@@ -83,5 +91,42 @@ public class NatsServiceValidator {
     }
 
     private void validateAnnotation(SyntaxNodeAnalysisContext context) {
+        SemanticModel semanticModel = context.semanticModel();
+        ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
+        Optional<Symbol> symbol = semanticModel.symbol(serviceDeclarationNode);
+        if (symbol.isPresent()) {
+            ServiceDeclarationSymbol serviceDeclarationSymbol = (ServiceDeclarationSymbol) symbol.get();
+            Optional<ServiceAttachPoint> attachPoint = serviceDeclarationSymbol.attachPoint();
+            if (attachPoint.isEmpty()) {
+                List<AnnotationSymbol> symbolList = serviceDeclarationSymbol.annotations();
+                if (symbolList.isEmpty()) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.NO_ANNOTATION,
+                            DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                } else if (symbolList.size() > 1) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION_NUMBER,
+                            DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                } else {
+                    AnnotationSymbol annotationSymbol = symbolList.get(0);
+                    Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
+                    if (moduleSymbolOptional.isEmpty()) {
+                        context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
+                                DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                    } else {
+                        ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
+                        if (!moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
+                                !moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
+                            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
+                                    DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                        }
+                    }
+                }
+            } else {
+                if (attachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL
+                        && serviceDeclarationSymbol.annotations().isEmpty()) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_SERVICE_NAME,
+                            DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                }
+            }
+        }
     }
 }
