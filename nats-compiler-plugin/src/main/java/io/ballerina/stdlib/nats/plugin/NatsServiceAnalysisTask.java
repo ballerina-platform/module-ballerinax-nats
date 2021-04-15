@@ -34,16 +34,23 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.stdlib.nats.plugin.PluginUtils.validateModuleId;
+
 /**
  * NATS service compilation analysis task.
  */
 public class NatsServiceAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
+    private final NatsServiceValidator serviceValidator;
+    
+    public NatsServiceAnalysisTask() {
+        this.serviceValidator = new NatsServiceValidator();
+    }
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
         if (!isNatsService(context)) {
             return;
         }
-        new NatsServiceValidator(context).validate();
+        this.serviceValidator.validate(context);
     }
 
     private boolean isNatsService(SyntaxNodeAnalysisContext context) {
@@ -76,12 +83,5 @@ public class NatsServiceAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisC
             }
         }
         return isNatsService;
-    }
-
-    private boolean validateModuleId(ModuleSymbol moduleSymbol) {
-        String moduleName = moduleSymbol.id().moduleName();
-        String orgName = moduleSymbol.id().orgName();
-        return moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
-                orgName.equals(PluginConstants.PACKAGE_ORG);
     }
 }

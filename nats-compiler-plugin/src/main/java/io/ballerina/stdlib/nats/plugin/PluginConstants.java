@@ -25,13 +25,15 @@ public class PluginConstants {
     // compiler plugin constants
     public static final String PACKAGE_PREFIX = "nats";
     public static final String PACKAGE_ORG = "ballerinax";
-    public static final String REMOTE_QUALIFIER = "REMOTE";
     public static final String ON_MESSAGE_FUNC = "onMessage";
     public static final String ON_REQUEST_FUNC = "onRequest";
     public static final String ON_ERROR_FUNC = "onError";
 
     // parameters
     public static final String MESSAGE = "Message";
+    public static final String CONTENT_FIELD = "content";
+    public static final String REPLY_TO_FIELD = "replyTo";
+    public static final String SUBJECT_FIELD = "subject";
     public static final String ERROR_PARAM = "Error";
 
     // return types error or nil

@@ -19,6 +19,7 @@
 package io.ballerina.stdlib.nats.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -26,11 +27,12 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
@@ -43,7 +45,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.stdlib.nats.plugin.PluginUtils.getMethodSymbol;
 import static io.ballerina.stdlib.nats.plugin.PluginUtils.isRemoteFunction;
+import static io.ballerina.stdlib.nats.plugin.PluginUtils.validateModuleId;
 
 /**
  * Nats remote function validator.
@@ -108,7 +112,7 @@ public class NatsFunctionValidator {
         }
         SeparatedNodeList<ParameterNode> parameters = onRequest.functionSignature().parameters();
         validateFunctionParameters(parameters, onRequest);
-        validateReturnTypeAnyData(onRequest);
+        validateOnRequestReturnType(onRequest);
     }
 
     private void validateOnError() {
@@ -187,16 +191,16 @@ public class NatsFunctionValidator {
     private String getTypeDefinitionNameForMessage() {
         SemanticModel semanticModel = context.semanticModel();
         List<Symbol> moduleSymbols = semanticModel.moduleSymbols();
-        for (Symbol symbol: moduleSymbols) {
+        for (Symbol symbol : moduleSymbols) {
             if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
                 TypeDefinitionSymbol definitionSymbol = (TypeDefinitionSymbol) symbol;
                 if (definitionSymbol.typeDescriptor().typeKind() == TypeDescKind.RECORD) {
                     Map<String, RecordFieldSymbol> record =
                             ((RecordTypeSymbol) definitionSymbol.typeDescriptor()).fieldDescriptors();
                     if (record.size() == 3 &&
-                    record.containsKey("content") &&
-                    record.containsKey("subject") &&
-                    record.containsKey("replyTo")) {
+                            record.containsKey(PluginConstants.CONTENT_FIELD) &&
+                            record.containsKey(PluginConstants.SUBJECT_FIELD) &&
+                            record.containsKey(PluginConstants.REPLY_TO_FIELD)) {
                         return definitionSymbol.getName().get();
                     }
                 }
@@ -206,33 +210,72 @@ public class NatsFunctionValidator {
     }
 
     private void validateReturnTypeErrorOrNil(FunctionDefinitionNode functionDefinitionNode) {
-        Optional<ReturnTypeDescriptorNode> returnTypes = functionDefinitionNode.functionSignature().returnTypeDesc();
-        if (returnTypes.isPresent()) {
-            ReturnTypeDescriptorNode returnTypeDescriptorNode = returnTypes.get();
-            Node returnNodeType = returnTypeDescriptorNode.type();
-            String returnType = returnNodeType.toString().split(" ")[0];
-            if (!returnType.equals(PluginConstants.ERROR_OR_NIL) &&
-                    !returnType.equals(PluginConstants.NIL_OR_ERROR) &&
-                    !returnType.equals(PluginConstants.NATS_ERROR_OR_NIL) &&
-                    !returnType.equals(PluginConstants.NIL_OR_NATS_ERROR)) {
-                context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
-                        DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+        MethodSymbol methodSymbol = getMethodSymbol(context, functionDefinitionNode);
+        if (methodSymbol != null) {
+            Optional<TypeSymbol> returnTypeDesc = methodSymbol.typeDescriptor().returnTypeDescriptor();
+            if (returnTypeDesc.isPresent()) {
+                if (returnTypeDesc.get().typeKind() == TypeDescKind.UNION) {
+                    List<TypeSymbol> returnTypeMembers =
+                            ((UnionTypeSymbol) returnTypeDesc.get()).memberTypeDescriptors();
+                    for (TypeSymbol returnType : returnTypeMembers) {
+                        if (returnType.typeKind() != TypeDescKind.NIL) {
+                            if (returnType.typeKind() == TypeDescKind.ERROR) {
+                                if (!returnType.signature().equals(PluginConstants.ERROR) &&
+                                        !validateModuleId(returnType.getModule().get())) {
+                                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                            CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
+                                            DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+                                }
+                            } else {
+                                context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                        CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
+                                        DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+                            }
+                        }
+                    }
+                } else if (returnTypeDesc.get().typeKind() != TypeDescKind.NIL) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
+                            DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+                }
             }
         }
     }
 
-    private void validateReturnTypeAnyData(FunctionDefinitionNode functionDefinitionNode) {
-        Optional<ReturnTypeDescriptorNode> returnTypes = functionDefinitionNode.functionSignature().returnTypeDesc();
-        if (returnTypes.isPresent()) {
-            ReturnTypeDescriptorNode returnTypeDescriptorNode = returnTypes.get();
-            Node returnNodeType = returnTypeDescriptorNode.type();
-            String returnType = returnNodeType.toString().split(" ")[0];
-            if (!Arrays.asList(PluginConstants.ANY_DATA_RETURN_VALUES).contains(returnType)) {
-                context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        CompilationErrors.INVALID_RETURN_TYPE_ANY_DATA,
-                        DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+    private void validateOnRequestReturnType(FunctionDefinitionNode functionDefinitionNode) {
+        MethodSymbol methodSymbol = getMethodSymbol(context, functionDefinitionNode);
+        if (methodSymbol != null) {
+            Optional<TypeSymbol> returnTypeDesc = methodSymbol.typeDescriptor().returnTypeDescriptor();
+            if (returnTypeDesc.isPresent()) {
+                if (returnTypeDesc.get().typeKind() == TypeDescKind.UNION) {
+                    List<TypeSymbol> returnTypeMembers =
+                            ((UnionTypeSymbol) returnTypeDesc.get()).memberTypeDescriptors();
+                    for (TypeSymbol returnType : returnTypeMembers) {
+                        if (returnType.typeKind() != TypeDescKind.NIL) {
+                            if (returnType.typeKind() == TypeDescKind.ERROR) {
+                                if (!returnType.signature().equals(PluginConstants.ERROR) &&
+                                        !validateModuleId(returnType.getModule().get())) {
+                                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                            CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
+                                            DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+                                }
+                            } else {
+                                validateAnyDataReturnType(returnTypeDesc.get().signature(), functionDefinitionNode);
+                            }
+                        }
+                    }
+                } else if (returnTypeDesc.get().typeKind() != TypeDescKind.NIL) {
+                    validateAnyDataReturnType(returnTypeDesc.get().signature(), functionDefinitionNode);
+                }
             }
+        }
+    }
+
+    private void validateAnyDataReturnType(String returnType, FunctionDefinitionNode functionDefinitionNode) {
+        if (!Arrays.asList(PluginConstants.ANY_DATA_RETURN_VALUES).contains(returnType)) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(
+                    CompilationErrors.INVALID_RETURN_TYPE_ANY_DATA,
+                    DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
         }
     }
 

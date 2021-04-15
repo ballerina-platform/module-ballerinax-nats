@@ -46,17 +46,11 @@ import static io.ballerina.stdlib.nats.plugin.PluginUtils.isRemoteFunction;
  * Nats service compilation validator.
  */
 public class NatsServiceValidator {
-    private final SyntaxNodeAnalysisContext context;
-    private final NodeList<Node> memberNodes;
 
-    public NatsServiceValidator(SyntaxNodeAnalysisContext context) {
-        this.context = context;
+    public void validate(SyntaxNodeAnalysisContext context) {
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
-        this.memberNodes = serviceDeclarationNode.members();
-    }
-
-    public void validate() {
-        validateAttachPoint(this.context);
+        NodeList<Node> memberNodes = serviceDeclarationNode.members();
+        validateAttachPoint(context);
         FunctionDefinitionNode onMessage = null;
         FunctionDefinitionNode onRequest = null;
         FunctionDefinitionNode onError = null;
@@ -74,7 +68,7 @@ public class NatsServiceValidator {
                     } else if (functionName.get().equals(PluginConstants.ON_ERROR_FUNC)) {
                         onError = functionDefinitionNode;
                     } else {
-                        validateNonNatsFunction(functionDefinitionNode);
+                        validateNonNatsFunction(functionDefinitionNode, context);
                     }
                 }
             }
@@ -82,7 +76,8 @@ public class NatsServiceValidator {
         new NatsFunctionValidator(context, onMessage, onRequest, onError).validate();
     }
 
-    public void validateNonNatsFunction(FunctionDefinitionNode functionDefinitionNode) {
+    public void validateNonNatsFunction(FunctionDefinitionNode functionDefinitionNode,
+                                        SyntaxNodeAnalysisContext context) {
         if (isRemoteFunction(context, functionDefinitionNode)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_REMOTE_FUNCTION,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
@@ -105,7 +100,8 @@ public class NatsServiceValidator {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION_NUMBER,
                             DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
                 } else {
-                    validateAnnotation(symbolList.get(0), serviceDeclarationNode.location());
+                    validateAnnotation(symbolList.get(0), serviceDeclarationNode.location(),
+                            context);
                 }
             } else {
                 if (attachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL) {
@@ -114,14 +110,16 @@ public class NatsServiceValidator {
                                 CompilationErrors.INVALID_SERVICE_ATTACH_POINT,
                                 DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
                     } else {
-                        validateAnnotation(symbolList.get(0), serviceDeclarationNode.location());
+                        validateAnnotation(symbolList.get(0), serviceDeclarationNode.location(),
+                                context);
                     }
                 }
             }
         }
     }
 
-    private void validateAnnotation(AnnotationSymbol annotationSymbol, Location location) {
+    private void validateAnnotation(AnnotationSymbol annotationSymbol, Location location,
+                                    SyntaxNodeAnalysisContext context) {
         Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
         if (moduleSymbolOptional.isEmpty()) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
