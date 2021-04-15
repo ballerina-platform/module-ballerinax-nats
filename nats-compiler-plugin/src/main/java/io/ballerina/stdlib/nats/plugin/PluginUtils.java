@@ -59,6 +59,6 @@ public class PluginUtils {
     public static boolean isRemoteFunction(SyntaxNodeAnalysisContext context,
                                            FunctionDefinitionNode functionDefinitionNode) {
         MethodSymbol methodSymbol = getMethodSymbol(context, functionDefinitionNode);
-        return methodSymbol.qualifiers().contains(Qualifier.valueOf(PluginConstants.REMOTE_QUALIFIER));
+        return methodSymbol.qualifiers().contains(Qualifier.REMOTE);
     }
 }

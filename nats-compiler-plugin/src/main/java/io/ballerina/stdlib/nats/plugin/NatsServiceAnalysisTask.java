@@ -64,23 +64,24 @@ public class NatsServiceAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisC
                     for (TypeSymbol memberSymbol : members) {
                         Optional<ModuleSymbol> module = memberSymbol.getModule();
                         if (module.isPresent()) {
-                            String moduleName = module.get().id().moduleName();
-                            String orgName = module.get().id().orgName();
-                            isNatsService = moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
-                                    orgName.equals(PluginConstants.PACKAGE_ORG);
+                            isNatsService = validateModuleId(module.get());
                         }
                     }
                 } else {
                     Optional<ModuleSymbol> module = listeners.get(0).getModule();
                     if (module.isPresent()) {
-                        String moduleName = module.get().id().moduleName();
-                        String orgName = module.get().id().orgName();
-                        isNatsService = moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
-                                orgName.equals(PluginConstants.PACKAGE_ORG);
+                        isNatsService = validateModuleId(module.get());
                     }
                 }
             }
         }
         return isNatsService;
+    }
+
+    private boolean validateModuleId(ModuleSymbol moduleSymbol) {
+        String moduleName = moduleSymbol.id().moduleName();
+        String orgName = moduleSymbol.id().orgName();
+        return moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
+                orgName.equals(PluginConstants.PACKAGE_ORG);
     }
 }

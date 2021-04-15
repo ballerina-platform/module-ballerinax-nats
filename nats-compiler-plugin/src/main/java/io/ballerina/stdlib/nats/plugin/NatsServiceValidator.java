@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,27 +56,25 @@ public class NatsServiceValidator {
     }
 
     public void validate() {
-        validateAnnotation(this.context);
+        validateAttachPoint(this.context);
         FunctionDefinitionNode onMessage = null;
         FunctionDefinitionNode onRequest = null;
         FunctionDefinitionNode onError = null;
 
-        if (!memberNodes.isEmpty()) {
-            for (Node node : memberNodes) {
-                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
-                if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                    MethodSymbol methodSymbol = getMethodSymbol(context, functionDefinitionNode);
-                    Optional<String> functionName = methodSymbol.getName();
-                    if (functionName.isPresent()) {
-                        if (functionName.get().equals(PluginConstants.ON_MESSAGE_FUNC)) {
-                            onMessage = functionDefinitionNode;
-                        } else if (functionName.get().equals(PluginConstants.ON_REQUEST_FUNC)) {
-                            onRequest = functionDefinitionNode;
-                        } else if (functionName.get().equals(PluginConstants.ON_ERROR_FUNC)) {
-                            onError = functionDefinitionNode;
-                        } else {
-                            validateNonNatsFunction(functionDefinitionNode);
-                        }
+        for (Node node : memberNodes) {
+            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
+            if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                MethodSymbol methodSymbol = getMethodSymbol(context, functionDefinitionNode);
+                Optional<String> functionName = methodSymbol.getName();
+                if (functionName.isPresent()) {
+                    if (functionName.get().equals(PluginConstants.ON_MESSAGE_FUNC)) {
+                        onMessage = functionDefinitionNode;
+                    } else if (functionName.get().equals(PluginConstants.ON_REQUEST_FUNC)) {
+                        onRequest = functionDefinitionNode;
+                    } else if (functionName.get().equals(PluginConstants.ON_ERROR_FUNC)) {
+                        onError = functionDefinitionNode;
+                    } else {
+                        validateNonNatsFunction(functionDefinitionNode);
                     }
                 }
             }
@@ -90,15 +89,15 @@ public class NatsServiceValidator {
         }
     }
 
-    private void validateAnnotation(SyntaxNodeAnalysisContext context) {
+    private void validateAttachPoint(SyntaxNodeAnalysisContext context) {
         SemanticModel semanticModel = context.semanticModel();
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
         Optional<Symbol> symbol = semanticModel.symbol(serviceDeclarationNode);
         if (symbol.isPresent()) {
             ServiceDeclarationSymbol serviceDeclarationSymbol = (ServiceDeclarationSymbol) symbol.get();
             Optional<ServiceAttachPoint> attachPoint = serviceDeclarationSymbol.attachPoint();
+            List<AnnotationSymbol> symbolList = serviceDeclarationSymbol.annotations();
             if (attachPoint.isEmpty()) {
-                List<AnnotationSymbol> symbolList = serviceDeclarationSymbol.annotations();
                 if (symbolList.isEmpty()) {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.NO_ANNOTATION,
                             DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
@@ -106,26 +105,33 @@ public class NatsServiceValidator {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION_NUMBER,
                             DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
                 } else {
-                    AnnotationSymbol annotationSymbol = symbolList.get(0);
-                    Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
-                    if (moduleSymbolOptional.isEmpty()) {
-                        context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
-                                DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
-                    } else {
-                        ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
-                        if (!moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
-                                !moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
-                            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
-                                    DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
-                        }
-                    }
+                    validateAnnotation(symbolList.get(0), serviceDeclarationNode.location());
                 }
             } else {
-                if (attachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL
-                        && serviceDeclarationSymbol.annotations().isEmpty()) {
-                    context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_SERVICE_NAME,
-                            DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                if (attachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL) {
+                    if (serviceDeclarationSymbol.annotations().isEmpty()) {
+                        context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                CompilationErrors.INVALID_SERVICE_ATTACH_POINT,
+                                DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
+                    } else {
+                        validateAnnotation(symbolList.get(0), serviceDeclarationNode.location());
+                    }
                 }
+            }
+        }
+    }
+
+    private void validateAnnotation(AnnotationSymbol annotationSymbol, Location location) {
+        Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
+        if (moduleSymbolOptional.isEmpty()) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
+                    DiagnosticSeverity.ERROR, location));
+        } else {
+            ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
+            if (!moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
+                    !moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
+                        DiagnosticSeverity.ERROR, location));
             }
         }
     }
