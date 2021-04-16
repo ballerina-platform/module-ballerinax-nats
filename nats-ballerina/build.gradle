@@ -22,7 +22,7 @@ description = 'Ballerina - Nats Ballerina Generator'
 def packageName = "nats"
 def packageOrg = "ballerinax"
 def platform = "java11"
-def tomlVersion = project.version.replace("-SNAPSHOT", "")
+def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaConfigFile = new File("$project.projectDir/Ballerina.toml")
 def ballerinaDependencyFile = new File("$project.projectDir/Dependencies.toml")
 def artifactBallerinaDocs = file("$project.projectDir/build/docs_parent/")
@@ -32,6 +32,20 @@ def ballerinaCentralAccessToken = System.getenv('BALLERINA_CENTRAL_ACCESS_TOKEN'
 def originalConfig = ballerinaConfigFile.text
 def originalDependencies = ballerinaDependencyFile.text
 def distributionBinPath = project.projectDir.absolutePath + "/build/target/extracted-distributions/jballerina-tools-zip/jballerina-tools-${ballerinaLangVersion}/bin"
+
+def stripBallerinaExtensionVersion(String extVersion) {
+    if (extVersion.matches(project.ext.timestampedVersionRegex)) {
+        def splitVersion = extVersion.split('-');
+        if (splitVersion.length > 3) {
+            def strippedValues = splitVersion[0..-4]
+            return strippedValues.join('-')
+        } else {
+            return extVersion
+        }
+    } else {
+        return extVersion.replace("${project.ext.snapshotVersion}", "")
+    }
+}
 
 configurations {
     jbalTools
@@ -100,8 +114,8 @@ task copyToLib(type: Copy) {
 
 task updateTomlVersions {
     doLast {
-        def stdlibDependentCryptoVersion = project.stdlibCryptoVersion.replace("-SNAPSHOT", "")
-        def stdlibDependentLogVersion = project.stdlibLogVersion.replace("-SNAPSHOT", "")
+        def stdlibDependentCryptoVersion = stripBallerinaExtensionVersion(project.stdlibCryptoVersion)
+        def stdlibDependentLogVersion = stripBallerinaExtensionVersion(project.stdlibLogVersion)
         def natsClientVersion = project.natsVersion
 
         def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
