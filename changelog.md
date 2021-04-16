@@ -5,7 +5,7 @@ This file contains all the notable changes done to the Ballerina NATS package th
 
 ### Added
 
-- [Add compiler plugin validations for NATS services.](https://github.com/ballerina-platform/module-ballerinax-nats/pull/132)
+- [Add compiler plugin validations for NATS services.](https://github.com/ballerina-platform/ballerina-standard-library/issues/1036)
 
 ## [1.1.0-alpha6]  - 2021-04-02
 
