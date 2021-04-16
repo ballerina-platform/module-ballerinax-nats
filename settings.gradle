@@ -13,8 +13,7 @@ plugins {
 
 rootProject.name = 'nats'
 include(':build-config:checkstyle')
-include ':nats-native', ':nats-ballerina'
-include 'nats-native'
+include ':nats-ballerina', 'nats-native', 'nats-compiler-plugin', 'nats-compiler-plugin-tests'
 
 gradleEnterprise {
     buildScan {
