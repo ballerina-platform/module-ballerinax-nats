@@ -64,9 +64,12 @@ public class PluginUtils {
     }
 
     public static boolean validateModuleId(ModuleSymbol moduleSymbol) {
-        String moduleName = moduleSymbol.id().moduleName();
-        String orgName = moduleSymbol.id().orgName();
-        return moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
-                orgName.equals(PluginConstants.PACKAGE_ORG);
+        if (moduleSymbol != null) {
+            String moduleName = moduleSymbol.id().moduleName();
+            String orgName = moduleSymbol.id().orgName();
+            return moduleName.equals(PluginConstants.PACKAGE_PREFIX) &&
+                    orgName.equals(PluginConstants.PACKAGE_ORG);
+        }
+        return false;
     }
 }
