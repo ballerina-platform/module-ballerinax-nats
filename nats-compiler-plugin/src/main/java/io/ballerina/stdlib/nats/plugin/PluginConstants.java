@@ -38,17 +38,7 @@ public class PluginConstants {
 
     // return types error or nil
     public static final String ERROR = "error";
-    public static final String NATS_ERROR = PACKAGE_PREFIX + ":" + ERROR_PARAM;
-    public static final String NIL = "?";
-    public static final String ERROR_OR_NIL = ERROR + NIL;
-    public static final String NIL_OR_ERROR = "()|" + ERROR;
-    public static final String NATS_ERROR_OR_NIL = NATS_ERROR + NIL;
-    public static final String NIL_OR_NATS_ERROR = "()|" + NATS_ERROR;
-    static final String[] ANY_DATA_RETURN_VALUES = {ERROR, NATS_ERROR, ERROR_OR_NIL, NATS_ERROR_OR_NIL,
-            NIL_OR_ERROR, NIL_OR_NATS_ERROR, "string", "int", "float", "decimal", "boolean", "xml", "anydata",
-            "string|error", "int|error", "float|error", "decimal|error", "boolean|error", "xml|error", "anydata|error",
-            "error|string", "error|int", "float|error", "error|decimal", "error|boolean", "error|boolean",
-            "error|anydata", "string?", "anydata?", "int?", "float?", "decimal?", "xml?", "boolean?"};
+    static final String[] ANY_DATA_RETURN_VALUES = {"string", "int", "float", "decimal", "boolean", "xml", "anydata"};
 
     /**
      * Compilation errors.

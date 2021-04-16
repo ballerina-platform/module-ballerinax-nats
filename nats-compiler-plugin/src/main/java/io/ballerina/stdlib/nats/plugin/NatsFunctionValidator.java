@@ -21,11 +21,8 @@ package io.ballerina.stdlib.nats.plugin;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -41,7 +38,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -159,54 +155,35 @@ public class NatsFunctionValidator {
 
     private void validateFirstParam(ParameterNode parameterNode) {
         RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-        Node parameterTypeNode = requiredParameterNode.typeName();
         SemanticModel semanticModel = context.semanticModel();
-        Optional<Symbol> paramSymbol = semanticModel.symbol(parameterTypeNode);
-        if (paramSymbol.isPresent()) {
-            Optional<ModuleSymbol> moduleSymbol = paramSymbol.get().getModule();
+        Optional<Symbol> symbol = semanticModel.symbol(requiredParameterNode);
+        if (symbol.isPresent()) {
+            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
+            Optional<ModuleSymbol> moduleSymbol = parameterSymbol.typeDescriptor().getModule();
             if (moduleSymbol.isPresent()) {
-                String orgName = moduleSymbol.get().id().orgName();
-                String moduleName = moduleSymbol.get().id().moduleName();
-                String paramName = paramSymbol.get().getName().isPresent() ?
-                        paramSymbol.get().getName().get() : "";
-                if (!moduleName.equals(PluginConstants.PACKAGE_PREFIX) ||
-                        !orgName.equals(PluginConstants.PACKAGE_ORG)) {
+                if (!validateModuleId(moduleSymbol.get())) {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(
                             CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                             DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-                } else {
+                }
+                if (parameterSymbol.typeDescriptor().getName().isPresent()) {
+                    String paramName = parameterSymbol.typeDescriptor().getName().get();
                     if (!paramName.equals(PluginConstants.MESSAGE)) {
-                        String typeName = getTypeDefinitionNameForMessage();
-                        if (!paramName.equals(typeName)) {
-                            context.reportDiagnostic(PluginUtils.getDiagnostic(
-                                    CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
-                                    DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-                        }
+                        context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
+                                DiagnosticSeverity.ERROR, requiredParameterNode.location()));
                     }
+                } else {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
+                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
                 }
+            } else {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(
+                        CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
+                        DiagnosticSeverity.ERROR, requiredParameterNode.location()));
             }
         }
-    }
-
-    private String getTypeDefinitionNameForMessage() {
-        SemanticModel semanticModel = context.semanticModel();
-        List<Symbol> moduleSymbols = semanticModel.moduleSymbols();
-        for (Symbol symbol : moduleSymbols) {
-            if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
-                TypeDefinitionSymbol definitionSymbol = (TypeDefinitionSymbol) symbol;
-                if (definitionSymbol.typeDescriptor().typeKind() == TypeDescKind.RECORD) {
-                    Map<String, RecordFieldSymbol> record =
-                            ((RecordTypeSymbol) definitionSymbol.typeDescriptor()).fieldDescriptors();
-                    if (record.size() == 3 &&
-                            record.containsKey(PluginConstants.CONTENT_FIELD) &&
-                            record.containsKey(PluginConstants.SUBJECT_FIELD) &&
-                            record.containsKey(PluginConstants.REPLY_TO_FIELD)) {
-                        return definitionSymbol.getName().get();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private void validateReturnTypeErrorOrNil(FunctionDefinitionNode functionDefinitionNode) {
@@ -260,7 +237,7 @@ public class NatsFunctionValidator {
                                             DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
                                 }
                             } else {
-                                validateAnyDataReturnType(returnTypeDesc.get().signature(), functionDefinitionNode);
+                                validateAnyDataReturnType(returnType.signature(), functionDefinitionNode);
                             }
                         }
                     }
@@ -287,12 +264,9 @@ public class NatsFunctionValidator {
         if (paramSymbol.isPresent()) {
             Optional<ModuleSymbol> moduleSymbol = paramSymbol.get().getModule();
             if (moduleSymbol.isPresent()) {
-                String orgName = moduleSymbol.get().id().orgName();
-                String moduleName = moduleSymbol.get().id().moduleName();
                 String paramName = paramSymbol.get().getName().isPresent() ?
                         paramSymbol.get().getName().get() : "";
-                if (!moduleName.equals(PluginConstants.PACKAGE_PREFIX) ||
-                        !orgName.equals(PluginConstants.PACKAGE_ORG) ||
+                if (!validateModuleId(moduleSymbol.get()) ||
                         !paramName.equalsIgnoreCase(PluginConstants.ERROR)) {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(
                             CompilationErrors.INVALID_FUNCTION_PARAM_ERROR,

@@ -128,16 +128,11 @@ public class NatsServiceValidator {
     private void validateAnnotation(AnnotationSymbol annotationSymbol, Location location,
                                     SyntaxNodeAnalysisContext context) {
         Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
-        if (moduleSymbolOptional.isEmpty()) {
+        ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
+        if (!moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
+                !moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
                     DiagnosticSeverity.ERROR, location));
-        } else {
-            ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
-            if (!moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
-                    !moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
-                context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
-                        DiagnosticSeverity.ERROR, location));
-            }
         }
     }
 }
