@@ -62,7 +62,7 @@ public class PluginConstants {
         MUST_HAVE_MESSAGE("Must have the method parameter nats:Message.", "NATS_105"),
         MUST_HAVE_MESSAGE_AND_ERROR("Must have the method parameters nats:Message and nats:Error.",
                 "NATS_106"),
-        INVALID_FUNCTION_PARAM("Invalid method parameter.", "NATS_107"),
+        INVALID_FUNCTION("Resource functions are not allowed.", "NATS_107"),
         INVALID_FUNCTION_PARAM_MESSAGE("Invalid method parameter. Only nats:Message is allowed.",
                 "NATS_108"),
         INVALID_FUNCTION_PARAM_ERROR("Invalid method parameter. Only nats:Error is allowed.",

@@ -71,6 +71,8 @@ public class NatsServiceValidator {
                         validateNonNatsFunction(functionDefinitionNode, context);
                     }
                 }
+            } else {
+                validateNonNatsFunction(functionDefinitionNode, context);
             }
         }
         new NatsFunctionValidator(context, onMessage, onRequest, onError).validate();
@@ -78,9 +80,14 @@ public class NatsServiceValidator {
 
     public void validateNonNatsFunction(FunctionDefinitionNode functionDefinitionNode,
                                         SyntaxNodeAnalysisContext context) {
-        if (isRemoteFunction(context, functionDefinitionNode)) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_REMOTE_FUNCTION,
+        if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_FUNCTION,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+        } else {
+            if (isRemoteFunction(context, functionDefinitionNode)) {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_REMOTE_FUNCTION,
+                        DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
+            }
         }
     }
 
