@@ -322,7 +322,8 @@ publishing {
 task ballerinaPublish {
     // Pushing module to Ballerina central
     doLast {
-        if (project.version.endsWith('-SNAPSHOT')) {
+        if (project.version.endsWith('-SNAPSHOT') ||
+                project.version.matches(project.ext.timestampedVersionRegex)) {
             return
         }
         if (ballerinaCentralAccessToken != null) {
