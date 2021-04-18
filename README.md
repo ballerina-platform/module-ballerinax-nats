@@ -53,16 +53,38 @@ The before suite initializes the docker container before executing the tests).
 Execute the commands below to build from source.
 
 1. To build the library:
-        
-        ./gradlew clean build
+   ```    
+   ./gradlew clean build
+   ```
 
-2. To debug the tests:
-
-        ./gradlew clean build -Pdebug=<port>
-        
+2. To run the integration tests:
+   ```
+   ./gradlew clean test
+   ```
 3. To build the module without the tests:
-        
-        ./gradlew clean build -x test
+   ```
+   ./gradlew clean build -x test
+   ```
+4. To debug package implementation:
+   ```
+   ./gradlew clean build -Pdebug=<port>
+   ```
+5. To debug the module with Ballerina language:
+   ```
+   ./gradlew clean build -PbalJavaDebug=<port>
+   ```
+6. Publish ZIP artifact to the local `.m2` repository:
+   ```
+   ./gradlew clean build publishToMavenLocal
+   ```
+7. Publish the generated artifacts to the local Ballerina central repository:
+   ```
+   ./gradlew clean build -PpublishToLocalCentral=true
+   ```
+8. Publish the generated artifacts to the Ballerina central repository:
+   ```
+   ./gradlew clean build -PpublishToCentral=true
+   ```
 
 ## Contributing to Ballerina
 
