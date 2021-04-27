@@ -21,6 +21,7 @@ import ballerina/test;
 
 Client? clientObj = ();
 const SUBJECT_NAME = "nats-basic";
+const STOP_SUBJECT_NAME = "stopping-subject";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
 const ON_REQUEST_SUBJECT = "nats-on-req";
 const REPLY_TO_SUBJECT = "nats-rep";
@@ -124,6 +125,36 @@ public function testConsumerService() {
     dependsOn: [testProducer],
     groups: ["nats-basic"]
 }
+public function testImmediateStop() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    checkpanic sub.attach(stopService);
+    checkpanic sub.'start();
+    checkpanic sub.detach(stopService);
+    error? stopResult = sub.immediateStop();
+    if (stopResult is error) {
+        test:assertFail("Stopping listener immediately failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: [testProducer, testImmediateStop],
+    groups: ["nats-basic"]
+}
+public function testGracefulStop() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    checkpanic sub.attach(stopService);
+    checkpanic sub.'start();
+    checkpanic sub.detach(stopService);
+    error? stopResult = sub.gracefulStop();
+    if (stopResult is error) {
+        test:assertFail("Stopping listener gracefully failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
 public function testOnRequest1() {
     string message = "Hello from the other side!";
     Client? newClient = clientObj;
@@ -220,3 +251,13 @@ service object {
         }
     }
 };
+
+Service stopService =
+@ServiceConfig {
+    subject: STOP_SUBJECT_NAME
+}
+service object {
+    remote function onMessage(Message msg) {
+    }
+};
+
