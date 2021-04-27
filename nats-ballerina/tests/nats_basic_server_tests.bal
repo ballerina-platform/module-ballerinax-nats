@@ -114,6 +114,7 @@ public function testConsumerService() {
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
         runtime:sleep(7);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
+        checkpanic sub.detach(consumerService);
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
