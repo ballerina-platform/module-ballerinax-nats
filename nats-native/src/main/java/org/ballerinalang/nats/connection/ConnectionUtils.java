@@ -102,16 +102,15 @@ public class ConnectionUtils {
 
         // Auth configs
         if (connectionConfig.containsKey(AUTH_CONFIG)) {
-            Object authConfig = connectionConfig.getObjectValue(AUTH_CONFIG);
-            if (TypeUtils.getType(authConfig).getTag() == TypeTags.RECORD_TYPE_TAG) {
-                if (((BMap) authConfig).containsKey(USERNAME) && ((BMap) authConfig).containsKey(PASSWORD)) {
-                    // Credentials based auth
-                    opts.userInfo(((BMap) authConfig).getStringValue(USERNAME).getValue().toCharArray(),
-                                  ((BMap) authConfig).getStringValue(PASSWORD).getValue().toCharArray());
-                } else if (((BMap) authConfig).containsKey(TOKEN)) {
-                    // Token based auth
-                    opts.token(((BMap) authConfig).getStringValue(TOKEN).getValue().toCharArray());
-                }
+            @SuppressWarnings("unchecked")
+            BMap<BString, Object> authConfig = connectionConfig.getMapValue(AUTH_CONFIG);
+            if (authConfig.containsKey(USERNAME) && authConfig.containsKey(PASSWORD)) {
+                // Credentials based auth
+                opts.userInfo(authConfig.getStringValue(USERNAME).getValue().toCharArray(),
+                             authConfig.getStringValue(PASSWORD).getValue().toCharArray());
+            } else if (authConfig.containsKey(TOKEN)) {
+                // Token based auth
+                opts.token(authConfig.getStringValue(TOKEN).getValue().toCharArray());
             }
         }
 

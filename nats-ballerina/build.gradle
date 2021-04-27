@@ -201,7 +201,7 @@ task startNatsServer() {
             if (!stdOut.toString().contains("my-nats")) {
                 println "Starting NATS Basic server."
                 exec {
-                    commandLine 'sh', '-c', "docker run --rm -d --name my-nats -p 4222:4222 nats:latest"
+                    commandLine 'sh', '-c', "docker run --rm -d --name my-nats -p 4222:4222 nats:latest --auth MyToken"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
