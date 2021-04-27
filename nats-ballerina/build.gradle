@@ -195,13 +195,13 @@ task startNatsServer() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=my-nats"
+                commandLine 'sh', '-c', "docker ps --filter name=tests_nats_1"
                 standardOutput = stdOut
             }
-            if (!stdOut.toString().contains("my-nats")) {
+            if (!stdOut.toString().contains("tests_nats_1")) {
                 println "Starting NATS Basic server."
                 exec {
-                    commandLine 'sh', '-c', "docker run --rm -d --name my-nats -p 4222:4222 nats:latest --auth MyToken"
+                    commandLine 'sh', '-c', "docker-compose -f tests/docker-compose.yaml up -d"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
@@ -218,13 +218,13 @@ task stopNatsServer() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=my-nats"
+                commandLine 'sh', '-c', "docker ps --filter name=tests_nats_1"
                 standardOutput = stdOut
             }
-            if (stdOut.toString().contains("my-nats")) {
+            if (stdOut.toString().contains("tests_nats_1")) {
                 println "Stopping NATS server."
                 exec {
-                    commandLine 'sh', '-c', "docker stop my-nats"
+                    commandLine 'sh', '-c', "docker-compose -f tests/docker-compose.yaml rm -svf"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
