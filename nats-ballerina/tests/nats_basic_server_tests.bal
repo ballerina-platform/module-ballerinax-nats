@@ -21,6 +21,7 @@ import ballerina/test;
 
 Client? clientObj = ();
 const SUBJECT_NAME = "nats-basic";
+const PENDING_LIMITS_SUBJECT = "nats-pending";
 const STOP_SUBJECT_NAME = "stopping-subject";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
 const ON_REQUEST_SUBJECT = "nats-on-req";
@@ -54,6 +55,28 @@ public function testConnection() {
 public function testConnectionWithToken() {
     Tokens myToken = { token: "MyToken" };
     Client|Error newClient = new(DEFAULT_URL, auth = myToken);
+    if (newClient is error) {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public function testConnectionWithPingConfig() {
+    Ping pingConf = { pingInterval: 120, maxPingsOut: 2 };
+    Client|Error newClient = new(DEFAULT_URL, ping = pingConf);
+    if (newClient is error) {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public function testConnectionWithRetryConfig() {
+    RetryConfig retryConf = { maxReconnect: 60, reconnectWait: 2, connectionTimeout: 2 };
+    Client|Error newClient = new(DEFAULT_URL, retryConfig = retryConf);
     if (newClient is error) {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -178,6 +201,21 @@ public function testGracefulStop() {
     dependsOn: [testProducer],
     groups: ["nats-basic"]
 }
+public function testPendingLimits() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    error? pendingResult = sub.attach(pendingLimitsService);
+    if (pendingResult is error) {
+        test:assertFail("Attaching service with pending limits failed.");
+    }
+    checkpanic sub.'start();
+    checkpanic sub.detach(pendingLimitsService);
+    checkpanic sub.gracefulStop();
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
 public function testOnRequest1() {
     string message = "Hello from the other side!";
     Client? newClient = clientObj;
@@ -188,7 +226,7 @@ public function testOnRequest1() {
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
                                                     replyTo: REPLY_TO_SUBJECT });
-        runtime:sleep(10);
+        runtime:sleep(15);
         test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
         test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
     } else {
@@ -209,7 +247,7 @@ public function testOnRequest2() {
         checkpanic sub.'start();
         Message replyMessage =
             checkpanic newClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT});
-        runtime:sleep(10);
+        runtime:sleep(15);
         test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
 
         byte[] messageContent = <@untainted> replyMessage.content;
@@ -278,6 +316,19 @@ service object {
 Service stopService =
 @ServiceConfig {
     subject: STOP_SUBJECT_NAME
+}
+service object {
+    remote function onMessage(Message msg) {
+    }
+};
+
+Service pendingLimitsService =
+@ServiceConfig {
+    subject: PENDING_LIMITS_SUBJECT,
+    pendingLimits: {
+        maxMessages: 10,
+        maxBytes: 5 * 1024
+    }
 }
 service object {
     remote function onMessage(Message msg) {
