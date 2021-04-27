@@ -47,6 +47,15 @@ public function testConnection() {
 }
 
 @test:Config {
+    groups: ["nats-basic"]
+}
+public function testCloseConnection() {
+    Client closeClient = checkpanic new(DEFAULT_URL);
+    Error? closeResult = closeClient.close();
+    test:assertEquals(closeResult, (), msg = "NATS Connection closing failed.");
+}
+
+@test:Config {
     dependsOn: [testConnection],
     groups: ["nats-basic"]
 }
