@@ -53,8 +53,8 @@ public class Utils {
     }
 
     public static BError createNatsError(String detailedErrorMessage) {
-        return ErrorCreator.createDistinctError(Constants.NATS_ERROR, getModule(),
-                                                StringUtils.fromString(detailedErrorMessage));
+        return ErrorCreator.createError(getModule(), Constants.NATS_ERROR, StringUtils.fromString(detailedErrorMessage),
+                null, null);
     }
 
     public static byte[] convertDataIntoByteArray(Object data) {

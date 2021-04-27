@@ -22,12 +22,14 @@ import ballerina/test;
 Client? clientObj = ();
 const SUBJECT_NAME = "nats-basic";
 const PENDING_LIMITS_SUBJECT = "nats-pending";
+const QUEUE_GROUP_SUBJECT = "nats-queues";
 const STOP_SUBJECT_NAME = "stopping-subject";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
 const ON_REQUEST_SUBJECT = "nats-on-req";
 const REPLY_TO_SUBJECT = "nats-rep";
 string receivedConsumerMessage = "";
 string receivedOnRequestMessage = "";
+string receivedQueueMessage = "";
 string receivedReplyMessage = "";
 string authToken = "MyToken";
 
@@ -162,6 +164,26 @@ public function testConsumerService() {
         runtime:sleep(7);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
         checkpanic sub.detach(consumerService);
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public function testConsumerServiceWithQueue() {
+    string message = "Testing Consumer Service with Queues";
+    Client? newClient = clientObj;
+    if (newClient is Client) {
+        Listener sub = checkpanic new(DEFAULT_URL);
+        checkpanic sub.attach(queueService);
+        checkpanic sub.'start();
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
+        runtime:sleep(7);
+        test:assertEquals(receivedQueueMessage, message, msg = "Message received does not match.");
+        checkpanic sub.detach(queueService);
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -335,3 +357,19 @@ service object {
     }
 };
 
+Service queueService =
+@ServiceConfig {
+    subject: QUEUE_GROUP_SUBJECT,
+    queueName: "queue-group-1"
+}
+service object {
+    remote function onMessage(Message msg) {
+        byte[] messageContent = <@untainted> msg.content;
+
+        string|error message = strings:fromBytes(messageContent);
+        if (message is string) {
+            receivedQueueMessage = message;
+            log:printInfo("Message Received for queue group: " + message);
+        }
+    }
+};
