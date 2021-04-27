@@ -75,7 +75,7 @@ returns Message | Error = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Request"
 } external;
 
-isolated function externPublish(Client clientObj, string subject, byte[] data,
-string? replyTo = ()) returns Error? = @java:Method {
+isolated function externPublish(Client clientObj, string subject, byte[] data, string? replyTo = ())
+returns Error? = @java:Method {
     'class: "org.ballerinalang.nats.basic.client.Publish"
 } external;

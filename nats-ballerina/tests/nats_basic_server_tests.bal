@@ -74,6 +74,20 @@ public function testProducer() {
     dependsOn: [testConnection],
     groups: ["nats-basic"]
 }
+public function testProducerNegative() {
+    Client closeClient = checkpanic new(DEFAULT_URL);
+    Error? closeResult = closeClient.close();
+    string message = "Hello World";
+    Error? result = closeClient->publishMessage({ content: message.toBytes(), subject: SUBJECT_NAME });
+    if (result is ()) {
+        test:assertFail("Error expected for publishing with closed client.");
+    }
+}
+
+@test:Config {
+    dependsOn: [testConnection],
+    groups: ["nats-basic"]
+}
 public function testProducerWithReplyTo() {
     Client? newClient = clientObj;
     string message = "Hello World";
