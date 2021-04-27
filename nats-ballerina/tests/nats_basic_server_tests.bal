@@ -29,11 +29,10 @@ string receivedConsumerMessage = "";
 string receivedOnRequestMessage = "";
 string receivedReplyMessage = "";
 string authToken = "MyToken";
-Tokens myToken = { token: authToken };
 
 @test:BeforeSuite
 function setup() {
-    Client newClient = checkpanic new(DEFAULT_URL, auth = myToken);
+    Client newClient = checkpanic new(DEFAULT_URL);
     clientObj = newClient;
 }
 
@@ -52,8 +51,30 @@ public function testConnection() {
 @test:Config {
     groups: ["nats-basic"]
 }
+public function testConnectionWithToken() {
+    Tokens myToken = { token: "MyToken" };
+    Client|Error newClient = new(DEFAULT_URL, auth = myToken);
+    if (newClient is error) {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public function testConnectionWithCredentials() {
+    Credentials myCredentials = { username: "ballerina", password: "ballerina123" };
+    Client|Error newClient = new(DEFAULT_URL, auth = myCredentials);
+    if (newClient is error) {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
 public function testCloseConnection() {
-    Client closeClient = checkpanic new(DEFAULT_URL, auth = myToken);
+    Client closeClient = checkpanic new(DEFAULT_URL);
     Error? closeResult = closeClient.close();
     test:assertEquals(closeResult, (), msg = "NATS Connection closing failed.");
 }
@@ -78,7 +99,7 @@ public function testProducer() {
     groups: ["nats-basic"]
 }
 public function testProducerNegative() {
-    Client closeClient = checkpanic new(DEFAULT_URL, auth = myToken);
+    Client closeClient = checkpanic new(DEFAULT_URL);
     Error? closeResult = closeClient.close();
     string message = "Hello World";
     Error? result = closeClient->publishMessage({ content: message.toBytes(), subject: SUBJECT_NAME });
@@ -111,7 +132,7 @@ public function testConsumerService() {
     string message = "Testing Consumer Service";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = checkpanic new(DEFAULT_URL, auth = myToken);
+        Listener sub = checkpanic new(DEFAULT_URL);
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
@@ -128,7 +149,7 @@ public function testConsumerService() {
     groups: ["nats-basic"]
 }
 public function testImmediateStop() {
-    Listener sub = checkpanic new(DEFAULT_URL, auth = myToken);
+    Listener sub = checkpanic new(DEFAULT_URL);
     checkpanic sub.attach(stopService);
     checkpanic sub.'start();
     checkpanic sub.detach(stopService);
@@ -143,7 +164,7 @@ public function testImmediateStop() {
     groups: ["nats-basic"]
 }
 public function testGracefulStop() {
-    Listener sub = checkpanic new(DEFAULT_URL, auth = myToken);
+    Listener sub = checkpanic new(DEFAULT_URL);
     checkpanic sub.attach(stopService);
     checkpanic sub.'start();
     checkpanic sub.detach(stopService);
@@ -161,7 +182,7 @@ public function testOnRequest1() {
     string message = "Hello from the other side!";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = checkpanic new(DEFAULT_URL, auth = myToken);
+        Listener sub = checkpanic new(DEFAULT_URL);
         checkpanic sub.attach(onRequestService);
         checkpanic sub.attach(onReplyService);
         checkpanic sub.'start();
@@ -183,7 +204,7 @@ public function testOnRequest2() {
     string message = "Hey There Delilah!";
     Client? newClient = clientObj;
     if (newClient is Client) {
-        Listener sub = checkpanic new(DEFAULT_URL, auth = myToken);
+        Listener sub = checkpanic new(DEFAULT_URL);
         checkpanic sub.attach(onRequestService);
         checkpanic sub.'start();
         Message replyMessage =
