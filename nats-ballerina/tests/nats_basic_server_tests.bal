@@ -71,6 +71,22 @@ public function testProducer() {
 }
 
 @test:Config {
+    dependsOn: [testConnection],
+    groups: ["nats-basic"]
+}
+public function testProducerWithReplyTo() {
+    Client? newClient = clientObj;
+    string message = "Hello World";
+    if (newClient is Client) {
+        Error? result = newClient->publishMessage({ content: message.toBytes(), subject: SUBJECT_NAME,
+                                            replyTo: "replyToTest"});
+        test:assertEquals(result, (), msg = "Producing a message to the broker caused an error.");
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
     dependsOn: [testProducer],
     groups: ["nats-basic"]
 }
