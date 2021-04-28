@@ -26,6 +26,7 @@ const QUEUE_GROUP_SUBJECT = "nats-queues";
 const STOP_SUBJECT_NAME = "stopping-subject";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
 const ON_REQUEST_SUBJECT = "nats-on-req";
+const ON_REQUEST_TIMEOUT_SUBJECT = "nats-on-req-timeout";
 const REPLY_TO_SUBJECT = "nats-rep";
 string receivedConsumerMessage = "";
 string receivedOnRequestMessage = "";
@@ -54,7 +55,7 @@ public function testConnection() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public function testConnectionWithToken() {
+public isolated function testConnectionWithToken() {
     Tokens myToken = { token: "MyToken" };
     Client|Error newClient = new(DEFAULT_URL, auth = myToken);
     if (newClient is error) {
@@ -65,7 +66,27 @@ public function testConnectionWithToken() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public function testConnectionWithPingConfig() {
+public isolated function testConnectionWithNoEcho() {
+    Client|Error newClient = new(DEFAULT_URL, noEcho = true);
+    if (newClient is error) {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testConnectionWithMultipleServers() {
+    Client|Error newClient = new([DEFAULT_URL, DEFAULT_URL]);
+    if (newClient is error) {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testConnectionWithPingConfig() {
     Ping pingConf = { pingInterval: 120, maxPingsOut: 2 };
     Client|Error newClient = new(DEFAULT_URL, ping = pingConf);
     if (newClient is error) {
@@ -76,7 +97,7 @@ public function testConnectionWithPingConfig() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public function testConnectionWithRetryConfig() {
+public isolated function testConnectionWithRetryConfig() {
     RetryConfig retryConf = { maxReconnect: 60, reconnectWait: 2, connectionTimeout: 2 };
     Client|Error newClient = new(DEFAULT_URL, retryConfig = retryConf);
     if (newClient is error) {
@@ -87,7 +108,7 @@ public function testConnectionWithRetryConfig() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public function testConnectionWithCredentials() {
+public isolated function testConnectionWithCredentials() {
     Credentials myCredentials = { username: "ballerina", password: "ballerina123" };
     Client|Error newClient = new(DEFAULT_URL, auth = myCredentials);
     if (newClient is error) {
@@ -98,7 +119,7 @@ public function testConnectionWithCredentials() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public function testCloseConnection() {
+public isolated function testCloseConnection() {
     Client closeClient = checkpanic new(DEFAULT_URL);
     Error? closeResult = closeClient.close();
     test:assertEquals(closeResult, (), msg = "NATS Connection closing failed.");
@@ -123,7 +144,7 @@ public function testProducer() {
     dependsOn: [testConnection],
     groups: ["nats-basic"]
 }
-public function testProducerNegative() {
+public isolated function testProducerNegative() {
     Client closeClient = checkpanic new(DEFAULT_URL);
     Error? closeResult = closeClient.close();
     string message = "Hello World";
@@ -282,6 +303,42 @@ public function testOnRequest2() {
     }
 }
 
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public isolated function testRequestMessage1() {
+    string message = "Hello, you won't here me!";
+    Client reqClient = checkpanic new(DEFAULT_URL);
+    Message|Error replyMessage =
+             reqClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_TIMEOUT_SUBJECT}, 2);
+    if (replyMessage is error) {
+        string errorMessage = "Request to subject nats-on-req-timeout timed out while waiting for a reply";
+        test:assertEquals(replyMessage.message(), errorMessage, msg = "Error message mismatch.");
+    } else {
+        test:assertFail("Expected request timeout.");
+    }
+    checkpanic reqClient.close();
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public isolated function testRequestMessage2() {
+    string message = "Hello, you won't here me!";
+    Client reqClient = checkpanic new(DEFAULT_URL);
+    checkpanic reqClient.close();
+    Message|Error replyMessage =
+             reqClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_TIMEOUT_SUBJECT}, 5);
+    if (replyMessage is error) {
+        string errorMessage = "Error while requesting message to subject nats-on-req-timeout. Connection is Closed";
+        test:assertEquals(replyMessage.message(), errorMessage, msg = "Error message mismatch.");
+    } else {
+        test:assertFail("Expected illegal state error.");
+    }
+}
+
 Service consumerService =
 @ServiceConfig {
     subject: SERVICE_SUBJECT_NAME
@@ -303,7 +360,7 @@ Service onRequestService =
     subject: ON_REQUEST_SUBJECT
 }
 service object {
-    remote function onMessage(Message msg) {
+    isolated remote function onMessage(Message msg) {
        // ignored
     }
 
@@ -340,7 +397,7 @@ Service stopService =
     subject: STOP_SUBJECT_NAME
 }
 service object {
-    remote function onMessage(Message msg) {
+    isolated remote function onMessage(Message msg) {
     }
 };
 
@@ -353,7 +410,7 @@ Service pendingLimitsService =
     }
 }
 service object {
-    remote function onMessage(Message msg) {
+    isolated remote function onMessage(Message msg) {
     }
 };
 

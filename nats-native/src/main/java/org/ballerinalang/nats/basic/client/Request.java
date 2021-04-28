@@ -57,12 +57,6 @@ public class Request {
                                        Object duration) {
         NatsTracingUtil.traceResourceInvocation(environment, clientObj, subject.getValue());
         Connection natsConnection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);
-
-        if (natsConnection == null) {
-            NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                                                 subject.getValue() + ". NATS connection doesn't exist.");
-        }
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL);
         byte[] byteContent = convertDataIntoByteArray(data);
