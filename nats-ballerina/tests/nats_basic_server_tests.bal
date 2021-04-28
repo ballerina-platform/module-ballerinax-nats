@@ -226,6 +226,40 @@ public function testImmediateStop() {
 }
 
 @test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public function testDetach1() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    checkpanic sub.attach(dummyService1);
+    checkpanic sub.attach(dummyService2);
+    checkpanic sub.'start();
+    checkpanic sub.detach(dummyService1);
+    checkpanic sub.detach(dummyService2);
+    error? stopResult = sub.immediateStop();
+    if (stopResult is error) {
+        test:assertFail("Stopping listener with multiple services immediately failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public function testDetach2() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    checkpanic sub.attach(dummyService1);
+    checkpanic sub.attach(dummyService2);
+    checkpanic sub.'start();
+    checkpanic sub.detach(dummyService1);
+    checkpanic sub.detach(dummyService2);
+    error? stopResult = sub.gracefulStop();
+    if (stopResult is error) {
+        test:assertFail("Stopping listener with multiple services immediately failed.");
+    }
+}
+
+@test:Config {
     dependsOn: [testProducer, testImmediateStop],
     groups: ["nats-basic"]
 }
@@ -393,6 +427,24 @@ service object {
 };
 
 Service stopService =
+@ServiceConfig {
+    subject: STOP_SUBJECT_NAME
+}
+service object {
+    isolated remote function onMessage(Message msg) {
+    }
+};
+
+Service dummyService1 =
+@ServiceConfig {
+    subject: STOP_SUBJECT_NAME
+}
+service object {
+    isolated remote function onMessage(Message msg) {
+    }
+};
+
+Service dummyService2 =
 @ServiceConfig {
     subject: STOP_SUBJECT_NAME
 }

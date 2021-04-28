@@ -55,11 +55,6 @@ public class GracefulStop {
                 (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Connection natsConnection =
                 (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
-        if (natsConnection == null) {
-            NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
-            return;
-        }
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(DISPATCHER_LIST);
