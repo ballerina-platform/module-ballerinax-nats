@@ -27,7 +27,6 @@ public class NatsObservabilityConstants {
 
     static final String CONNECTOR_NAME = "nats";
 
-    static final String[] METRIC_CONNECTIONS = {"connections", "Number of currently active connections"};
     static final String[] METRIC_PUBLISHERS = {"publishers", "Number of currently active publishers"};
     static final String[] METRIC_PUBLISHED = {"published", "Number of messages published"};
     static final String[] METRIC_PUBLISHED_SIZE = {"published_size", "Total size in bytes of messages published"};
@@ -38,29 +37,20 @@ public class NatsObservabilityConstants {
     static final String[] METRIC_CONSUMED = {"consumed", "Number of messages consumed"};
     static final String[] METRIC_DELIVERED = {"delivered", "Number of messages successfully received by consumer"};
     static final String[] METRIC_CONSUMED_SIZE = {"consumed_size", "Total size in bytes of messages consumed"};
-    static final String[] METRIC_ACK = {"acknowledgements", "Total number of acknowledgements received"};
 
     static final String TAG_URL = "url";
     static final String TAG_SUBJECT = "subject";
     static final String TAG_ERROR_TYPE = "error_type";
     static final String TAG_CONTEXT = "context";
-    static final String TAG_REQUEST_OR_RESPONSE = "request_or_response";
 
-    public static final String ERROR_TYPE_CONNECTION = "connection";
     public static final String ERROR_TYPE_PUBLISH = "publish";
     public static final String ERROR_TYPE_REQUEST = "request";
     public static final String ERROR_TYPE_CLOSE = "close";
     public static final String ERROR_TYPE_SUBSCRIPTION = "subscription";
     public static final String ERROR_TYPE_MSG_RECEIVED = "message_received";
-    public static final String ERROR_TYPE_ACKNOWLEDGEMENT = "acknowledgement";
-    public static final String ERROR_TYPE_EXCEPTION = "exception";
-    public static final String ERROR_TYPE_SLOW_CONSUMER = "slow_consumer";
-    public static final String ERROR_TYPE_ON_ERROR = "on_error";
 
-    public static final String CONTEXT_CONNECTION = "connection";
     public static final String CONTEXT_PRODUCER = "producer";
     public static final String CONTEXT_CONSUMER = "consumer";
-    public static final String CONTEXT_STREAMING_CONNNECTION = "streaming_connection";
 
     public static final String UNKNOWN = "unknown";
 
