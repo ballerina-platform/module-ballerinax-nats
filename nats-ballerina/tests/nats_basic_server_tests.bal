@@ -55,7 +55,7 @@ public function testConnection() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public function testTlsConnection() {
+public isolated function testTlsConnection1() {
     SecureSocket secured = {
         cert: {
             path: "tests/certs/truststore.p12",
@@ -72,6 +72,46 @@ public function testTlsConnection() {
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
     if (newClient is error) {
         test:assertFail("NATS Connection initialization with TLS failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testTlsConnection2() {
+    SecureSocket secured = {
+        cert: {
+            path: "tests/certs/truststore.p12",
+            password: "password"
+        },
+        key: {
+            path: "tests/certs/keystore.p12",
+            password: "password"
+        }
+    };
+    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
+    if (newClient is error) {
+        test:assertFail("NATS Connection initialization with TLS failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testTlsConnection3() {
+    SecureSocket secured = {
+        cert: {
+            path: "tests/certs/truststore1.p12",
+            password: "password"
+        },
+        key: {
+            path: "tests/certs/keystore1.p12",
+            password: "password"
+        }
+    };
+    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
+    if (newClient is Client) {
+        test:assertFail("Error expected for NATS Connection initialization with TLS.");
     }
 }
 
