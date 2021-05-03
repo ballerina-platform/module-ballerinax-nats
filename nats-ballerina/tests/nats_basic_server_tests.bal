@@ -64,6 +64,9 @@ public function testTlsConnection() {
         key: {
             path: "tests/certs/keystore.p12",
             password: "password"
+        },
+        protocol: {
+            name: TLS
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
