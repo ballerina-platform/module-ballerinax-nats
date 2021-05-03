@@ -29,8 +29,8 @@ import io.nats.client.Connection;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.Utils;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -41,9 +41,12 @@ import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
+import java.util.Objects;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 /**
@@ -135,63 +138,80 @@ public class ConnectionUtils {
      * @return Initialized SSLContext.
      */
     private static SSLContext getSSLContext(BMap<BString, Object> secureSocket)
-            throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
-                   UnrecoverableKeyException, KeyManagementException {
+            throws IOException, CertificateException, KeyStoreException,
+            UnrecoverableKeyException, KeyManagementException, NoSuchAlgorithmException {
         // Keystore
-        KeyManagerFactory keyManagerFactory = null;
+        String keyFilePath = null;
+        char[] keyPassphrase = null;
+        char[] trustPassphrase;
+        String trustFilePath;
         if (secureSocket.containsKey(Constants.CONNECTION_KEYSTORE)) {
             @SuppressWarnings("unchecked")
             BMap<BString, Object> cryptoKeyStore =
                     (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_KEYSTORE);
-            char[] keyPassphrase = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PASS).getValue().toCharArray();
-            String keyFilePath = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
-            KeyStore keyStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
-            if (keyFilePath != null) {
-                try (FileInputStream keyFileInputStream = new FileInputStream(keyFilePath)) {
-                    keyStore.load(keyFileInputStream, keyPassphrase);
-                }
-            } else {
-                throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION +
-                                                    "Keystore path doesn't exist.");
-            }
-            keyManagerFactory =
-                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, keyPassphrase);
+            keyPassphrase = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PASS).getValue().toCharArray();
+            keyFilePath = cryptoKeyStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
         }
 
         // Truststore
         @SuppressWarnings("unchecked")
         BMap<BString, Object> cryptoTrustStore =
                 (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_TRUSTORE);
-        KeyStore trustStore = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
-        char[] trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).getValue()
+        trustPassphrase = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PASS).getValue()
                 .toCharArray();
-        String trustFilePath = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
-        if (trustFilePath != null) {
-            try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
-                trustStore.load(trustFileInputStream, trustPassphrase);
-            }
-        } else {
-            throw Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION
-                                                + "truststore path doesn't exist.");
-        }
-        TrustManagerFactory trustManagerFactory =
-                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(trustStore);
+        trustFilePath = cryptoTrustStore.getStringValue(Constants.KEY_STORE_PATH).getValue();
 
         // protocol
-        SSLContext sslContext;
+        String protocol = null;
         if (secureSocket.containsKey(Constants.CONNECTION_PROTOCOL)) {
             @SuppressWarnings("unchecked")
             BMap<BString, Object> protocolRecord =
                     (BMap<BString, Object>) secureSocket.getMapValue(Constants.CONNECTION_PROTOCOL);
-            String protocol = protocolRecord.getStringValue(Constants.CONNECTION_PROTOCOL_NAME).getValue();
-            sslContext = SSLContext.getInstance(protocol);
-        } else {
-            sslContext = SSLContext.getDefault();
+            protocol = protocolRecord.getStringValue(Constants.CONNECTION_PROTOCOL_NAME).getValue();
         }
-        sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
-                         trustManagerFactory.getTrustManagers(), new SecureRandom());
+        SSLContext sslContext = createSSLContext(trustFilePath, trustPassphrase, keyFilePath, keyPassphrase, protocol);
         return sslContext;
+    }
+
+
+    public static KeyStore loadKeystore(String path, char[] pass) throws KeyStoreException, IOException,
+            CertificateException, NoSuchAlgorithmException {
+        KeyStore store = KeyStore.getInstance(Constants.KEY_STORE_TYPE);
+
+        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(path))) {
+            store.load(in, pass);
+        }
+        return store;
+    }
+
+    public static KeyManager[] createTestKeyManagers(String keyStorePath, char[] keyStorePass)
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException,
+            UnrecoverableKeyException {
+        KeyStore store = loadKeystore(keyStorePath, keyStorePass);
+        KeyManagerFactory factory;
+        factory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        factory.init(store, keyStorePass);
+        return factory.getKeyManagers();
+    }
+
+    public static TrustManager[] createTestTrustManagers(String trustStorePath, char[] trustStorePass)
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        KeyStore store = loadKeystore(trustStorePath, trustStorePass);
+        TrustManagerFactory factory;
+        factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        factory.init(store);
+        return factory.getTrustManagers();
+    }
+
+    public static SSLContext createSSLContext(String trustStorePath, char[] trustStorePass, String keyStorePath,
+                                              char[] keyStorePass, String protocol)
+            throws UnrecoverableKeyException, CertificateException, KeyStoreException, IOException,
+            NoSuchAlgorithmException, KeyManagementException {
+
+        SSLContext ctx;
+        ctx = SSLContext.getInstance(Objects.requireNonNullElse(protocol, Options.DEFAULT_SSL_PROTOCOL));
+        ctx.init(keyStorePath != null ? createTestKeyManagers(keyStorePath, keyStorePass) : null,
+                createTestTrustManagers(trustStorePath, trustStorePass), new SecureRandom());
+        return ctx;
     }
 }

@@ -55,9 +55,29 @@ public function testConnection() {
 @test:Config {
     groups: ["nats-basic"]
 }
+public function testTlsConnection() {
+    SecureSocket secured = {
+        cert: {
+            path: "tests/certs/truststore.p12",
+            password: "password"
+        },
+        key: {
+            path: "tests/certs/keystore.p12",
+            password: "password"
+        }
+    };
+    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
+    if (newClient is error) {
+        test:assertFail("NATS Connection initialization with TLS failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
 public isolated function testConnectionWithToken() {
     Tokens myToken = { token: "MyToken" };
-    Client|Error newClient = new(DEFAULT_URL, auth = myToken);
+    Client|Error newClient = new("nats://localhost:4223", auth = myToken);
     if (newClient is error) {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -110,7 +130,7 @@ public isolated function testConnectionWithRetryConfig() {
 }
 public isolated function testConnectionWithCredentials() {
     Credentials myCredentials = { username: "ballerina", password: "ballerina123" };
-    Client|Error newClient = new(DEFAULT_URL, auth = myCredentials);
+    Client|Error newClient = new("nats://localhost:4224", auth = myCredentials);
     if (newClient is error) {
         test:assertFail("NATS Connection creation failed.");
     }
