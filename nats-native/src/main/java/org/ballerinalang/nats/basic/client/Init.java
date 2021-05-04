@@ -44,25 +44,10 @@ public class Init {
         Connection natsConnection;
         try {
             natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
-        } catch (UnrecoverableKeyException e) {
-            return Utils.createNatsError(
-                    Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "The key in the keystore cannot be recovered.");
-        } catch (CertificateException e) {
-            return Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "certificate error, "
-                                                 + e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            return Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "algorithm error, "
-                                                 + e.getMessage());
-        } catch (KeyStoreException e) {
-            return Utils.createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "keystore error, "
-                                                 + e.getMessage());
-        } catch (KeyManagementException e) {
-            return Utils
-                    .createNatsError(Constants.ERROR_SETTING_UP_SECURED_CONNECTION + "key management error, "
-                                             + e.getMessage());
-        } catch (InterruptedException | IOException e) {
-            String errorMsg = "error while setting up the connection. " +
-                    (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException |
+                UnrecoverableKeyException |InterruptedException | IOException e) {
+            String errorMsg = "error occurred while setting up the connection. " +
+                    (e.getMessage() != null ? e.getMessage() : "");
             return Utils.createNatsError(errorMsg);
         }
         clientObj.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));

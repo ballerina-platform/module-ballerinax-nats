@@ -84,15 +84,9 @@ public class Request {
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Request to subject " + subject.getValue() +
                                                  " timed out while waiting for a reply");
-        } catch (IllegalArgumentException | IllegalStateException | ExecutionException ex) {
+        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException ex) {
             natsMetricsReporter.reportProducerError(subject.getValue(),
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError("Error while requesting message to " +
-                                                 "subject " + subject.getValue() + ". " + ex.getMessage());
-        } catch (InterruptedException ex) {
-            natsMetricsReporter.reportProducerError(subject.getValue(),
-                                                    NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            Thread.currentThread().interrupt();
             return Utils.createNatsError("Error while requesting message to " +
                                                  "subject " + subject.getValue() + ". " + ex.getMessage());
         }
