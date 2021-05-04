@@ -45,7 +45,7 @@ public class Init {
         try {
             natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
         } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException |
-                UnrecoverableKeyException |InterruptedException | IOException e) {
+                UnrecoverableKeyException | InterruptedException | IOException e) {
             String errorMsg = "error occurred while setting up the connection. " +
                     (e.getMessage() != null ? e.getMessage() : "");
             return Utils.createNatsError(errorMsg);
