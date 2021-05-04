@@ -27,10 +27,6 @@ import io.ballerina.runtime.observability.ObserverContext;
  */
 public class NatsObserverContext extends ObserverContext {
 
-    NatsObserverContext() {
-        setObjectName(NatsObservabilityConstants.CONNECTOR_NAME);
-    }
-
     NatsObserverContext(String context) {
         setObjectName(NatsObservabilityConstants.CONNECTOR_NAME);
         addTag(NatsObservabilityConstants.TAG_CONTEXT, context);

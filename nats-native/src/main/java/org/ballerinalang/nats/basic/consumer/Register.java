@@ -32,7 +32,6 @@ import io.nats.client.Dispatcher;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
-import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -61,11 +60,11 @@ public class Register {
                 (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
-                                                    .getAnnotation(StringUtils.fromString(
-                                                         Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
-                                                            Utils.getModule().getName() + VERSION_SEPARATOR +
-                                                            Utils.getModule().getVersion() + ":" +
-                                                            Constants.SUBSCRIPTION_CONFIG)));
+                        .getAnnotation(StringUtils.fromString(
+                                Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
+                                        Utils.getModule().getName() + VERSION_SEPARATOR +
+                                        Utils.getModule().getVersion() + ":" +
+                                        Constants.SUBSCRIPTION_CONFIG)));
         String queueName = null;
         String subject;
 
@@ -92,23 +91,19 @@ public class Register {
         } else if (TypeUtils.getType(annotationData).getTag() == TypeTags.STRING_TAG) {
             // Else get the service name as the subject
             subject = ((BString) annotationData).getValue();
+            service.addNativeData(Constants.SERVICE_NAME, subject);
         } else {
             throw Utils.createNatsError("Subject name cannot be found");
         }
 
-        try {
-            if (subject != null) {
-                if (queueName != null) {
-                    dispatcher.subscribe(subject, queueName);
-                } else {
-                    dispatcher.subscribe(subject);
-                }
+        if (subject != null) {
+            if (queueName != null) {
+                dispatcher.subscribe(subject, queueName);
             } else {
-                throw Utils.createNatsError("Cannot find the subject name");
+                dispatcher.subscribe(subject);
             }
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
-            return Utils.createNatsError(errorMessage + ex.getMessage());
+        } else {
+            throw Utils.createNatsError("Cannot find the subject name");
         }
         serviceList.add(service);
         String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");

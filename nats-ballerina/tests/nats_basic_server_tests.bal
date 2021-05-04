@@ -25,12 +25,14 @@ const PENDING_LIMITS_SUBJECT = "nats-pending";
 const QUEUE_GROUP_SUBJECT = "nats-queues";
 const STOP_SUBJECT_NAME = "stopping-subject";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
+const SERVICE_SUBJECT_NAME_ANNOT = "nats-basic-service-annot";
 const ON_REQUEST_SUBJECT = "nats-on-req";
 const ON_REQUEST_TIMEOUT_SUBJECT = "nats-on-req-timeout";
 const REPLY_TO_SUBJECT = "nats-rep";
 string receivedConsumerMessage = "";
 string receivedOnRequestMessage = "";
 string receivedQueueMessage = "";
+string withoutAnnotMessage = "";
 string receivedReplyMessage = "";
 string authToken = "MyToken";
 
@@ -182,12 +184,50 @@ public function testConsumerService() {
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
-        runtime:sleep(7);
+        runtime:sleep(15);
         test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
         checkpanic sub.detach(consumerService);
+        checkpanic sub.gracefulStop();
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public function testConsumerService1() {
+    string message = "Testing Consumer Service without Annotation";
+    Client? newClient = clientObj;
+    if (newClient is Client) {
+        Listener sub = checkpanic new(DEFAULT_URL);
+        checkpanic sub.attach(serviceWithoutAnnotation, SERVICE_SUBJECT_NAME_ANNOT);
+        checkpanic sub.'start();
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME_ANNOT });
+        runtime:sleep(20);
+        test:assertEquals(withoutAnnotMessage, message, msg = "Message received does not match.");
+        checkpanic sub.detach(serviceWithoutAnnotation);
+        checkpanic sub.gracefulStop();
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+public function testConsumerService2() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    error? result = trap sub.attach(serviceWithoutAnnotation);
+    if (result is ()) {
+        test:assertFail("Expected error in attaching a service without a service name.");
+    } else {
+        string expected = "Subject name cannot be found";
+        test:assertEquals(result.message(), expected, msg = "Error message mismatch");
+    }
+    checkpanic sub.gracefulStop();
 }
 
 @test:Config {
@@ -202,9 +242,10 @@ public function testConsumerServiceWithQueue() {
         checkpanic sub.attach(queueService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
-        runtime:sleep(7);
+        runtime:sleep(20);
         test:assertEquals(receivedQueueMessage, message, msg = "Message received does not match.");
         checkpanic sub.detach(queueService);
+        checkpanic sub.gracefulStop();
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -384,6 +425,19 @@ service object {
         string|error message = strings:fromBytes(messageContent);
         if (message is string) {
             receivedConsumerMessage = message;
+            log:printInfo("Message Received: " + message);
+        }
+    }
+};
+
+Service serviceWithoutAnnotation =
+service object {
+    remote function onMessage(Message msg) {
+        byte[] messageContent = <@untainted> msg.content;
+
+        string|error message = strings:fromBytes(messageContent);
+        if (message is string) {
+            withoutAnnotMessage = message;
             log:printInfo("Message Received: " + message);
         }
     }

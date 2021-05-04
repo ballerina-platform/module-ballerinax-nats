@@ -46,7 +46,6 @@ public class NatsObservabilityConstants {
     public static final String ERROR_TYPE_PUBLISH = "publish";
     public static final String ERROR_TYPE_REQUEST = "request";
     public static final String ERROR_TYPE_CLOSE = "close";
-    public static final String ERROR_TYPE_SUBSCRIPTION = "subscription";
     public static final String ERROR_TYPE_MSG_RECEIVED = "message_received";
 
     public static final String CONTEXT_PRODUCER = "producer";

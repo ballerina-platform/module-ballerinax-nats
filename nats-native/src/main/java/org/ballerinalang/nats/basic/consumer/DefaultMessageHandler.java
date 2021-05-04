@@ -85,24 +85,31 @@ public class DefaultMessageHandler implements MessageHandler {
                                                                          StringUtils.fromString(message.getSubject()),
                                                                          StringUtils.fromString(message.getReplyTo()));
         String replyTo = message.getReplyTo();
-        if (replyTo != null && getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE) != null) {
-            // If replyTo subject is there and the user has written the onRequest function implementation:
-            MethodType onRequest = getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE);
-            Type[] parameterTypes = onRequest.getParameterTypes();
-            if (parameterTypes.length == 1) {
-                dispatchOnRequest(populatedRecord, replyTo);
+        String subject = message.getSubject();
+        try {
+            if (replyTo != null && getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE) != null) {
+                // If replyTo subject is there and the user has written the onRequest function implementation:
+                MethodType onRequest = getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE);
+                Type[] parameterTypes = onRequest.getParameterTypes();
+                if (parameterTypes.length == 1) {
+                    dispatchOnRequest(populatedRecord, replyTo);
+                } else {
+                    throw Utils.createNatsError("invalid onRequest remote function signature");
+                }
             } else {
-                throw Utils.createNatsError("invalid onRequest remote function signature");
+                // Default onMessage behavior
+                MethodType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
+                Type[] parameterTypes = onMessage.getParameterTypes();
+                if (parameterTypes.length == 1) {
+                    dispatchOnMessage(populatedRecord);
+                } else {
+                    throw Utils.createNatsError("invalid onMessage remote function signature");
+                }
             }
-        } else {
-            // Default onMessage behavior
-            MethodType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
-            Type[] parameterTypes = onMessage.getParameterTypes();
-            if (parameterTypes.length == 1) {
-                dispatchOnMessage(populatedRecord);
-            } else {
-                throw Utils.createNatsError("invalid onMessage remote function signature");
-            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
+            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
         }
     }
 
@@ -111,17 +118,10 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatchOnRequest(BMap<BString, Object>  msgObj, String replyTo) {
+    private void dispatchOnRequest(BMap<BString, Object>  msgObj, String replyTo) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         executeOnRequestResource(msgObj, countDownLatch, replyTo);
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
-                                                    NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
-            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
-        }
+        countDownLatch.await();
     }
 
     /**
@@ -129,17 +129,10 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatchOnMessage(BMap<BString, Object>  msgObj) {
+    private void dispatchOnMessage(BMap<BString, Object>  msgObj) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         executeOnMessageResource(msgObj, countDownLatch);
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            natsMetricsReporter.reportConsumerError(msgObj.getStringValue(Constants.SUBJECT).getValue(),
-                                                    NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
-            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
-        }
+        countDownLatch.await();
     }
 
     private void executeOnRequestResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch,
