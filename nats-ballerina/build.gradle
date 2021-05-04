@@ -201,7 +201,7 @@ task startNatsServers() {
             if (!stdOut.toString().contains("tests_nats-tls_1")) {
                 println "Starting NATS Basic server."
                 exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/docker-compose.yaml up -d"
+                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml up -d"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
