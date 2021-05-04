@@ -94,19 +94,3 @@ public isolated function testTlsConnection4() {
         test:assertFail("NATS Connection initialization with TLS failed.");
     }
 }
-
-@test:Config {
-    groups: ["nats-basic"]
-}
-public isolated function testTlsConnection5() {
-    SecureSocket secured = {
-        cert: {
-            path: "tests/certs/truststore1.p12",
-            password: "password"
-        }
-    };
-    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
-    if (newClient is error) {
-        test:assertFail("NATS Connection initialization with TLS failed.");
-    }
-}
