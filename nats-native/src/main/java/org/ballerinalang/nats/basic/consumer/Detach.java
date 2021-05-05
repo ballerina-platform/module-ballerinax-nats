@@ -52,17 +52,24 @@ public class Detach {
         BMap<BString, Object> subscriptionConfig = Utils
                 .getSubscriptionConfig(service.getType().getAnnotation(
                         StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
-                                                       Utils.getModule().getName() + VERSION_SEPARATOR +
-                                                       Utils.getModule().getVersion() + ":" +
-                                                       Constants.SUBSCRIPTION_CONFIG)));
+                                Utils.getModule().getName() + VERSION_SEPARATOR +
+                                Utils.getModule().getVersion() + ":" +
+                                Constants.SUBSCRIPTION_CONFIG)));
+        String serviceName = (String) service.getNativeData(Constants.SERVICE_NAME);
+        String subject;
         if (subscriptionConfig == null) {
-            return Utils.createNatsError(
-                    "Error occurred while un-subscribing, Cannot find subscription configuration");
+            if (serviceName == null) {
+                return Utils.createNatsError(
+                        "Error occurred while un-subscribing, Cannot find subscription configuration");
+            } else {
+                subject = serviceName;
+            }
+        } else {
+            subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         }
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listener.getNativeData(Constants.DISPATCHER_LIST);
-        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
         try {
             dispatcher.unsubscribe(subject);

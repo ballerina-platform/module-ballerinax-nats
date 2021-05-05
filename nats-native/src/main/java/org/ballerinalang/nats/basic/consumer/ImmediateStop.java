@@ -26,7 +26,6 @@ import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
-import org.ballerinalang.nats.observability.NatsTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,16 +47,10 @@ public class ImmediateStop {
     private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
 
     public static void basicImmediateStop(Environment environment, BObject listenerObject) {
-        NatsTracingUtil.traceResourceInvocation(environment, listenerObject);
         Connection natsConnection =
                 (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        if (natsConnection == null) {
-            NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
-            return;
-        }
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(DISPATCHER_LIST);

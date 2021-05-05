@@ -1,0 +1,34 @@
+version: "3"
+services:
+    nats-tls:
+        image: nats:latest
+        hostname: nats-tls
+        command: "-c /server.conf"
+        volumes:
+            - "./server.conf:/server.conf"
+            - "../certs/server.crt:/certs/server.crt"
+            - "../certs/server.key:/certs/server.key"
+            - "../certs/ca.crt:/certs/ca.crt"
+        ports:
+            - "4225:4222"
+            - "8225:8222"
+    nats-1:
+        image: nats:latest
+        hostname: nats-1
+        ports:
+            - "4222:4222"
+            - "8222:8222"
+    nats-2:
+        image: nats:latest
+        hostname: nats-2
+        command: "--auth MyToken"
+        ports:
+            - "4223:4222"
+            - "8223:8222"
+    nats-3:
+        image: nats:latest
+        hostname: nats-3
+        command: "--user ballerina --pass ballerina123"
+        ports:
+            - "4224:4222"
+            - "8224:8222"

@@ -16,18 +16,3 @@
 
 # Represents the NATS module related errors.
 public type Error distinct error;
-
-# Prepare the `error` as a `Error`.
-#
-# + message - The error message
-# + err - The `error` instance
-# + return - Prepared `nats:Error` instance
-isolated function prepareError(string message, error? err = ()) returns Error {
-    Error natsError;
-    if (err is error) {
-        natsError = error Error(message, err);
-    } else {
-        natsError = error Error(message);
-    }
-    return natsError;
-}

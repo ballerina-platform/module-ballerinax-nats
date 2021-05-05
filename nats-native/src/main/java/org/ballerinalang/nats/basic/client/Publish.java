@@ -45,12 +45,6 @@ public class Publish {
         Connection natsConnection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) clientObject.getNativeData(Constants.NATS_METRIC_UTIL);
-        if (natsConnection == null) {
-            natsMetricsReporter.reportProducerError(subject.getValue(),
-                                                    NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-            return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                                                 subject.getValue() + ". NATS connection doesn't exist.");
-        }
         byte[] byteContent = data.getBytes();
         try {
             if (TypeUtils.getType(replyTo).getTag() == TypeTags.STRING_TAG) {

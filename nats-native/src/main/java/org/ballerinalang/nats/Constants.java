@@ -52,10 +52,8 @@ public class Constants {
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_REQUEST_RESOURCE = "onRequest";
-
-    public static final String ON_ERROR_RESOURCE = "onError";
-
     public static final String COUNTDOWN_LATCH = "count_down_latch";
+    public static final String SERVICE_NAME = "service_name";
 
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
     public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from subject ";
@@ -70,7 +68,6 @@ public class Constants {
     public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
-    public static final String MODULE = "[ballerina/nats] ";
     public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
     public static final String THREAD_INTERRUPTED_ERROR =
             "internal error occurred. The current thread got interrupted.";
