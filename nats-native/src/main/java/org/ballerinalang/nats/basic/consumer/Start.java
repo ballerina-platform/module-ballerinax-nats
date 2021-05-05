@@ -20,7 +20,6 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
-//import org.ballerinalang.nats.observability.NatsTracingUtil;
 
 import java.util.concurrent.CountDownLatch;
 

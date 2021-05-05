@@ -44,18 +44,6 @@ public class NatsTracingUtil {
         setTags(observerContext, url, subject);
     }
 
-    public static void traceResourceInvocation(Environment environment, String url) {
-        if (!ObserveUtils.isTracingEnabled()) {
-            return;
-        }
-        ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(environment);
-        if (observerContext == null) {
-            observerContext = new ObserverContext();
-            ObserveUtils.setObserverContextToCurrentFrame(environment, observerContext);
-        }
-        setTags(observerContext, url);
-    }
-
     public static void traceResourceInvocation(Environment environment, BObject clientObj, String subject) {
         if (!ObserveUtils.isTracingEnabled()) {
             return;
@@ -64,21 +52,9 @@ public class NatsTracingUtil {
         traceResourceInvocation(environment, connection.getConnectedUrl(), subject);
     }
 
-    public static void traceResourceInvocation(Environment environment, BObject listenerOrProducerObject) {
-        if (!ObserveUtils.isTracingEnabled()) {
-            return;
-        }
-        Connection connection = (Connection) listenerOrProducerObject.getNativeData(Constants.NATS_CONNECTION);
-        traceResourceInvocation(environment, connection.getConnectedUrl());
-    }
-
     private static void setTags(ObserverContext observerContext, String url, String subject) {
         observerContext.addTag(NatsObservabilityConstants.TAG_URL, url);
         observerContext.addTag(NatsObservabilityConstants.TAG_SUBJECT, subject);
-    }
-
-    private static void setTags(ObserverContext observerContext, String url) {
-        observerContext.addTag(NatsObservabilityConstants.TAG_URL, url);
     }
 
     private NatsTracingUtil() {

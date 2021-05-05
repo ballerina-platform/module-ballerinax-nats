@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class NatsMetricsReporter {
 
     private static final MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
-    private Connection connection;
+    private final Connection connection;
 
     public NatsMetricsReporter(Connection connection) {
         this.connection = connection;
