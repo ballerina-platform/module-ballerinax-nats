@@ -183,7 +183,7 @@ task initializeVariables {
         }
 
         if (graph.hasTask(":${packageName}-ballerina:test")) {
-            testParams = "--code-coverage --includes=org.ballerinalang.nats.*:ballerinax.nats.*"
+            testParams = "--code-coverage --jacoco-xml --includes=org.ballerinalang.nats.*:ballerinax.nats.*"
         } else {
             testParams = "--skip-tests"
         }
