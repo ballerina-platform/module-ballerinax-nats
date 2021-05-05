@@ -8,6 +8,7 @@ services:
             - "./server.conf:/server.conf"
             - "../certs/server.crt:/certs/server.crt"
             - "../certs/server.key:/certs/server.key"
+            - "../certs/ca.crt:/certs/ca.crt"
         ports:
             - "4225:4222"
             - "8225:8222"
