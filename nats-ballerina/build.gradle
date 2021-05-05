@@ -195,10 +195,10 @@ task startNatsServers() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=tests_nats-tls_1"
+                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
                 standardOutput = stdOut
             }
-            if (!stdOut.toString().contains("tests_nats-tls_1")) {
+            if (!stdOut.toString().contains("server_nats-tls_1")) {
                 println "Starting NATS Basic server."
                 exec {
                     commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml up -d"
@@ -218,10 +218,10 @@ task stopNatsServers() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=tests_nats-tls_1"
+                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
                 standardOutput = stdOut
             }
-            if (stdOut.toString().contains("tests_nats-tls_1")) {
+            if (stdOut.toString().contains("server_nats-tls_1")) {
                 println "Stopping NATS server."
                 exec {
                     commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml rm -svf"

@@ -301,7 +301,6 @@ public function testDetach2() {
 }
 
 @test:Config {
-    dependsOn: [testProducer, testImmediateStop],
     groups: ["nats-basic"]
 }
 public function testGracefulStop() {

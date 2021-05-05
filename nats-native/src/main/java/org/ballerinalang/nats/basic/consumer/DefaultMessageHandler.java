@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
@@ -148,7 +149,8 @@ public class DefaultMessageHandler implements MessageHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
-                                                           this.natsConnection), properties, msgObj, true);
+                                                           this.natsConnection), properties,
+                    PredefinedTypes.TYPE_ANYDATA, msgObj, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
@@ -168,7 +170,7 @@ public class DefaultMessageHandler implements MessageHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      properties, msgObj, true);
+                                      properties, PredefinedTypes.TYPE_NULL, msgObj, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);

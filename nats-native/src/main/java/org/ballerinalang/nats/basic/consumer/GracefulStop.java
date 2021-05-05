@@ -26,7 +26,6 @@ import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
-import org.ballerinalang.nats.observability.NatsTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,6 @@ public class GracefulStop {
     private static final Logger LOG = LoggerFactory.getLogger(GracefulStop.class);
 
     public static void basicGracefulStop(Environment environment, BObject listenerObject) {
-        NatsTracingUtil.traceResourceInvocation(environment, listenerObject);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Connection natsConnection =

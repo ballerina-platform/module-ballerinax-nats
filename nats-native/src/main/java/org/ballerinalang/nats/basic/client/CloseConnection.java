@@ -24,7 +24,6 @@ import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
-import org.ballerinalang.nats.observability.NatsTracingUtil;
 
 
 /**
@@ -35,7 +34,6 @@ import org.ballerinalang.nats.observability.NatsTracingUtil;
 public class CloseConnection {
 
     public static Object closeConnection(Environment environment, BObject clientObject) {
-        NatsTracingUtil.traceResourceInvocation(environment, clientObject);
         Connection connection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
         try {
             connection.close();
