@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
@@ -58,11 +57,11 @@ import static org.ballerinalang.nats.Utils.getAttachedFunctionType;
 public class DefaultMessageHandler implements MessageHandler {
 
     // Resource which the message should be dispatched.
-    private BObject serviceObject;
-    private String connectedUrl;
-    private Runtime runtime;
-    private NatsMetricsReporter natsMetricsReporter;
-    private Connection natsConnection;
+    private final BObject serviceObject;
+    private final String connectedUrl;
+    private final Runtime runtime;
+    private final NatsMetricsReporter natsMetricsReporter;
+    private final Connection natsConnection;
 
     DefaultMessageHandler(BObject serviceObject, Runtime runtime, Connection natsConnection,
                           NatsMetricsReporter natsMetricsReporter) {
@@ -92,8 +91,9 @@ public class DefaultMessageHandler implements MessageHandler {
                 // If replyTo subject is there and the user has written the onRequest function implementation:
                 MethodType onRequest = getAttachedFunctionType(serviceObject, ON_REQUEST_RESOURCE);
                 Type[] parameterTypes = onRequest.getParameterTypes();
+                Type returnType = onRequest.getReturnType();
                 if (parameterTypes.length == 1) {
-                    dispatchOnRequest(populatedRecord, replyTo);
+                    dispatchOnRequest(populatedRecord, replyTo, returnType);
                 } else {
                     throw Utils.createNatsError("invalid onRequest remote function signature");
                 }
@@ -101,8 +101,9 @@ public class DefaultMessageHandler implements MessageHandler {
                 // Default onMessage behavior
                 MethodType onMessage = getAttachedFunctionType(serviceObject, ON_MESSAGE_RESOURCE);
                 Type[] parameterTypes = onMessage.getParameterTypes();
+                Type returnType = onMessage.getReturnType();
                 if (parameterTypes.length == 1) {
-                    dispatchOnMessage(populatedRecord);
+                    dispatchOnMessage(populatedRecord, returnType);
                 } else {
                     throw Utils.createNatsError("invalid onMessage remote function signature");
                 }
@@ -119,9 +120,10 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatchOnRequest(BMap<BString, Object>  msgObj, String replyTo) throws InterruptedException {
+    private void dispatchOnRequest(BMap<BString, Object>  msgObj, String replyTo, Type returnType)
+            throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executeOnRequestResource(msgObj, countDownLatch, replyTo);
+        executeOnRequestResource(msgObj, countDownLatch, replyTo, returnType);
         countDownLatch.await();
     }
 
@@ -130,14 +132,14 @@ public class DefaultMessageHandler implements MessageHandler {
      *
      * @param msgObj Message object
      */
-    private void dispatchOnMessage(BMap<BString, Object>  msgObj) throws InterruptedException {
+    private void dispatchOnMessage(BMap<BString, Object>  msgObj, Type returnType) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executeOnMessageResource(msgObj, countDownLatch);
+        executeOnMessageResource(msgObj, countDownLatch, returnType);
         countDownLatch.await();
     }
 
     private void executeOnRequestResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch,
-                                          String replyTo) {
+                                          String replyTo, Type returnType) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                                                      Utils.getModule().getVersion(), ON_REQUEST_RESOURCE);
@@ -150,7 +152,7 @@ public class DefaultMessageHandler implements MessageHandler {
             runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
                                                            this.natsConnection), properties,
-                    PredefinedTypes.TYPE_ANYDATA, msgObj, true);
+                    returnType, msgObj, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_REQUEST_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
@@ -158,7 +160,8 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private void executeOnMessageResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
+    private void executeOnMessageResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch,
+                                          Type returnType) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                                                      Utils.getModule().getVersion(), ON_MESSAGE_RESOURCE);
@@ -170,7 +173,7 @@ public class DefaultMessageHandler implements MessageHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      properties, PredefinedTypes.TYPE_NULL, msgObj, true);
+                                      properties, returnType, msgObj, true);
         } else {
             runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, null, metadata,
                                       new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
@@ -181,9 +184,9 @@ public class DefaultMessageHandler implements MessageHandler {
      * Represents the callback which will be triggered upon submitting to resource.
      */
     public static class ResponseCallback implements Callback {
-        private CountDownLatch countDownLatch;
-        private String subject;
-        private NatsMetricsReporter natsMetricsReporter;
+        private final CountDownLatch countDownLatch;
+        private final String subject;
+        private final NatsMetricsReporter natsMetricsReporter;
         private String replyTo;
         private Connection natsConnection;
 
