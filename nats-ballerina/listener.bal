@@ -16,36 +16,48 @@
 
 import ballerina/jballerina.java;
 
-# Represents the NATS server connection to which a subscription service should be bound in order to
-# receive messages of the corresponding subscription.
+# Represents the NATS listener to which a subscription service should be bound in order to
+# receive messages.
 public class Listener {
 
-    # Creates a new NATS Listener.
+    # Initializes the NATS listener.
+    # ```ballerina
+    #  nats:Listener natsListener = check new(nats:DEFAULT_URL);
+    # ```
     #
     # + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
-    # + connection - An established NATS connection.
+    # + config - The connection configurations
     public isolated function init(string|string[] url, *ConnectionConfiguration config) returns Error? {
         return consumerInit(self, url, config);
     }
 
     # Binds a service to the `nats:Listener`.
+    #```ballerina
+    # check natsListener.attach(service, "serviceName");
+    # ```
     #
-    # + s - Type descriptor of the service
-    # + name - Name of the service
-    # + return - `()` or else a `nats:Error` upon failure to register the listener
+    # + s - The type descriptor of the service
+    # + name - The name of the service
+    # + return - `()` or else a `nats:Error` upon failure to attach
     public isolated function attach(Service s, string[]|string? name = ()) returns error? {
         return basicRegister(self, s, name);
     }
 
     # Stops consuming messages and detaches the service from the `nats:Listener`.
+    #```ballerina
+    # check natsListener.detach(service);
+    # ```
     #
-    # + s - Type descriptor of the service
-    # + return - `()` or else a `nats:Error` upon failure to detach the service
+    # + s - The type descriptor of the service
+    # + return - `()` or else a `nats:Error` upon failure to detach
     public isolated function detach(Service s) returns error? {
         return basicDetach(self, s);
     }
 
     # Starts the `nats:Listener`.
+    # ```ballerina
+    # check natsListener.'start();
+    # ```
     #
     # + return - `()` or else a `nats:Error` upon failure to start the listener
     public isolated function 'start() returns error? {
@@ -53,6 +65,9 @@ public class Listener {
     }
 
     # Stops the `nats:Listener` gracefully.
+    # ```ballerina
+    # check natsListener.gracefulStop();
+    # ```
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public isolated function gracefulStop() returns error? {
@@ -60,6 +75,9 @@ public class Listener {
     }
 
     # Stops the `nats:Listener` forcefully.
+    # ```ballerina
+    # check natsListener.immediateStop();
+    # ```
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public isolated function immediateStop() returns error? {

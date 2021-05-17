@@ -16,16 +16,16 @@
 
 import ballerina/crypto;
 
-# Configurations related to creating a NATS streaming subscription.
+# Configurations related to initializing the NATS client, and listener.
 #
-# + connectionName - Name of the connection (this is optional)
-# + retryConfig - Configurations related to connection reconnect attempts
-# + ping - Configurations related to pinging the server
-# + auth - Configurations related to authentication
+# + connectionName - The name of the connection
+# + retryConfig - The configurations related to connection reconnect attempts
+# + ping - The configurations related to pinging the server
+# + auth - The configurations related to authentication
 # + inboxPrefix - The connection's inbox prefix, which all inboxes will start with
 # + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
 #            has subscriptions on the subject being published to
-# + secureSocket - Configurations related to SSL/TLS
+# + secureSocket - The configurations related to SSL/TLS
 public type ConnectionConfiguration record {|
   string connectionName = "ballerina-nats";
   RetryConfig retryConfig?;
@@ -54,9 +54,9 @@ public type Credentials record {|
 
 # Configurations related to facilitating a secure communication.
 #
-# + cert - Configurations associated with `crypto:TrustStore`
-# + key - Configurations associated with `crypto:KeyStore`
-# + protocol - SSL/TLS protocol related options
+# + cert - The configurations associated with `crypto:TrustStore`
+# + key - The configurations associated with `crypto:KeyStore`
+# + protocol - The SSL/TLS protocol related options
 public type SecureSocket record {|
     crypto:TrustStore cert;
     crypto:KeyStore key?;
@@ -72,10 +72,10 @@ public enum Protocol {
    DTLS
 }
 
-# Configurations related to pinging the server
+# Configurations related to pinging the server.
 #
 # + pingInterval - The interval (in seconds) between the attempts of pinging the server
-# + maxPingsOut - The maximum number of pings the client can have in flight. The default value is two
+# + maxPingsOut - The maximum number of pings the client can have in flight
 public type Ping record {|
   decimal pingInterval = 120;
   int maxPingsOut = 2;
