@@ -9,13 +9,13 @@ Ballerina NATS Library
 The NATS library is one of the standard library modules of the<a target="_blank" href="https://ballerina.io/"> Ballerina
 </a> language.
 
-For more information on the operations supported by the module, which include the below, go to [The NATS Module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/nats/).
+For more information on the operations supported by the module, which include the below, go to [The NATS Module](https://docs.central.ballerina.io/ballerina/nats/latest).
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
 - Request/Reply
 
-For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/swan-lake/learn/by-example/nats-basic-client.html).
+For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/learn/by-example/).
 
 ## Issues and Projects 
 
@@ -98,6 +98,6 @@ All contributors are encouraged to read the [Ballerina Code of Conduct](https://
 
 ## Useful Links
 
-* Discuss about code changes of the Ballerina project in [ballerina-dev@googlegroups.com](mailto:ballerina-dev@googlegroups.com).
+* Discuss code changes of the Ballerina project in [ballerina-dev@googlegroups.com](mailto:ballerina-dev@googlegroups.com).
 * Chat live with us via our [Slack channel](https://ballerina.io/community/slack/).
 * Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
