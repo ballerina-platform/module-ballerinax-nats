@@ -57,23 +57,23 @@ def stripBallerinaExtensionVersion(String extVersion) {
     }
 }
 
+apply plugin: 'io.ballerina.plugin'
+
+ballerina {
+    module = packageName
+    langVersion = ballerinaLangVersion
+    packageOrganization = packageOrg
+    testCoverageParam = "--code-coverage --jacoco-xml --includes=org.ballerinalang.nats.*:ballerinax.nats.*"
+}
+
 configurations {
     externalJars
 }
 
 dependencies {
-    externalJars (group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
+    externalJars(group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
         transitive = false
     }
-}
-
-apply plugin: 'io.ballerina.plugin'
-
-ballerina{
-    module = packageName
-    langVersion = ballerinaLangVersion
-    packageOrganization = packageOrg
-    testCoverageParam = "--code-coverage --jacoco-xml --includes=org.ballerinalang.nats.*:ballerinax.nats.*"
 }
 
 task updateTomlVersions {
