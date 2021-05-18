@@ -60,9 +60,9 @@ def stripBallerinaExtensionVersion(String extVersion) {
 apply plugin: 'io.ballerina.plugin'
 
 ballerina {
+    packageOrganization = packageOrg
     module = packageName
     langVersion = ballerinaLangVersion
-    packageOrganization = packageOrg
     testCoverageParam = "--code-coverage --jacoco-xml --includes=org.ballerinalang.nats.*:ballerinax.nats.*"
 }
 
@@ -76,7 +76,7 @@ dependencies {
     }
 }
 
-task updateTomlVersions {
+task updateTomlFiles {
     doLast {
         def stdlibDependentCryptoVersion = stripBallerinaExtensionVersion(project.stdlibCryptoVersion)
         def stdlibDependentLogVersion = stripBallerinaExtensionVersion(project.stdlibLogVersion)
@@ -96,7 +96,7 @@ task updateTomlVersions {
     }
 }
 
-task revertTomlFile {
+task revertTomlFiles {
     doLast {
         ballerinaConfigFile.text = originalConfig
         ballerinaDependencyFile.text = originalDependencies
@@ -169,14 +169,14 @@ publishing {
     }
 }
 
-updateTomlVersions.dependsOn copyStdlibs
+updateTomlFiles.dependsOn copyStdlibs
 
 build.dependsOn ":${packageName}-native:build"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 test.dependsOn ":${packageName}-native:build"
 test.dependsOn ":${packageName}-compiler-plugin:build"
-build.finalizedBy stopNatsServers
 test.dependsOn startNatsServers
+build.finalizedBy stopNatsServers
 
 publishToMavenLocal.dependsOn build
 publish.dependsOn build
