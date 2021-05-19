@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
@@ -26,8 +25,6 @@ import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -46,9 +43,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  */
 public class GracefulStop {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GracefulStop.class);
-
-    public static void basicGracefulStop(Environment environment, BObject listenerObject) {
+    public static Object gracefulStop(BObject listenerObject) {
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Connection natsConnection =
@@ -75,17 +70,17 @@ public class GracefulStop {
             Thread.currentThread().interrupt();
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                                                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            throw Utils.createNatsError("Listener interrupted on graceful stop.");
+            return Utils.createNatsError("Listener interrupted on graceful stop.");
         } catch (TimeoutException e) {
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                                                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            throw Utils.createNatsError("Timeout error occurred, on graceful stop.");
+            return Utils.createNatsError("Timeout error occurred, on graceful stop.");
         } catch (IllegalStateException e) {
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                                                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            throw Utils.createNatsError("Connection is already closed.");
+            return Utils.createNatsError("Connection is already closed.");
         }
-
+        return null;
     }
 
 }
