@@ -50,9 +50,8 @@ import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
 public class Register {
     private static final PrintStream console;
 
-    public static Object basicRegister(Environment env, BObject listenerObject, BObject service,
+    public static Object attach(Environment env, BObject listenerObject, BObject service,
                                        Object annotationData) {
-        String errorMessage = "Error while registering the subscriber. ";
         Connection natsConnection =
                 (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         @SuppressWarnings("unchecked")

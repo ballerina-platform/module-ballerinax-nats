@@ -20,8 +20,10 @@ package org.ballerinalang.nats.basic.client;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
@@ -39,25 +41,28 @@ import org.ballerinalang.nats.observability.NatsTracingUtil;
  */
 public class Publish {
 
-    public static Object externPublish(Environment environment, BObject clientObject,
-                                       BString subject, BArray data, Object replyTo) {
-        NatsTracingUtil.traceResourceInvocation(environment, clientObject, subject.getValue());
+    public static Object publishMessage(Environment environment, BObject clientObject,
+                                        BMap<BString, Object> message) {
+        String subject = message.getStringValue(StringUtils.fromString("subject")).getValue();
+        BArray data = message.getArrayValue(StringUtils.fromString("content"));
+        Object replyTo = message.get(StringUtils.fromString("replyTo"));
+        NatsTracingUtil.traceResourceInvocation(environment, clientObject, subject);
         Connection natsConnection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) clientObject.getNativeData(Constants.NATS_METRIC_UTIL);
         byte[] byteContent = data.getBytes();
         try {
             if (TypeUtils.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
-                natsConnection.publish(subject.getValue(), ((BString) replyTo).getValue(), byteContent);
+                natsConnection.publish(subject, ((BString) replyTo).getValue(), byteContent);
             } else {
-                natsConnection.publish(subject.getValue(), byteContent);
+                natsConnection.publish(subject, byteContent);
             }
-            natsMetricsReporter.reportPublish(subject.getValue(), byteContent.length);
+            natsMetricsReporter.reportPublish(subject, byteContent.length);
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            natsMetricsReporter.reportProducerError(subject.getValue(),
+            natsMetricsReporter.reportProducerError(subject,
                                                     NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                                                 subject.getValue() + ". " + ex.getMessage());
+                                                 subject + ". " + ex.getMessage());
         }
         return null;
     }

@@ -43,7 +43,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
 public class Detach {
     private static final PrintStream console;
 
-    public static Object basicDetach(BObject listener, BObject service) {
+    public static Object detach(BObject listener, BObject service) {
         @SuppressWarnings("unchecked")
         List<BObject> serviceList =
                 (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);

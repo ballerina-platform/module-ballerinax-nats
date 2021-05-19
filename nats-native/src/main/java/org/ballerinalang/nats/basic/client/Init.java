@@ -20,6 +20,7 @@ package org.ballerinalang.nats.basic.client;
 
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
@@ -40,7 +41,7 @@ import java.security.cert.CertificateException;
  */
 public class Init {
 
-    public static Object clientInit(BObject clientObj, Object url, BMap connectionConfig) {
+    public static Object clientInit(BObject clientObj, Object url, BMap<BString, Object> connectionConfig) {
         Connection natsConnection;
         try {
             natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
