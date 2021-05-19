@@ -58,11 +58,12 @@ public client class Client {
 
     # Closes the NATS client connection.
     #
-    # + return - return - `()` or else a `nats:Error` if an error is occurred
+    # + return - `()` or else a `nats:Error` if an error is occurred
     public isolated function close() returns Error? =
     @java:Method {
         'class: "org.ballerinalang.nats.basic.client.CloseConnection"
     } external;
+}
 
 isolated function clientInit(Client clientObj, string|string[] url, *ConnectionConfiguration config) returns Error? =
 @java:Method {
