@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
@@ -26,8 +25,6 @@ import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,9 +41,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  */
 public class ImmediateStop {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
-
-    public static void basicImmediateStop(Environment environment, BObject listenerObject) {
+    public static Object immediateStop(BObject listenerObject) {
         Connection natsConnection =
                 (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
@@ -73,7 +68,8 @@ public class ImmediateStop {
             Thread.currentThread().interrupt();
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                                                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            throw Utils.createNatsError("Listener interrupted while closing NATS connection");
+            return Utils.createNatsError("Listener interrupted while closing NATS connection");
         }
+        return null;
     }
 }

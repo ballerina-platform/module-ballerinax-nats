@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nats.basic.client;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BObject;
 import io.nats.client.Connection;
 import org.ballerinalang.nats.Constants;
@@ -33,7 +32,7 @@ import org.ballerinalang.nats.observability.NatsMetricsReporter;
  */
 public class CloseConnection {
 
-    public static Object closeConnection(Environment environment, BObject clientObject) {
+    public static Object close(BObject clientObject) {
         Connection connection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
         try {
             connection.close();

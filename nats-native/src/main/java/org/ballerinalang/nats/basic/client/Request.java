@@ -53,17 +53,19 @@ public class Request {
     private static final BigDecimal MILLISECOND_MULTIPLIER = new BigDecimal(1000);
     
     @SuppressWarnings("unused")
-    public static Object externRequest(Environment environment, BObject clientObj, BString subject, BArray data,
+    public static Object requestMessage(Environment environment, BObject clientObj, BMap<BString, Object> message,
                                        Object duration) {
-        NatsTracingUtil.traceResourceInvocation(environment, clientObj, subject.getValue());
+        String subject = message.getStringValue(StringUtils.fromString("subject")).getValue();
+        BArray data = message.getArrayValue(StringUtils.fromString("content"));
+        NatsTracingUtil.traceResourceInvocation(environment, clientObj, subject);
         Connection natsConnection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL);
         byte[] byteContent = convertDataIntoByteArray(data);
         try {
             Message reply;
-            Future<Message> incoming = natsConnection.request(subject.getValue(), byteContent);
-            natsMetricsReporter.reportRequest(subject.getValue(), byteContent.length);
+            Future<Message> incoming = natsConnection.request(subject, byteContent);
+            natsMetricsReporter.reportRequest(subject, byteContent.length);
             if (TypeUtils.getType(duration).getTag() == TypeTags.DECIMAL_TAG) {
                 BigDecimal valueInSeconds = ((BDecimal) duration).decimalValue();
                 int valueInMilliSeconds = (valueInSeconds).multiply(MILLISECOND_MULTIPLIER).intValue();
@@ -77,18 +79,18 @@ public class Request {
             BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
                                                                    StringUtils.fromString(reply.getSubject()),
                                                                    StringUtils.fromString(reply.getReplyTo()));
-            natsMetricsReporter.reportResponse(subject.getValue());
+            natsMetricsReporter.reportResponse(subject);
             return populatedRecord;
         } catch (TimeoutException ex) {
-            natsMetricsReporter.reportProducerError(subject.getValue(),
+            natsMetricsReporter.reportProducerError(subject,
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError("Request to subject " + subject.getValue() +
+            return Utils.createNatsError("Request to subject " + subject +
                                                  " timed out while waiting for a reply");
         } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException ex) {
-            natsMetricsReporter.reportProducerError(subject.getValue(),
+            natsMetricsReporter.reportProducerError(subject,
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Error while requesting message to " +
-                                                 "subject " + subject.getValue() + ". " + ex.getMessage());
+                                                 "subject " + subject + ". " + ex.getMessage());
         }
     }
 }
