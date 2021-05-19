@@ -30,9 +30,6 @@ public class Constants {
 
     public static final String NATS_METRIC_UTIL = "nats_metric_util";
 
-    // Represents connected clients.
-    public static final String CONNECTED_CLIENTS = "connected_clients";
-
     // Represents dispatcher list.
     public static final String DISPATCHER_LIST = "dispatcher_list";
 
@@ -55,8 +52,8 @@ public class Constants {
     public static final String COUNTDOWN_LATCH = "count_down_latch";
     public static final String SERVICE_NAME = "service_name";
 
-    public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
-    public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from subject ";
+    public static final String NATS_CLIENT_SUBSCRIBED = "[ballerinax/nats] Client subscribed for ";
+    public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerinax/nats] Client unsubscribed from subject ";
 
     public static final BString CONNECTION_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
     public static final BString CONNECTION_KEYSTORE = StringUtils.fromString("key");
@@ -68,7 +65,6 @@ public class Constants {
     public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
     // Error messages and logs.
-    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
     public static final String THREAD_INTERRUPTED_ERROR =
             "internal error occurred. The current thread got interrupted.";
     public static final String PRODUCER_ERROR = "error while publishing message to subject ";
