@@ -1,9 +1,9 @@
 ## Package Overview
 
-The NATS library is one of the standard library packages of the<a target="_blank" href="https://ballerina.io
+The `nats` library is one of the standard library packages of the<a target="_blank" href="https://ballerina.io
 /"> Ballerina </a> language.
 
-This package provides the capability to send and receive messages by connecting to the NATS server. NATS makes it easy for programs to communicate across different environments, languages, cloud providers and on-premise systems. Clients connect to the NATS system, usually via a single URL, and then subscribe or publish messages to a subject.
+This package provides the capability to send and receive messages by connecting to the NATS server. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.
 
 ### Report Issues
 

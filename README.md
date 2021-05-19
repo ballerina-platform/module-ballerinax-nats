@@ -9,7 +9,7 @@ Ballerina NATS Library
 The NATS library is one of the standard library modules of the<a target="_blank" href="https://ballerina.io/"> Ballerina
 </a> language.
 
-For more information on the operations supported by the module, which include the below, go to [The NATS Module](https://docs.central.ballerina.io/ballerina/nats/latest).
+For more information on the operations supported by the module, which include the below, go to the [`nats` module](https://docs.central.ballerina.io/ballerina/nats/latest).
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)

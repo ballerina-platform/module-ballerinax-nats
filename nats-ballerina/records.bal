@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 
-# Configurations related to initializing the NATS client, and listener.
+# Configurations related to initializing the NATS client and listener.
 #
 # + connectionName - The name of the connection
 # + retryConfig - The configurations related to connection reconnect attempts
@@ -54,8 +54,8 @@ public type Credentials record {|
 
 # Configurations related to facilitating a secure communication.
 #
-# + cert - The configurations associated with `crypto:TrustStore`
-# + key - The configurations associated with `crypto:KeyStore`
+# + cert - The configurations associated with the `crypto:TrustStore`
+# + key - The configurations associated with the `crypto:KeyStore`
 # + protocol - The SSL/TLS protocol related options
 public type SecureSocket record {|
     crypto:TrustStore cert;

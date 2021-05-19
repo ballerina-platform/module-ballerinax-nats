@@ -48,7 +48,7 @@ public client class Client {
     #
     # + message - The message to be published
     # + duration - The time (in seconds) to wait for the response
-    # + return -  The response or else a `nats:Error` if an error is encountered
+    # + return -  The response or else a `nats:Error` if an error occurred
     isolated remote function requestMessage(Message message, decimal? duration = ())
             returns Message|Error {
         return externRequest(self, message.subject, message.content, duration);
@@ -56,7 +56,7 @@ public client class Client {
 
     # Closes the NATS client connection.
     #
-    # + return - `()` or else a `nats:Error` if an error is encountered
+    # + return - `()` or else a `nats:Error` if an error is occurred
     public isolated function close() returns Error? {
         return closeConnection(self);
     }
