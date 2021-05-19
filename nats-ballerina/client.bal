@@ -17,24 +17,26 @@
 import ballerina/jballerina.java;
 
 # The client provides the capability to publish messages to the NATS server.
-# The `nats:Client` needs the nats url to be initialized.
 public client class Client {
 
-    # Creates a new `nats:Client`.
+    # Initializes the NATS client.
+    # ```ballerina
+    # nats:Client natsClient = check new(nats:DEFAULT_URL);
+    # ```
     #
     # + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
-    # + config - Configurations associated with the NATS client to establish a connection with the server
+    # + config - The connection configurations
     public isolated function init(string|string[] url, *ConnectionConfiguration config) returns Error? {
         return clientInit(self, url, config);
     }
 
     # Publishes data to a given subject.
     # ```ballerina
-    # nats:Error? result = natsClient->publishMessage(<@untainted>message);
+    # check natsClient->publishMessage(message);
     # ```
     #
-    # + message - Message to be published
-    # + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
+    # + message - The message to be published
+    # + return -  `()` or else a `nats:Error` if an error occurred
     isolated remote function publishMessage(Message message) returns Error? =
     @java:Method {
             'class: "org.ballerinalang.nats.basic.client.Publish"
@@ -42,12 +44,12 @@ public client class Client {
 
     # Publishes data to a given subject and waits for a response.
     # ```ballerina
-    # nats:Message|nats:Error reqReply = natsClient->requestMessage(<@untainted>message);
+    # check natsClient->requestMessage(message, 5);
     # ```
     #
-    # + message - Message to be published
+    # + message - The message to be published
     # + duration - The time (in seconds) to wait for the response
-    # + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
+    # + return -  The response or else a `nats:Error` if an error occurred
     isolated remote function requestMessage(Message message, decimal? duration = ())
             returns Message|Error =
     @java:Method {
@@ -56,7 +58,7 @@ public client class Client {
 
     # Closes the NATS client connection.
     #
-    # + return - `()` or else a `nats:Error` if unable to complete the close the operation
+    # + return - `()` or else a `nats:Error` if an error is occurred
     public isolated function close() returns Error? =
     @java:Method {
         'class: "org.ballerinalang.nats.basic.client.CloseConnection"
