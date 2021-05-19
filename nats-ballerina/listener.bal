@@ -39,9 +39,10 @@ public class Listener {
     # + s - The type descriptor of the service
     # + name - The name of the service
     # + return - `()` or else a `nats:Error` upon failure to attach
-    public isolated function attach(Service s, string[]|string? name = ()) returns error? {
-        return basicRegister(self, s, name);
-    }
+    public isolated function attach(Service s, string[]|string? name = ()) returns error? =
+    @java:Method {
+        'class: "org.ballerinalang.nats.basic.consumer.Register"
+    } external;
 
     # Stops consuming messages and detaches the service from the `nats:Listener`.
     #```ballerina
@@ -50,9 +51,10 @@ public class Listener {
     #
     # + s - The type descriptor of the service
     # + return - `()` or else a `nats:Error` upon failure to detach
-    public isolated function detach(Service s) returns error? {
-        return basicDetach(self, s);
-    }
+    public isolated function detach(Service s) returns error? =
+    @java:Method {
+        'class: "org.ballerinalang.nats.basic.consumer.Detach"
+    } external;
 
     # Starts the `nats:Listener`.
     # ```ballerina
@@ -70,9 +72,10 @@ public class Listener {
     # ```
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
-    public isolated function gracefulStop() returns error? {
-        return basicGracefulStop(self);
-    }
+    public isolated function gracefulStop() returns error? =
+    @java:Method {
+        'class: "org.ballerinalang.nats.basic.consumer.GracefulStop"
+    } external;
 
     # Stops the `nats:Listener` forcefully.
     # ```ballerina
@@ -80,34 +83,15 @@ public class Listener {
     # ```
     #
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
-    public isolated function immediateStop() returns error? {
-        return basicImmediateStop(self);
-    }
+    public isolated function immediateStop() returns error? =
+    @java:Method {
+        'class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
+    } external;
 }
-
-isolated function basicRegister(Listener lis, Service s, string[]|string? name = ()) returns error? =
-@java:Method {
-    'class: "org.ballerinalang.nats.basic.consumer.Register"
-} external;
-
-isolated function basicDetach(Listener lis, Service serviceType) returns error? =
-@java:Method {
-    'class: "org.ballerinalang.nats.basic.consumer.Detach"
-} external;
 
 isolated function basicStart(Listener lis) =
 @java:Method {
     'class: "org.ballerinalang.nats.basic.consumer.Start"
-} external;
-
-isolated function basicGracefulStop(Listener lis) =
-@java:Method {
-    'class: "org.ballerinalang.nats.basic.consumer.GracefulStop"
-} external;
-
-isolated function basicImmediateStop(Listener lis) =
-@java:Method {
-    'class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
 } external;
 
 isolated function consumerInit(Listener lis, string|string[] url, *ConnectionConfiguration config) returns Error? =
