@@ -58,7 +58,7 @@ public client class Client {
 
     # Closes the NATS client connection.
     #
-    # + return - `()` or else a `nats:Error` if unable to complete the close the operation
+    # + return - `()` or else a `nats:Error` if an error is occurred
     public isolated function close() returns Error? =
     @java:Method {
         'class: "org.ballerinalang.nats.basic.client.CloseConnection"
