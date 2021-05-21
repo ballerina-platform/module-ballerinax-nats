@@ -32,7 +32,7 @@ public class Listener {
     }
 
     # Binds a service to the `nats:Listener`.
-    #```ballerina
+    # ```ballerina
     # check natsListener.attach(service, "serviceName");
     # ```
     #
@@ -45,7 +45,7 @@ public class Listener {
     } external;
 
     # Stops consuming messages and detaches the service from the `nats:Listener`.
-    #```ballerina
+    # ```ballerina
     # check natsListener.detach(service);
     # ```
     #

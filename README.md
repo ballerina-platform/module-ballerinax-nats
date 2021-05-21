@@ -6,10 +6,10 @@ Ballerina NATS Library
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats) 
 
-The NATS library is one of the standard library modules of the<a target="_blank" href="https://ballerina.io/"> Ballerina
+The `nats` library is one of the standard library modules of the<a target="_blank" href="https://ballerina.io/"> Ballerina
 </a> language.
 
-For more information on the operations supported by the module, which include the below, go to the [`nats` module](https://docs.central.ballerina.io/ballerina/nats/latest).
+For more information on the operations supported by the module, which include the below, go to the [`nats` module](https://docs.central.ballerina.io/ballerinax/nats/latest).
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
