@@ -17,7 +17,7 @@
 import ballerina/jballerina.java;
 
 # The client provides the capability to publish messages to the NATS server.
-public client class Client {
+public isolated client class Client {
 
     # Initializes the NATS client.
     # ```ballerina
