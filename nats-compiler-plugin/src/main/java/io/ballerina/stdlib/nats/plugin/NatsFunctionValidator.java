@@ -19,7 +19,6 @@
 package io.ballerina.stdlib.nats.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -199,14 +198,14 @@ public class NatsFunctionValidator {
                             ((UnionTypeSymbol) returnTypeDesc.get()).memberTypeDescriptors();
                     for (TypeSymbol returnType : returnTypeMembers) {
                         if (returnType.typeKind() != TypeDescKind.NIL) {
-                            if (returnType.typeKind() == TypeDescKind.ERROR) {
+                            if (returnType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                                 if (!returnType.signature().equals(PluginConstants.ERROR) &&
                                         !validateModuleId(returnType.getModule().get())) {
                                     context.reportDiagnostic(PluginUtils.getDiagnostic(
                                             CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
                                             DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
                                 }
-                            } else {
+                            } else if (returnType.typeKind() != TypeDescKind.ERROR) {
                                 context.reportDiagnostic(PluginUtils.getDiagnostic(
                                         CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
                                         DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
@@ -267,10 +266,11 @@ public class NatsFunctionValidator {
             SemanticModel semanticModel = context.semanticModel();
             Optional<Symbol> paramSymbol = semanticModel.symbol(errorNode);
             if (paramSymbol.isPresent()) {
+                String paramName = paramSymbol.get().getName().isPresent() ? paramSymbol.get().getName().get() : "";
                 Optional<ModuleSymbol> moduleSymbol = paramSymbol.get().getModule();
                 if (moduleSymbol.isPresent()) {
                     if (!validateModuleId(moduleSymbol.get()) ||
-                            !(paramSymbol.get() instanceof ErrorTypeSymbol)) {
+                            !(paramName.equals(PluginConstants.ERROR_PARAM))) {
                         context.reportDiagnostic(PluginUtils.getDiagnostic(
                                 CompilationErrors.INVALID_FUNCTION_PARAM_ERROR,
                                 DiagnosticSeverity.ERROR, requiredParameterNode.location()));
