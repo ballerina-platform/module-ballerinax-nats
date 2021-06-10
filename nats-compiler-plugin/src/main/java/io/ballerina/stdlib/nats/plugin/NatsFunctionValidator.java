@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -231,14 +232,17 @@ public class NatsFunctionValidator {
                             ((UnionTypeSymbol) returnTypeDesc.get()).memberTypeDescriptors();
                     for (TypeSymbol returnType : returnTypeMembers) {
                         if (returnType.typeKind() != TypeDescKind.NIL) {
-                            if (returnType.typeKind() == TypeDescKind.ERROR) {
-                                if (!returnType.signature().equals(PluginConstants.ERROR) &&
+                            if (returnType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                                TypeReferenceTypeSymbol returnTypeRef = (TypeReferenceTypeSymbol) returnType;
+                                String returnTypeName = returnTypeRef.definition().getName().isPresent() ?
+                                            returnTypeRef.definition().getName().get() : "";
+                                if (!returnTypeName.equalsIgnoreCase(PluginConstants.ERROR) ||
                                         !validateModuleId(returnType.getModule().get())) {
                                     context.reportDiagnostic(PluginUtils.getDiagnostic(
-                                            CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL,
+                                            CompilationErrors.INVALID_RETURN_TYPE_ANY_DATA,
                                             DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
                                 }
-                            } else {
+                            } else if (returnType.typeKind() != TypeDescKind.ERROR) {
                                 validateAnyDataReturnType(returnType.signature(), functionDefinitionNode);
                             }
                         }
