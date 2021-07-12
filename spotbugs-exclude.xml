@@ -17,33 +17,23 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Class name="org.ballerinalang.nats.Utils" />
+        <Class name="io.ballerina.stdlib.nats.Utils" />
         <Method name="bindDataToIntendedType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nats.basic.consumer.Detach" />
+        <Class name="io.ballerina.stdlib.nats.basic.consumer.Detach" />
         <Method name="basicDetach"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nats.basic.consumer.Register" />
+        <Class name="io.ballerina.stdlib.nats.basic.consumer.Register" />
         <Method name="basicRegister"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nats.basic.client.Publish" />
+        <Class name="io.ballerina.stdlib.nats.basic.client.Publish" />
         <Method name="externPublish"/>
-        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.nats.streaming.consumer.Attach" />
-        <Method name="getAckMode"/>
-        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.nats.streaming.consumer.Subscribe" />
-        <Method name="createSubscription"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
 </FindBugsFilter>

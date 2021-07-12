@@ -12,8 +12,14 @@ plugins {
 }
 
 rootProject.name = 'nats'
-include(':build-config:checkstyle')
+include(':checkstyle')
 include ':nats-ballerina', 'nats-native', 'nats-compiler-plugin', 'nats-compiler-plugin-tests'
+
+project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
+project(':nats-native').projectDir = file('native')
+project(':nats-ballerina').projectDir = file('ballerina')
+project(':nats-compiler-plugin').projectDir = file('compiler-plugin')
+project(':nats-compiler-plugin-tests').projectDir = file('compiler-plugin-tests')
 
 gradleEnterprise {
     buildScan {

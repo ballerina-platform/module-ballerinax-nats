@@ -1,0 +1,13 @@
+[package]
+org = "ballerinax"
+name = "nats"
+version = "@toml.version@"
+
+[[platform.java11.dependency]]
+path = "./lib/jnats-@nats.client.version@.jar"
+
+[[platform.java11.dependency]]
+path = "../native/build/libs/nats-native-@project.version@.jar"
+
+[build-options]
+observabilityIncluded=true
