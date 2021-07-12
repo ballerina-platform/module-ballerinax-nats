@@ -17,22 +17,22 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Class name="org.ballerinalang.nats.Utils" />
+        <Class name="Utils" />
         <Method name="bindDataToIntendedType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nats.basic.consumer.Detach" />
+        <Class name="Detach" />
         <Method name="basicDetach"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nats.basic.consumer.Register" />
+        <Class name="Register" />
         <Method name="basicRegister"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nats.basic.client.Publish" />
+        <Class name="Publish" />
         <Method name="externPublish"/>
         <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>

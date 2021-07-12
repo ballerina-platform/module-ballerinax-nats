@@ -1,0 +1,182 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+import org.apache.tools.ant.taskdefs.condition.Os
+
+buildscript {
+    repositories {
+        maven {
+            url = 'https://maven.pkg.github.com/ballerina-platform/plugin-gradle'
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+    }
+    dependencies {
+        classpath "io.ballerina:plugin-gradle:${project.ballerinaGradlePluginVersion}"
+    }
+}
+
+description = 'Ballerina - Nats Ballerina Generator'
+
+def packageName = "nats"
+def packageOrg = "ballerinax"
+def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
+def ballerinaConfigFile = new File("$project.projectDir/Ballerina.toml")
+def ballerinaDependencyFile = new File("$project.projectDir/Dependencies.toml")
+def ballerinaCompilerPluginFile = new File("$project.projectDir/CompilerPlugin.toml")
+def originalConfig = ballerinaConfigFile.text
+def originalDependencies = ballerinaDependencyFile.text
+def originalCompilerPlugin = ballerinaCompilerPluginFile.text
+
+def stripBallerinaExtensionVersion(String extVersion) {
+    if (extVersion.matches(project.ext.timestampedVersionRegex)) {
+        def splitVersion = extVersion.split('-');
+        if (splitVersion.length > 3) {
+            def strippedValues = splitVersion[0..-4]
+            return strippedValues.join('-')
+        } else {
+            return extVersion
+        }
+    } else {
+        return extVersion.replace("${project.ext.snapshotVersion}", "")
+    }
+}
+
+apply plugin: 'io.ballerina.plugin'
+
+ballerina {
+    packageOrganization = packageOrg
+    module = packageName
+    langVersion = ballerinaLangVersion
+    testCoverageParam = "--code-coverage --coverage-format=xml --includes=io.ballerina.stdlib.nats.*:ballerinax.nats.*"
+}
+
+configurations {
+    externalJars
+}
+
+dependencies {
+    externalJars(group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
+        transitive = false
+    }
+}
+
+task updateTomlFiles {
+    doLast {
+        def stdlibDependentCryptoVersion = stripBallerinaExtensionVersion(project.stdlibCryptoVersion)
+        def stdlibDependentLogVersion = stripBallerinaExtensionVersion(project.stdlibLogVersion)
+        def natsClientVersion = project.natsVersion
+
+        def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
+        newConfig = newConfig.replace("@toml.version@", tomlVersion)
+        newConfig = newConfig.replace("@nats.client.version@", natsClientVersion)
+        ballerinaConfigFile.text = newConfig
+
+        def newDependencyConfig = ballerinaDependencyFile.text.replace("@stdlib.log.version@", stdlibDependentLogVersion)
+        newDependencyConfig = newDependencyConfig.replace("@stdlib.crypto.version@", stdlibDependentCryptoVersion)
+        ballerinaDependencyFile.text = newDependencyConfig
+
+        def newPluginConfig = ballerinaCompilerPluginFile.text.replace("@project.version@", project.version)
+        ballerinaCompilerPluginFile.text = newPluginConfig
+    }
+}
+
+task revertTomlFiles {
+    doLast {
+        ballerinaConfigFile.text = originalConfig
+        ballerinaDependencyFile.text = originalDependencies
+        ballerinaCompilerPluginFile.text = originalCompilerPlugin
+    }
+}
+
+task startNatsServers() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
+                standardOutput = stdOut
+            }
+            if (!stdOut.toString().contains("server_nats-tls_1")) {
+                println "Starting NATS Basic server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml up -d"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "NATS Basic server is already started."
+            }
+        }
+    }
+}
+
+task stopNatsServers() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
+                standardOutput = stdOut
+            }
+            if (stdOut.toString().contains("server_nats-tls_1")) {
+                println "Stopping NATS server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml rm -svf"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "NATS server is not started."
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact source: createArtifactZip, extension: 'zip'
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-${packageOrg}-${packageName}")
+            credentials {
+                username = System.getenv("publishUser")
+                password = System.getenv("publishPAT")
+            }
+        }
+    }
+}
+
+updateTomlFiles.dependsOn copyStdlibs
+
+build.dependsOn ":${packageName}-native:build"
+build.dependsOn ":${packageName}-compiler-plugin:build"
+test.dependsOn ":${packageName}-native:build"
+test.dependsOn ":${packageName}-compiler-plugin:build"
+test.dependsOn startNatsServers
+build.finalizedBy stopNatsServers
+
+publishToMavenLocal.dependsOn build
+publish.dependsOn build

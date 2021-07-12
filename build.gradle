@@ -33,7 +33,7 @@ ext.stdlibTimeVersion = project.stdlibTimeVersion
 ext.stdlibIoVersion = project.stdlibIoVersion
 
 allprojects {
-    group = 'org.ballerinalang'
+    group = project.group
     version = project.version
 
     apply plugin: 'jacoco'
@@ -85,10 +85,10 @@ subprojects {
         }
 
         /* Standard libraries */
-        ballerinaStdLibs "org.ballerinalang:log-ballerina:${stdlibLogVersion}"
-        ballerinaStdLibs "org.ballerinalang:crypto-ballerina:${stdlibCryptoVersion}"
-        ballerinaStdLibs "org.ballerinalang:time-ballerina:${stdlibTimeVersion}"
-        ballerinaStdLibs "org.ballerinalang:io-ballerina:${stdlibIoVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:log-ballerina:${stdlibLogVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${stdlibCryptoVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
     }
 }
 def moduleVersion = project.version
