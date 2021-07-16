@@ -27,12 +27,6 @@ import io.ballerina.stdlib.nats.observability.NatsMetricsReporter;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,9 +43,8 @@ public class Init {
         Connection natsConnection;
         try {
             natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
-        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException |
-                UnrecoverableKeyException | InterruptedException | IOException e) {
-            String errorMsg = "error occurred while setting up the connection. " +
+        } catch (Exception e) {
+            String errorMsg = "Error occurred while setting up the connection. " +
                     (e.getMessage() != null ? e.getMessage() : "");
             return Utils.createNatsError(errorMsg);
         }

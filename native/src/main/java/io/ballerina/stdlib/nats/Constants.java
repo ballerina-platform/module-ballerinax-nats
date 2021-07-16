@@ -56,11 +56,11 @@ public class Constants {
     public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerinax/nats] Client unsubscribed from subject ";
 
     public static final BString CONNECTION_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
-    public static final BString CONNECTION_KEYSTORE = StringUtils.fromString("key");
-    public static final BString CONNECTION_TRUSTORE = StringUtils.fromString("cert");
-    public static final BString CONNECTION_PROTOCOL = StringUtils.fromString("protocol");
-    public static final BString CONNECTION_PROTOCOL_NAME = StringUtils.fromString("name");
-    public static final String KEY_STORE_TYPE = "PKCS12";
+    public static final BString KEY = StringUtils.fromString("key");
+    public static final BString CERT = StringUtils.fromString("cert");
+    public static final BString PROTOCOL = StringUtils.fromString("protocol");
+    public static final BString PROTOCOL_NAME = StringUtils.fromString("name");
+    public static final String PKCS12 = "PKCS12";
     public static final BString KEY_STORE_PASS = StringUtils.fromString("password");
     public static final BString KEY_STORE_PATH = StringUtils.fromString("path");
 
@@ -76,6 +76,12 @@ public class Constants {
     public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");
     public static final BString MAX_MESSAGES = StringUtils.fromString("maxMessages");
     public static final BString MAX_BYTES = StringUtils.fromString("maxBytes");
+
+    public static final BString CERT_FILE = StringUtils.fromString("certFile");
+    public static final BString KEY_FILE = StringUtils.fromString("keyFile");
+    public static final BString KEY_PASSWORD = StringUtils.fromString("keyPassword");
+    public static final String NATIVE_DATA_PUBLIC_KEY_CERTIFICATE = "NATIVE_DATA_PUBLIC_KEY_CERTIFICATE";
+    public static final String NATIVE_DATA_PRIVATE_KEY = "NATIVE_DATA_PRIVATE_KEY";
 
     private Constants() {
     }
