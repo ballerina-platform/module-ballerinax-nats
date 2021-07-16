@@ -54,15 +54,26 @@ public type Credentials record {|
 
 # Configurations related to facilitating a secure communication.
 #
-# + cert - The configurations associated with the `crypto:TrustStore`
-# + key - The configurations associated with the `crypto:KeyStore`
-# + protocol - The SSL/TLS protocol related options
+# + cert - Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts
+# + key - Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client
+# + protocol - SSL/TLS protocol related options
 public type SecureSocket record {|
-    crypto:TrustStore cert;
-    crypto:KeyStore key?;
+    crypto:TrustStore|string cert;
+    crypto:KeyStore|CertKey key?;
     record {|
         Protocol name;
     |} protocol?;
+|};
+
+# Represents combination of certificate, private key and private key password if encrypted.
+#
+# + certFile - A file containing the certificate
+# + keyFile - A file containing the private key in PKCS8 format
+# + keyPassword - Password of the private key if it is encrypted
+public type CertKey record {|
+    string certFile;
+    string keyFile;
+    string keyPassword?;
 |};
 
 # Represents protocol options.

@@ -28,9 +28,6 @@ public isolated function testTlsConnection1() {
         key: {
             path: "tests/certs/keystore.p12",
             password: "password"
-        },
-        protocol: {
-            name: TLS
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
@@ -47,6 +44,9 @@ public isolated function testTlsConnection2() {
         cert: {
             path: "tests/certs/truststore1.p12",
             password: "password"
+        },
+        protocol: {
+            name: TLS
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
