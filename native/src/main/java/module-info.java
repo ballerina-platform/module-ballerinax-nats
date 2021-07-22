@@ -21,6 +21,7 @@ module io.ballerina.stdlib.nats.runtime {
     requires io.ballerina.runtime;
     requires org.slf4j;
     requires io.ballerina.lang;
+    requires io.ballerina.stdlib.crypto;
     exports io.ballerina.stdlib.nats.basic.consumer;
     exports io.ballerina.stdlib.nats.basic.client;
     exports io.ballerina.stdlib.nats.connection;

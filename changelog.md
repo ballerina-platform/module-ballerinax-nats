@@ -1,6 +1,11 @@
 # Change Log
 This file contains all the notable changes done to the Ballerina NATS package through the releases.
 
+## [Unreleased]
+
+### Added
+- [Add public cert and private key support for NATS secure socket.](https://github.com/ballerina-platform/ballerina-standard-library/issues/1468)
+
 ## [1.1.0-alpha8] - 2021-04-22
 
 ### Added
