@@ -22,11 +22,11 @@ import ballerina/test;
 public isolated function testTlsConnection1() {
     SecureSocket secured = {
         cert: {
-            path: "tests/certs/truststore.p12",
+            path: "tests/certs/truststore.jks",
             password: "password"
         },
         key: {
-            path: "tests/certs/keystore.p12",
+            path: "tests/certs/keystore.jks",
             password: "password"
         }
     };
@@ -42,11 +42,62 @@ public isolated function testTlsConnection1() {
 public isolated function testTlsConnection2() {
     SecureSocket secured = {
         cert: {
-            path: "tests/certs/truststore1.p12",
+            path: "tests/certs/truststore1.jks",
             password: "password"
         },
         protocol: {
             name: TLS
+        }
+    };
+    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
+    if (newClient is Client) {
+        test:assertFail("Error expected for NATS Connection initialization with TLS.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testTlsConnection3() {
+    SecureSocket secured = {
+        cert: "tests/certs/server.crt",
+        key: {
+            certFile: "tests/certs/client.crt",
+            keyFile: "tests/certs/client.key"
+        }
+    };
+    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
+    if (newClient is error) {
+        test:assertFail("NATS Connection initialization with TLS failed.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testTlsConnection4() {
+    SecureSocket secured = {
+        cert: "tests/certs/server1.crt",
+        key: {
+            certFile: "tests/certs/client.crt",
+            keyFile: "tests/certs/client.key"
+        }
+    };
+    Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
+    if (newClient is Client) {
+        test:assertFail("Error expected for NATS Connection initialization with TLS.");
+    }
+}
+
+@test:Config {
+    groups: ["nats-basic"]
+}
+public isolated function testTlsConnection5() {
+    SecureSocket secured = {
+        cert: "tests/certs/server.crt",
+        key: {
+            certFile: "tests/certs/client1.crt",
+            keyFile: "tests/certs/client1.key"
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
