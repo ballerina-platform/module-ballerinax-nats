@@ -242,7 +242,7 @@ public function testConsumerServiceWithQueue() {
         checkpanic sub.attach(queueService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
-        runtime:sleep(20);
+        runtime:sleep(25);
         test:assertEquals(receivedQueueMessage, message, msg = "Message received does not match.");
         checkpanic sub.detach(queueService);
         checkpanic sub.gracefulStop();
