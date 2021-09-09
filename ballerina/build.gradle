@@ -36,10 +36,10 @@ description = 'Ballerina - Nats Ballerina Generator'
 def packageName = "nats"
 def packageOrg = "ballerinax"
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
-def ballerinaConfigFile = new File("$project.projectDir/Ballerina.toml")
-def ballerinaCompilerPluginFile = new File("$project.projectDir/CompilerPlugin.toml")
-def originalConfig = ballerinaConfigFile.text
-def originalCompilerPlugin = ballerinaCompilerPluginFile.text
+def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/Ballerina.toml")
+def compilerPluginTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/CompilerPlugin.toml")
+def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
+def compilerPluginTomlFile = new File("$project.projectDir/CompilerPlugin.toml")
 
 def stripBallerinaExtensionVersion(String extVersion) {
     if (extVersion.matches(project.ext.timestampedVersionRegex)) {
@@ -77,20 +77,26 @@ task updateTomlFiles {
     doLast {
         def natsClientVersion = project.natsVersion
 
-        def newConfig = ballerinaConfigFile.text.replace("@project.version@", project.version)
+        def newConfig = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
         newConfig = newConfig.replace("@nats.client.version@", natsClientVersion)
-        ballerinaConfigFile.text = newConfig
+        ballerinaTomlFile.text = newConfig
 
-        def newPluginConfig = ballerinaCompilerPluginFile.text.replace("@project.version@", project.version)
-        ballerinaCompilerPluginFile.text = newPluginConfig
+        def newPluginConfig = compilerPluginTomlFilePlaceHolder.text.replace("@project.version@", project.version)
+        compilerPluginTomlFile.text = newPluginConfig
     }
 }
 
-task revertTomlFiles {
+task commitTomlFiles {
     doLast {
-        ballerinaConfigFile.text = originalConfig
-        ballerinaCompilerPluginFile.text = originalCompilerPlugin
+        project.exec {
+            ignoreExitValue true
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "git commit Ballerina.toml Dependencies.toml CompilerPlugin.toml -m \"[Automated] Update the native jar versions\""
+            } else {
+                commandLine 'sh', '-c', "git commit Ballerina.toml Dependencies.toml CompilerPlugin.toml -m '[Automated] Update the native jar versions'"
+            }
+        }
     }
 }
 
