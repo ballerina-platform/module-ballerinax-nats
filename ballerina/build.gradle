@@ -33,8 +33,11 @@ buildscript {
 
 description = 'Ballerina - Nats Ballerina Generator'
 
+def platform = "java11"
 def packageName = "nats"
 def packageOrg = "ballerinax"
+def artifactCacheParent = file("${project.projectDir}/build/cache_parent/")
+def pathToBala = file("${project.projectDir}/nats/target/bala")
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
 def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/Ballerina.toml")
 def compilerPluginTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/CompilerPlugin.toml")
@@ -146,6 +149,34 @@ task stopNatsServers() {
     }
 }
 
+task createBalaDirectory {
+    mkdir "${project.projectDir}/nats/target/bala"
+}
+
+task copyDistribution {
+    inputs.dir file(project.projectDir)
+
+    pathToBala.eachFileMatch(~/.*.bala/) { balaFile ->
+        copy {
+            from zipTree(balaFile)
+            into file("${artifactCacheParent}/bala/${packageOrg}/${packageName}/${project.version}/${platform}")
+        }
+    }
+    copy {
+        from file("${project.projectDir}/nats/target/cache")
+        exclude '**/*-testable.jar'
+        exclude '**/tests_cache/'
+        into file("${artifactCacheParent}/cache/")
+    }
+    outputs.dir artifactCacheParent
+}
+
+task createArtifactZip(type: Zip) {
+    from "${buildDir}/cache_parent"
+    archiveName 'distribution.zip'
+    destinationDir(file("${buildDir}/distribution"))
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -176,4 +207,5 @@ test.dependsOn startNatsServers
 build.finalizedBy stopNatsServers
 
 publishToMavenLocal.dependsOn build
+publish.dependsOn copyDistribution
 publish.dependsOn build
