@@ -47,7 +47,7 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("valid_service_1");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("valid_service_2");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("valid_service_3");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("valid_service_4");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("valid_service_5");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("valid_service_6");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 0);
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
     }
 
     @Test
@@ -95,8 +95,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_1");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.NO_ON_MESSAGE_OR_ON_REQUEST);
     }
 
@@ -105,8 +105,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_2");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.ON_MESSAGE_OR_ON_REQUEST);
     }
 
@@ -115,8 +115,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_3");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.INVALID_REMOTE_FUNCTION);
     }
 
@@ -125,8 +125,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_4");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 3);
-        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        Assert.assertEquals(diagnosticResult.errors().size(), 3);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.FUNCTION_SHOULD_BE_REMOTE);
@@ -138,8 +138,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_5");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE);
     }
 
@@ -148,8 +148,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_6");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.ONLY_PARAMS_ALLOWED);
     }
 
@@ -158,8 +158,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_7");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
-        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        Assert.assertEquals(diagnosticResult.errors().size(), 2);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
@@ -171,8 +171,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_8");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL);
     }
 
@@ -181,8 +181,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_9");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
-        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        Assert.assertEquals(diagnosticResult.errors().size(), 2);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
@@ -194,8 +194,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_10");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
-        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        Assert.assertEquals(diagnosticResult.errors().size(), 2);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.INVALID_RETURN_TYPE_ANY_DATA);
@@ -207,8 +207,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_11");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
-        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        Assert.assertEquals(diagnosticResult.errors().size(), 2);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
@@ -220,8 +220,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_12");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE_AND_ERROR);
     }
 
@@ -230,8 +230,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_13");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.ONLY_PARAMS_ALLOWED_ON_ERROR);
     }
 
@@ -240,8 +240,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_14");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 2);
-        Object[] diagnostics = diagnosticResult.diagnostics().toArray();
+        Assert.assertEquals(diagnosticResult.errors().size(), 2);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
         for (Object obj : diagnostics) {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_ERROR);
@@ -253,8 +253,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_15");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.INVALID_MULTIPLE_LISTENERS);
     }
 
@@ -263,8 +263,8 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_16");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnostics().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.diagnostics().toArray()[0];
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION);
     }
 
