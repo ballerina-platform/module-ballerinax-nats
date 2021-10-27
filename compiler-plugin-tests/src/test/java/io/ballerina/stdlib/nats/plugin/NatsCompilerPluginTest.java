@@ -39,7 +39,7 @@ import java.nio.file.Paths;
 public class NatsCompilerPluginTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources", "ballerina_sources")
             .toAbsolutePath();
-    private static final Path DISTRIBUTION_PATH = Paths.get("build", "target", "ballerina-distribution")
+    private static final Path DISTRIBUTION_PATH = Paths.get("../", "target", "ballerina-runtime")
             .toAbsolutePath();
 
     @Test
