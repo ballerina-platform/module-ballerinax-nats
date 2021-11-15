@@ -104,8 +104,6 @@ public class Register {
             throw Utils.createNatsError("Cannot find the subject name");
         }
         serviceList.add(service);
-        String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
-        console.println(Constants.NATS_CLIENT_SUBSCRIBED + consoleOutput);
         @SuppressWarnings("unchecked")
         ArrayList<String> subscriptionsList =
                 (ArrayList<String>) listenerObject
