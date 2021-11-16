@@ -143,14 +143,29 @@ public class DefaultMessageHandler implements MessageHandler {
                     NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
-                                                           this.natsConnection), properties,
-                    PredefinedTypes.TYPE_ANYDATA, msgObj, true);
+            if (serviceObject.getType().isIsolated() &&
+                    serviceObject.getType().isIsolated(Constants.ON_REQUEST_RESOURCE)) {
+                runtime.invokeMethodAsyncConcurrently(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
+                                this.natsConnection), properties,
+                        PredefinedTypes.TYPE_ANYDATA, msgObj, true);
+            } else {
+                runtime.invokeMethodAsyncSequentially(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
+                                this.natsConnection), properties,
+                        PredefinedTypes.TYPE_ANYDATA, msgObj, true);
+            }
         } else {
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
-                                                           this.natsConnection), msgObj, true);
+            if (serviceObject.getType().isIsolated() &&
+                    serviceObject.getType().isIsolated(Constants.ON_REQUEST_RESOURCE)) {
+                runtime.invokeMethodAsyncConcurrently(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
+                                this.natsConnection), null, PredefinedTypes.TYPE_ANYDATA, msgObj, true);
+            } else {
+                runtime.invokeMethodAsyncSequentially(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
+                                this.natsConnection), null, PredefinedTypes.TYPE_ANYDATA, msgObj, true);
+            }
         }
     }
 
@@ -164,12 +179,27 @@ public class DefaultMessageHandler implements MessageHandler {
                     NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      properties, PredefinedTypes.TYPE_NULL, msgObj, true);
+            if (serviceObject.getType().isIsolated() &&
+                    serviceObject.getType().isIsolated(Constants.ON_MESSAGE_RESOURCE)) {
+                runtime.invokeMethodAsyncConcurrently(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
+                        properties, PredefinedTypes.TYPE_NULL, msgObj, true);
+            } else {
+                runtime.invokeMethodAsyncSequentially(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
+                        properties, PredefinedTypes.TYPE_NULL, msgObj, true);
+            }
         } else {
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
+            if (serviceObject.getType().isIsolated() &&
+                    serviceObject.getType().isIsolated(Constants.ON_MESSAGE_RESOURCE)) {
+                runtime.invokeMethodAsyncConcurrently(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter), null,
+                        PredefinedTypes.TYPE_NULL, msgObj, true);
+            } else {
+                runtime.invokeMethodAsyncSequentially(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
+                        new ResponseCallback(countDownLatch, subject, natsMetricsReporter), null,
+                        PredefinedTypes.TYPE_NULL, msgObj, true);
+            }
         }
     }
 
