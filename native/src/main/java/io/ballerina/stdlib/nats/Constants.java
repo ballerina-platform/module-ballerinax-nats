@@ -52,9 +52,6 @@ public class Constants {
     public static final String COUNTDOWN_LATCH = "count_down_latch";
     public static final String SERVICE_NAME = "service_name";
 
-    public static final String NATS_CLIENT_SUBSCRIBED = "[ballerinax/nats] Client subscribed for ";
-    public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerinax/nats] Client unsubscribed from subject ";
-
     public static final BString CONNECTION_CONFIG_SECURE_SOCKET = StringUtils.fromString("secureSocket");
     public static final BString KEY = StringUtils.fromString("key");
     public static final BString CERT = StringUtils.fromString("cert");

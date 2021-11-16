@@ -255,6 +255,19 @@ public function testConsumerServiceWithQueue() {
     dependsOn: [testProducer],
     groups: ["nats-basic"]
 }
+public function testServiceWithoutConfig() {
+    Listener sub = checkpanic new(DEFAULT_URL);
+    error? result = trap sub.attach(noConfigService);
+    if !(result is error) {
+        test:assertFail("testServiceWithoutConfig failed.");
+    }
+    checkpanic sub.gracefulStop();
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
 public function testImmediateStop() {
     Listener sub = checkpanic new(DEFAULT_URL);
     checkpanic sub.attach(stopService);
@@ -533,5 +546,11 @@ service object {
             receivedQueueMessage = message;
             log:printInfo("Message Received for queue group: " + message);
         }
+    }
+};
+
+Service noConfigService =
+service object {
+    isolated remote function onMessage(Message msg) {
     }
 };

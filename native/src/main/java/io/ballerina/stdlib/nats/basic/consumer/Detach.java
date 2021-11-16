@@ -76,7 +76,6 @@ public class Detach {
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return Utils.createNatsError("Error occurred while un-subscribing " + ex.getMessage());
         }
-        console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + subject);
         serviceList.remove(service);
         dispatcherList.remove(service.getType().getName());
         Connection natsConnection = (Connection) listener.getNativeData(Constants.NATS_CONNECTION);

@@ -94,18 +94,12 @@ public class Register {
             throw Utils.createNatsError("Subject name cannot be found");
         }
 
-        if (subject != null) {
-            if (queueName != null) {
-                dispatcher.subscribe(subject, queueName);
-            } else {
-                dispatcher.subscribe(subject);
-            }
+        if (queueName != null) {
+            dispatcher.subscribe(subject, queueName);
         } else {
-            throw Utils.createNatsError("Cannot find the subject name");
+            dispatcher.subscribe(subject);
         }
         serviceList.add(service);
-        String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
-        console.println(Constants.NATS_CLIENT_SUBSCRIBED + consoleOutput);
         @SuppressWarnings("unchecked")
         ArrayList<String> subscriptionsList =
                 (ArrayList<String>) listenerObject
