@@ -29,12 +29,41 @@ const SERVICE_SUBJECT_NAME_ANNOT = "nats-basic-service-annot";
 const ON_REQUEST_SUBJECT = "nats-on-req";
 const ON_REQUEST_TIMEOUT_SUBJECT = "nats-on-req-timeout";
 const REPLY_TO_SUBJECT = "nats-rep";
+const REPLY_TO_DUMMY = "nats-rep-dummy";
 string receivedConsumerMessage = "";
 string receivedOnRequestMessage = "";
 string receivedQueueMessage = "";
 string withoutAnnotMessage = "";
 string receivedReplyMessage = "";
 string authToken = "MyToken";
+const ISOLATED_SUBJECT_NAME = "nats-isolated";
+
+isolated boolean messageRecceived = false;
+isolated boolean requestRecceived = false;
+
+isolated function updateMessageRecceived(boolean state) {
+    lock {
+        messageRecceived = state;
+    }
+}
+
+isolated function isMessageRecceived() returns boolean {
+    lock {
+        return messageRecceived;
+    }
+}
+
+isolated function updateRequestRecceived(boolean state) {
+    lock {
+        requestRecceived = state;
+    }
+}
+
+isolated function isRequestRecceived() returns boolean {
+    lock {
+        return requestRecceived;
+    }
+}
 
 @test:BeforeSuite
 function setup() {
@@ -212,6 +241,41 @@ public function testConsumerService1() {
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+function testIsolatedConsumerService() returns error? {
+    string message = "Testing Isolated Consumer Service";
+    Listener sub = checkpanic new(DEFAULT_URL);
+    Client newClient = checkpanic new(DEFAULT_URL);
+    check sub.attach(isolatedService);
+    check sub.'start();
+    check newClient->publishMessage({ content: message.toBytes(),
+                                                       subject: ISOLATED_SUBJECT_NAME});
+    runtime:sleep(10);
+    test:assertTrue(isMessageRecceived());
+    check newClient.close();
+    return;
+}
+
+@test:Config {
+    dependsOn: [testIsolatedConsumerService],
+    groups: ["nats-basic"]
+}
+public function testIsolatedConsumerService2() returns error? {
+    string message = "Testing Isolated Consumer Service";
+    Client newClient = checkpanic new(DEFAULT_URL);
+    Listener sub = checkpanic new(DEFAULT_URL);
+    checkpanic sub.attach(isolatedRequestService);
+    checkpanic sub.'start();
+    checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
+                                                replyTo: REPLY_TO_DUMMY });
+    runtime:sleep(15);
+    test:assertTrue(isRequestRecceived());
+    check newClient.close();
 }
 
 @test:Config {
@@ -552,5 +616,39 @@ service object {
 Service noConfigService =
 service object {
     isolated remote function onMessage(Message msg) {
+    }
+};
+
+Service isolatedService =
+@ServiceConfig {
+    subject: ISOLATED_SUBJECT_NAME
+}
+service object {
+    remote function onMessage(Message msg) {
+        byte[] messageContent = <@untainted> msg.content;
+        string|error message = 'string:fromBytes(messageContent);
+        if message is string {
+            updateMessageRecceived(true);
+        }
+    }
+};
+
+Service isolatedRequestService =
+@ServiceConfig {
+    subject: ISOLATED_SUBJECT_NAME
+}
+service object {
+    isolated remote function onMessage(Message msg) {
+       // ignored
+    }
+
+    remote function onRequest(Message msg) returns string {
+        byte[] messageContent = <@untainted> msg.content;
+
+        string|error message = strings:fromBytes(messageContent);
+        if (message is string) {
+            updateRequestRecceived(true);
+        }
+        return "Hello Back!";
     }
 };
