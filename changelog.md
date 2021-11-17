@@ -3,6 +3,9 @@ This file contains all the notable changes done to the Ballerina NATS package th
 
 ## [Unreleased]
 
+### Changed
+- [Mark NATS service type as distinct.](https://github.com/ballerina-platform/ballerina-standard-library/issues/2398)
+
 ### Added
 - [Add public cert and private key support for NATS secure socket.](https://github.com/ballerina-platform/ballerina-standard-library/issues/1468)
 
