@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -86,22 +85,10 @@ public class DefaultMessageHandler implements MessageHandler {
             if (replyTo != null && Utils.getAttachedFunctionType(serviceObject,
                     Constants.ON_REQUEST_RESOURCE) != null) {
                 // If replyTo subject is there and the user has written the onRequest function implementation:
-                MethodType onRequest = Utils.getAttachedFunctionType(serviceObject, Constants.ON_REQUEST_RESOURCE);
-                Type[] parameterTypes = onRequest.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    dispatchOnRequest(populatedRecord, replyTo);
-                } else {
-                    throw Utils.createNatsError("invalid onRequest remote function signature");
-                }
+                dispatchOnRequest(populatedRecord, replyTo);
             } else {
                 // Default onMessage behavior
-                MethodType onMessage = Utils.getAttachedFunctionType(serviceObject, Constants.ON_MESSAGE_RESOURCE);
-                Type[] parameterTypes = onMessage.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    dispatchOnMessage(populatedRecord);
-                } else {
-                    throw Utils.createNatsError("invalid onMessage remote function signature");
-                }
+                dispatchOnMessage(populatedRecord);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -137,39 +124,43 @@ public class DefaultMessageHandler implements MessageHandler {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                                                      Utils.getModule().getVersion(), Constants.ON_REQUEST_RESOURCE);
-        if (ObserveUtils.isTracingEnabled()) {
-            Map<String, Object> properties = new HashMap<>();
-            NatsObserverContext observerContext = new NatsObserverContext(
-                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
-                    msgObj.getStringValue(Constants.SUBJECT).getValue());
-            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
-                                                           this.natsConnection), properties,
-                    PredefinedTypes.TYPE_ANYDATA, msgObj, true);
-        } else {
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_REQUEST_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter, replyTo,
-                                                           this.natsConnection), msgObj, true);
-        }
+        executeResource(msgObj, Constants.ON_REQUEST_RESOURCE, new ResponseCallback(countDownLatch, subject,
+                natsMetricsReporter, replyTo, this.natsConnection), metadata, PredefinedTypes.TYPE_ANYDATA);
     }
 
     private void executeOnMessageResource(BMap<BString, Object>  msgObj, CountDownLatch countDownLatch) {
         String subject = msgObj.getStringValue(Constants.SUBJECT).getValue();
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                                                      Utils.getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
+        executeResource(msgObj, Constants.ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch, subject,
+                        natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL);
+    }
+
+    private void executeResource(BMap<BString, Object>  msgObj, String function, Callback callback,
+                                 StrandMetadata metadata, Type returnType) {
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
             NatsObserverContext observerContext = new NatsObserverContext(
                     NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl,
                     msgObj.getStringValue(Constants.SUBJECT).getValue());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter),
-                                      properties, PredefinedTypes.TYPE_NULL, msgObj, true);
+            if (serviceObject.getType().isIsolated() &&
+                    serviceObject.getType().isIsolated(function)) {
+                runtime.invokeMethodAsyncConcurrently(serviceObject, function, null, metadata,
+                        callback, properties, returnType, msgObj, true);
+            } else {
+                runtime.invokeMethodAsyncSequentially(serviceObject, function, null, metadata,
+                        callback, properties, returnType, msgObj, true);
+            }
         } else {
-            runtime.invokeMethodAsync(serviceObject, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                                      new ResponseCallback(countDownLatch, subject, natsMetricsReporter), msgObj, true);
+            if (serviceObject.getType().isIsolated() &&
+                    serviceObject.getType().isIsolated(function)) {
+                runtime.invokeMethodAsyncConcurrently(serviceObject, function, null, metadata,
+                        callback, null, returnType, msgObj, true);
+            } else {
+                runtime.invokeMethodAsyncSequentially(serviceObject, function, null, metadata,
+                        callback, null, returnType, msgObj, true);
+            }
         }
     }
 

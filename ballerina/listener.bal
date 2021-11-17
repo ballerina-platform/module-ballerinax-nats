@@ -74,7 +74,7 @@ public isolated class Listener {
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public isolated function gracefulStop() returns error? =
     @java:Method {
-        'class: "io.ballerina.stdlib.nats.basic.consumer.GracefulStop"
+        'class: "io.ballerina.stdlib.nats.basic.consumer.ListenerUtils"
     } external;
 
     # Stops the `nats:Listener` forcefully.
@@ -85,7 +85,7 @@ public isolated class Listener {
     # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public isolated function immediateStop() returns error? =
     @java:Method {
-        'class: "io.ballerina.stdlib.nats.basic.consumer.ImmediateStop"
+        'class: "io.ballerina.stdlib.nats.basic.consumer.ListenerUtils"
     } external;
 }
 
@@ -96,5 +96,5 @@ isolated function basicStart(Listener lis) =
 
 isolated function consumerInit(Listener lis, string|string[] url, *ConnectionConfiguration config) returns Error? =
 @java:Method {
-    'class: "io.ballerina.stdlib.nats.basic.consumer.Init"
+    'class: "io.ballerina.stdlib.nats.basic.consumer.ListenerUtils"
 } external;
