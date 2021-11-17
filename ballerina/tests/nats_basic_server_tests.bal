@@ -35,6 +35,21 @@ string receivedQueueMessage = "";
 string withoutAnnotMessage = "";
 string receivedReplyMessage = "";
 string authToken = "MyToken";
+const ISOLATED_SUBJECT_NAME = "nats-isolated";
+
+isolated boolean messageRecceived = false;
+
+isolated function updateMessageRecceived(boolean state) {
+    lock {
+        messageRecceived = state;
+    }
+}
+
+isolated function isMessageRecceived() returns boolean {
+    lock {
+        return messageRecceived;
+    }
+}
 
 @test:BeforeSuite
 function setup() {
@@ -212,6 +227,24 @@ public function testConsumerService1() {
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
+}
+
+@test:Config {
+    dependsOn: [testProducer],
+    groups: ["nats-basic"]
+}
+function testIsolatedConsumerService() returns error? {
+    string message = "Testing Isolated Consumer Service";
+    Listener sub = checkpanic new(DEFAULT_URL);
+    Client newClient = checkpanic new(DEFAULT_URL);
+    check sub.attach(isolatedService);
+    check sub.'start();
+    check newClient->publishMessage({ content: message.toBytes(),
+                                                       subject: ISOLATED_SUBJECT_NAME});
+    runtime:sleep(10);
+    test:assertTrue(isMessageRecceived());
+    check newClient.close();
+    return;
 }
 
 @test:Config {
@@ -552,5 +585,19 @@ service object {
 Service noConfigService =
 service object {
     isolated remote function onMessage(Message msg) {
+    }
+};
+
+Service isolatedService =
+@ServiceConfig {
+    subject: ISOLATED_SUBJECT_NAME
+}
+service object {
+    remote function onMessage(Message msg) {
+        byte[] messageContent = <@untainted> msg.content;
+        string|error message = 'string:fromBytes(messageContent);
+        if message is string {
+            updateMessageRecceived(true);
+        }
     }
 };
