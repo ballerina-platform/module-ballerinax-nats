@@ -86,22 +86,10 @@ public class DefaultMessageHandler implements MessageHandler {
             if (replyTo != null && Utils.getAttachedFunctionType(serviceObject,
                     Constants.ON_REQUEST_RESOURCE) != null) {
                 // If replyTo subject is there and the user has written the onRequest function implementation:
-                MethodType onRequest = Utils.getAttachedFunctionType(serviceObject, Constants.ON_REQUEST_RESOURCE);
-                Type[] parameterTypes = onRequest.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    dispatchOnRequest(populatedRecord, replyTo);
-                } else {
-                    throw Utils.createNatsError("invalid onRequest remote function signature");
-                }
+                dispatchOnRequest(populatedRecord, replyTo);
             } else {
                 // Default onMessage behavior
-                MethodType onMessage = Utils.getAttachedFunctionType(serviceObject, Constants.ON_MESSAGE_RESOURCE);
-                Type[] parameterTypes = onMessage.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    dispatchOnMessage(populatedRecord);
-                } else {
-                    throw Utils.createNatsError("invalid onMessage remote function signature");
-                }
+                dispatchOnMessage(populatedRecord);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
