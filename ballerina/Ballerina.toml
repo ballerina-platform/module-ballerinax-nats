@@ -12,7 +12,7 @@ distribution = "slbeta3"
 path = "./lib/jnats-2.8.0.jar"
 
 [[platform.java11.dependency]]
-path = "../native/build/libs/nats-native-2.0.1.jar"
+path = "../native/build/libs/nats-native-2.0.1-SNAPSHOT.jar"
 
 [build-options]
 observabilityIncluded=true
