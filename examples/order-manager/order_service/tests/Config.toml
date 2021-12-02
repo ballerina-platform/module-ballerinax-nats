@@ -1,0 +1,8 @@
+[[ballerina.auth.users]]
+username="user"
+password="password"
+scopes=["customer"]
+
+[order_service]
+SUBJECT="order-service-test-orders"
+LISTENER_PORT=9090
