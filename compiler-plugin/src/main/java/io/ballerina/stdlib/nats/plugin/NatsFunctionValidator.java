@@ -162,27 +162,8 @@ public class NatsFunctionValidator {
         Optional<Symbol> symbol = semanticModel.symbol(requiredParameterNode);
         if (symbol.isPresent()) {
             ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
-            if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE
-                    && !isValidParamTypeMessage((TypeReferenceTypeSymbol) parameterSymbol.typeDescriptor())) {
-                context.reportDiagnostic(PluginUtils.getDiagnostic(
-                        CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
-                        DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-            }
-            Optional<ModuleSymbol> moduleSymbol = parameterSymbol.typeDescriptor().getModule();
-            if (moduleSymbol.isPresent()) {
-                if (!validateModuleId(moduleSymbol.get())) {
-                    context.reportDiagnostic(PluginUtils.getDiagnostic(
-                            CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
-                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-                }
-                if (parameterSymbol.typeDescriptor().getName().isPresent()) {
-                    String paramName = parameterSymbol.typeDescriptor().getName().get();
-                    if (!paramName.equals(PluginConstants.MESSAGE)) {
-                        context.reportDiagnostic(PluginUtils.getDiagnostic(
-                                CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
-                                DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-                    }
-                } else {
+            if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                if (!isValidParamTypeMessage((TypeReferenceTypeSymbol) parameterSymbol.typeDescriptor())) {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(
                             CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                             DiagnosticSeverity.ERROR, requiredParameterNode.location()));
@@ -200,8 +181,7 @@ public class NatsFunctionValidator {
         Optional<ModuleSymbol> moduleSymbol = typeReferenceTypeSymbol.getModule();
         if (moduleSymbol.isPresent()) {
             if (!validateModuleId(moduleSymbol.get())) {
-                if (typeReferenceTypeSymbol.typeDescriptor() != null
-                        && typeReferenceTypeSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                if (typeReferenceTypeSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     TypeReferenceTypeSymbol typeReferenceTypeSymbolNext =
                             (TypeReferenceTypeSymbol) typeReferenceTypeSymbol.typeDescriptor();
                     return isValidParamTypeMessage(typeReferenceTypeSymbolNext);
