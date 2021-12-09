@@ -58,6 +58,6 @@ function publishOrder(types:Order 'order) returns error? {
     // Publish the order to the NATS subject
     check natsClient->publishMessage({
                                 content: 'order.toString().toBytes(),
-                                subject: SUBJECT});
+                                subject: SUBJECT });
     return;
 }
