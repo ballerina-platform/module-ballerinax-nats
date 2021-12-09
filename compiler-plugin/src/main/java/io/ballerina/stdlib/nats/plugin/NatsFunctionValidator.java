@@ -162,21 +162,8 @@ public class NatsFunctionValidator {
         Optional<Symbol> symbol = semanticModel.symbol(requiredParameterNode);
         if (symbol.isPresent()) {
             ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
-            Optional<ModuleSymbol> moduleSymbol = parameterSymbol.typeDescriptor().getModule();
-            if (moduleSymbol.isPresent()) {
-                if (!validateModuleId(moduleSymbol.get())) {
-                    context.reportDiagnostic(PluginUtils.getDiagnostic(
-                            CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
-                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-                }
-                if (parameterSymbol.typeDescriptor().getName().isPresent()) {
-                    String paramName = parameterSymbol.typeDescriptor().getName().get();
-                    if (!paramName.equals(PluginConstants.MESSAGE)) {
-                        context.reportDiagnostic(PluginUtils.getDiagnostic(
-                                CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
-                                DiagnosticSeverity.ERROR, requiredParameterNode.location()));
-                    }
-                } else {
+            if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                if (!isValidParamTypeMessage((TypeReferenceTypeSymbol) parameterSymbol.typeDescriptor())) {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(
                             CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                             DiagnosticSeverity.ERROR, requiredParameterNode.location()));
@@ -187,6 +174,28 @@ public class NatsFunctionValidator {
                         DiagnosticSeverity.ERROR, requiredParameterNode.location()));
             }
         }
+    }
+
+    private boolean isValidParamTypeMessage(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
+        boolean validFlag = false;
+        Optional<ModuleSymbol> moduleSymbol = typeReferenceTypeSymbol.getModule();
+        if (moduleSymbol.isPresent()) {
+            if (!validateModuleId(moduleSymbol.get())) {
+                if (typeReferenceTypeSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                    TypeReferenceTypeSymbol typeReferenceTypeSymbolNext =
+                            (TypeReferenceTypeSymbol) typeReferenceTypeSymbol.typeDescriptor();
+                    return isValidParamTypeMessage(typeReferenceTypeSymbolNext);
+                }
+            } else {
+                if (typeReferenceTypeSymbol.getName().isPresent()) {
+                    String paramName = typeReferenceTypeSymbol.getName().get();
+                    if (paramName.equals(PluginConstants.MESSAGE)) {
+                        validFlag = true;
+                    }
+                }
+            }
+        }
+        return validFlag;
     }
 
     private void validateReturnTypeErrorOrNil(FunctionDefinitionNode functionDefinitionNode) {
