@@ -1,0 +1,3 @@
+[order_processor]
+LISTENING_SUBJECT="order-processor-test-orders"
+PUBLISH_SUBJECT="order-processor-test-success-orders"
