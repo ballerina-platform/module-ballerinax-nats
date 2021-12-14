@@ -27,20 +27,20 @@ import ballerina/crypto;
 #            has subscriptions on the subject being published to
 # + secureSocket - The configurations related to SSL/TLS
 public type ConnectionConfiguration record {|
-  string connectionName = "ballerina-nats";
-  RetryConfig retryConfig?;
-  Ping ping?;
-  Credentials|Tokens auth?;
-  string inboxPrefix = "_INBOX.";
-  boolean noEcho = false;
-  SecureSocket secureSocket?;
+    string connectionName = "ballerina-nats";
+    RetryConfig retryConfig?;
+    Ping ping?;
+    Credentials|Tokens auth?;
+    string inboxPrefix = "_INBOX.";
+    boolean noEcho = false;
+    SecureSocket secureSocket?;
 |};
 
 # Configurations related to token based authentication.
 #
 # + token - The token for token-based authentication
 public type Tokens record {|
-  string token;
+    string token;
 |};
 
 # Configurations related to basic authentication.
@@ -48,8 +48,8 @@ public type Tokens record {|
 # + username - The username for basic authentication
 # + password - The password for basic authentication
 public type Credentials record {|
-  string username;
-  string password;
+    string username;
+    string password;
 |};
 
 # Configurations related to facilitating a secure communication.
@@ -78,9 +78,9 @@ public type CertKey record {|
 
 # Represents protocol options.
 public enum Protocol {
-   SSL,
-   TLS,
-   DTLS
+    SSL,
+    TLS,
+    DTLS
 }
 
 # Configurations related to pinging the server.
@@ -88,8 +88,8 @@ public enum Protocol {
 # + pingInterval - The interval (in seconds) between the attempts of pinging the server
 # + maxPingsOut - The maximum number of pings the client can have in flight
 public type Ping record {|
-  decimal pingInterval = 120;
-  int maxPingsOut = 2;
+    decimal pingInterval = 120;
+    int maxPingsOut = 2;
 |};
 
 # Configurations related to connection reconnect attempts.
@@ -102,9 +102,9 @@ public type Ping record {|
 # + reconnectWait - The time(in seconds) to wait between the reconnect attempts to reconnect to the same server
 # + connectionTimeout - The timeout (in seconds) for the connection attempts
 public type RetryConfig record {|
-  int maxReconnect = 60;
-  decimal reconnectWait = 2;
-  decimal connectionTimeout = 2;
+    int maxReconnect = 60;
+    decimal reconnectWait = 2;
+    decimal connectionTimeout = 2;
 |};
 
 # Represents the message, which a NATS server sends to its subscribed services.

@@ -39,7 +39,7 @@ public isolated client class Client {
     # + return -  `()` or else a `nats:Error` if an error occurred
     isolated remote function publishMessage(Message message) returns Error? =
     @java:Method {
-            'class: "io.ballerina.stdlib.nats.basic.client.Publish"
+        'class: "io.ballerina.stdlib.nats.basic.client.Publish"
     } external;
 
     # Publishes data to a given subject and waits for a response.
