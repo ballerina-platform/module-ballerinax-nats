@@ -16,7 +16,7 @@ that makes it easier to use, combine, and create network services.
 1. [Overview](#1-overview)
 2. [Connection](#2-connection)
 3. [Publishing](#3-publishing)
-5. [Listening for Messages](#4-listening-for-messages)
+5. [Subscribing](#4-subscribing)
 6. [Samples](#5-samples)
     * 5.1. [Publish-Subscribe](#51-publish-subscribe)
     * 5.2. [Request-Reply](#52-request-reply)
@@ -28,9 +28,9 @@ Data is encoded and framed as a message and sent by a publisher. The message is 
 More on NATS server concepts can be found [here](https://docs.nats.io/nats-concepts/overview).  
 
 ## 2. Connection
-Connections with the NATS server can be established through the NATS library client and the listener. There are multiple ways to connect. 
+Fundamentally, each `nats:Client` and `nats:Listener` initialization represents a single network connection to the NATS server. There are multiple ways to connect. 
 
-1. Connect to a local server on the default port.
+1. Initialize the `nats:Client`/`nats:Listener` with the constant value `nats:DEFAULT_URL`. This connects the client to a local server on the default port.
 ```ballerina
    // Connecting using the NATS client.
    nats:Client natsClient = check new(nats:DEFAULT_URL);
@@ -39,16 +39,34 @@ Connections with the NATS server can be established through the NATS library cli
    nats:Listener natsListener = check new(nats:DEFAULT_URL);
 ```
 
-2. Connect to one or more servers using a URL.
+2. Initialize the `nats:Client`/`nats:Listener` to a remote instance with a custom URL or a cluster of servers using multiple URLs. 
 ```ballerina
    // Connecting using the NATS client.
-   nats:Client natsClient = check new(["nats://serverone:4222", "nats://servertwo:4222"]);
+   nats:Client natsClient = check new("nats://serverone:4222");
 
    // Connecting using the NATS listener.
    nats:Listener natsListener = check new(["nats://serverone:4222", "nats://servertwo:4222"]);
 ```
 
-3. Connect to one or more servers with a custom configuration.
+3. Initialize the `nats:Client`/`nats:Listener` with custom configurations.
+
+**Configurations available for connections:**
+
+`nats:ConnectionConfiguration`
+- `string` connectionName - The name of the connection. The default value is "ballerina-nats".
+- `nats:RetryConfig` retryConfig - The configurations related to connection reconnect attempts.
+  - `int` maxReconnect - Maximum number of reconnect attempts. The `reconnect` state is triggered when an already established connection is lost. During the initial connection attempt, the client will cycle over its server list one time regardless of the `maxReconnects` value that is set.
+     Use 0 to turn off auto reconnecting. Use -1 to turn on infinite reconnects. The default value is 60.
+  - `decimal` reconnectWait - The time (in seconds) to wait between the attempts to reconnect to the same server. Default value is 2.
+  - `decimal` connectionTimeout - The timeout (in seconds) for the connection attempts. The default value is 2.
+- `nats:Ping` ping - The configurations related to pinging the server.
+  - `decimal` pingInterval - The interval (in seconds) between the attempts of pinging the server. The default value is 2.
+  - `int` maxPingsOut - The maximum number of pings the client can have in flight. The default value is 2.
+- `nats:Credentials|nats:Tokens` auth - The configurations related to authentication. More details in Secured connections section.
+- `string` inboxPrefix - The connection's inbox prefix, which all inboxes will start with. The default value is "_INBOX".
+- `boolean` noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it has subscriptions on the subject being published to. The default value is false.
+- `nats:SecureSocket` secureSocket - The configurations related to SSL/TLS. More details in Secured connections section.
+
 ```ballerina
    // See the API docs for the complete list of supported configurations. 
    nats:ConnectionConfiguration config = {
@@ -65,7 +83,25 @@ Connections with the NATS server can be established through the NATS library cli
 
 4. Secured connections.
 
-Connections can be secured using following approaches. All the given approaches are supported by both the client and the listener. 
+Connections can be secured using following approaches. All the given approaches are supported by both the client and the listener.
+
+**Configurations available for basic authentication:**
+
+`nats:Credentials`
+- `string` username - The username for basic authentication.
+- `string` password - The password for basic authentication.
+
+**Configurations available for token-based authentication:**
+
+`nats:Tokens`
+- `string` token - The token value for token-based authentication.
+
+**Configurations available for ssl/tls:**
+
+`nats:SecureSocket`
+- `crypto:TrustStore|string` cert - Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts.
+- `crypto:KeyStore|nats:CertKey` key - Configurations associated with `crypto:KeyStore` or combination of certificate and private key of the client.
+- `record` protocol - SSL/TLS protocol related options.
 
 ```ballerina
    // Connect using username/password credentials. 
@@ -89,28 +125,41 @@ Connections can be secured using following approaches. All the given approaches 
 
 ## 3. Publishing
 
-NATS is a publish-subscribe messaging system based on subjects. NATS also supports the request-reply pattern with its core communication mechanism, publish and subscribe. A request is published on a given subject with a reply subject, and responders listen on that subject and send responses to the reply subject. Messages are composed of a subject, a payload in the form of a byte array, as well as an optional 'replyTo' address field. Once connected, publishing is accomplished via one of three methods.
+NATS is a publish-subscribe messaging system based on subjects. NATS also supports the request-reply pattern with its core communication mechanism, publish and subscribe. Messages are composed of a subject, a payload in the form of a byte array, as well as an optional 'replyTo' address field. Once connected, all outgoing messages are sent through the `nets:Client` object using either the `publishMessage` method or the `requestMessage` method. When publishing you can specify a reply to subject which can be retrieved by the receiver to respond. The `requestMessage` method will handle this behavior itself.
 
+1. Publishing a message using `publishMessage`. This publishes message content in the form of a byte array to the given subject.
 ```ballerina
-   // Publish with the subject and the message content.
    string message = "hello world";
    nats:Error? result = 
          natsClient->publishMessage({ content: message.toBytes(), subject: "demo.nats.basic"});
+```
 
-   // Publish as a request that expects a reply.
+2. Publishing a message using `publishMessage` with a `replyTo` subject. The reply to subject can be retrieved by the receiver to respond.
+```ballerina
    string message = "hello world";
-   nats:Message|nats:Error reqReply = 
-         natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5);
-
-   // Publish messages with a `replyTo` subject.
-   string message = "hello world";
-   nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: "demo.nats.basic",
+   nats:Error? result = natsClient->publishMessage({ content: message.toBytes(), subject: "demo.nats.basic",
                                                     replyTo: "demo.reply" });
 ```
 
-## 4. Listening for Messages
+3. Sending a request using `requestMessage`. This publishes data to a given subject and waits for a response. The replyTo is reserved for internal use as the address for the server to respond to the client with the consumer's reply.
+```ballerina
+   string message = "hello world";
+   nats:Message|nats:Error reqReply = 
+         natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5);
+```
 
-Subscribers listening on a subject receive messages published on that subject. If the subscriber is not actively listening on the subject, the message is not received. Subscribers can use the wildcard tokens such as * and > to match a single token or to match the tail of a subject. The subject to listen can be given as the service name or in the service config. 
+## 4. Subscribing
+
+Subscribers listening on a subject receive messages published on that subject. If the subscriber is not actively listening on the subject, the message is not received. Subscribers can use the wildcard tokens such as * and > to match a single token or to match the tail of a subject. The subject to listen can be given as the service name or in the service config. To subscribe to a subject a `nats:Service` should be attached to an initialized `nats:Listener`. The `nats:Listener` creates the connection with the NATS server and the `nats:Service` will be asynchronously listening to messages. Multiple services can attach to the same `nats:Listener` and share the connection.
+
+**Configurations available for services:**
+
+`nats:ServiceConfig`
+- `string` subject - Name of the subject.
+- `string` queueName - Name of the queue group. 
+- `nats:PendingLimits` pendingLimits - The configurations to set the limit on the maximum number of messages or maximum size of messages this consumer will hold before it starts to drop new messages waiting for the resource functions to drain the queue. Setting a value less than or equal to 0 will disable this check.
+  - `int` maxMessages - Maximum number of pending messages retrieved and held by the consumer service. The default value is 65536.
+  - `int` maxBytes - Total size of pending messages in bytes retrieved and held by the consumer service. The default value is 67108864.
 
 ```ballerina
    // Listen to incoming messages with the `onMessage` remote method.
