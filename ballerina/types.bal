@@ -17,7 +17,7 @@
 # Default URL for NATS connections.
 public const string DEFAULT_URL = "nats://localhost:4222";
 
-# The NATS service type
+# The NATS service type.
 public type Service distinct service object {};
 
 # The annotation, which is used to configure the basic subscription.

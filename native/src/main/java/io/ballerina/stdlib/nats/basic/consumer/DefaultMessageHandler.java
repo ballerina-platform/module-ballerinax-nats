@@ -52,11 +52,11 @@ import java.util.concurrent.CountDownLatch;
 public class DefaultMessageHandler implements MessageHandler {
 
     // Resource which the message should be dispatched.
-    private BObject serviceObject;
-    private String connectedUrl;
-    private Runtime runtime;
-    private NatsMetricsReporter natsMetricsReporter;
-    private Connection natsConnection;
+    private final BObject serviceObject;
+    private final String connectedUrl;
+    private final Runtime runtime;
+    private final NatsMetricsReporter natsMetricsReporter;
+    private final Connection natsConnection;
 
     DefaultMessageHandler(BObject serviceObject, Runtime runtime, Connection natsConnection,
                           NatsMetricsReporter natsMetricsReporter) {
@@ -168,9 +168,9 @@ public class DefaultMessageHandler implements MessageHandler {
      * Represents the callback which will be triggered upon submitting to resource.
      */
     public static class ResponseCallback implements Callback {
-        private CountDownLatch countDownLatch;
-        private String subject;
-        private NatsMetricsReporter natsMetricsReporter;
+        private final CountDownLatch countDownLatch;
+        private final String subject;
+        private final NatsMetricsReporter natsMetricsReporter;
         private String replyTo;
         private Connection natsConnection;
 
