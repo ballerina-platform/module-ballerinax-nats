@@ -322,7 +322,7 @@ public function testConsumerServiceWithQueue() {
 public function testServiceWithoutConfig() {
     Listener sub = checkpanic new(DEFAULT_URL);
     error? result = trap sub.attach(noConfigService);
-    if result is not error {
+    if result !is error {
         test:assertFail("testServiceWithoutConfig failed.");
     }
     checkpanic sub.gracefulStop();
