@@ -32,36 +32,48 @@ const REPLY_TO_SUBJECT = "nats-rep";
 const REPLY_TO_DUMMY = "nats-rep-dummy";
 string receivedConsumerMessage = "";
 string receivedOnRequestMessage = "";
-string receivedQueueMessage = "";
 string withoutAnnotMessage = "";
 string receivedReplyMessage = "";
 string authToken = "MyToken";
 const ISOLATED_SUBJECT_NAME = "nats-isolated";
 
-isolated boolean messageRecceived = false;
-isolated boolean requestRecceived = false;
+isolated boolean messageReceived = false;
+isolated boolean requestReceived = false;
+isolated string receivedQueueMessage = "";
 
-isolated function updateMessageRecceived(boolean state) {
+isolated function setReceivedQueueMessage(string message) {
     lock {
-        messageRecceived = state;
+        receivedQueueMessage = message;
     }
 }
 
-isolated function isMessageRecceived() returns boolean {
+isolated function getReceivedQueueMessage() returns string {
     lock {
-        return messageRecceived;
+        return receivedQueueMessage;
     }
 }
 
-isolated function updateRequestRecceived(boolean state) {
+isolated function updateMessageReceived(boolean state) {
     lock {
-        requestRecceived = state;
+        messageReceived = state;
     }
 }
 
-isolated function isRequestRecceived() returns boolean {
+isolated function isMessageReceived() returns boolean {
     lock {
-        return requestRecceived;
+        return messageReceived;
+    }
+}
+
+isolated function updateRequestReceived(boolean state) {
+    lock {
+        requestReceived = state;
+    }
+}
+
+isolated function isRequestReceived() returns boolean {
+    lock {
+        return requestReceived;
     }
 }
 
@@ -256,7 +268,7 @@ function testIsolatedConsumerService() returns error? {
     check newClient->publishMessage({ content: message.toBytes(),
                                                        subject: ISOLATED_SUBJECT_NAME});
     runtime:sleep(10);
-    test:assertTrue(isMessageRecceived());
+    test:assertTrue(isMessageReceived());
     check newClient.close();
     return;
 }
@@ -274,7 +286,7 @@ public function testIsolatedConsumerService2() returns error? {
     checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
                                                 replyTo: REPLY_TO_DUMMY });
     runtime:sleep(15);
-    test:assertTrue(isRequestRecceived());
+    test:assertTrue(isRequestReceived());
     check newClient.close();
 }
 
@@ -306,10 +318,23 @@ public function testConsumerServiceWithQueue() {
         checkpanic sub.attach(queueService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
-        runtime:sleep(25);
-        test:assertEquals(receivedQueueMessage, message, msg = "Message received does not match.");
+        int timeoutInSeconds = 120;
+        // Test fails in 2 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedQueueMessage() !is "" {
+                string receivedMessage = getReceivedQueueMessage();
+                test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
+            }
+        }
         checkpanic sub.detach(queueService);
         checkpanic sub.gracefulStop();
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 2 minutes.");
+        }
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -607,7 +632,7 @@ service object {
 
         string|error message = strings:fromBytes(messageContent);
         if message is string {
-            receivedQueueMessage = message;
+            setReceivedQueueMessage(message);
             log:printInfo("Message Received for queue group: " + message);
         }
     }
@@ -628,7 +653,7 @@ service object {
         byte[] messageContent = <@untainted> msg.content;
         string|error message = 'string:fromBytes(messageContent);
         if message is string {
-            updateMessageRecceived(true);
+            updateMessageReceived(true);
         }
     }
 };
@@ -647,7 +672,7 @@ service object {
 
         string|error message = strings:fromBytes(messageContent);
         if message is string {
-            updateRequestRecceived(true);
+            updateRequestReceived(true);
         }
         return "Hello Back!";
     }
