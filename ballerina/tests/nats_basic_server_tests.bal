@@ -30,16 +30,64 @@ const ON_REQUEST_SUBJECT = "nats-on-req";
 const ON_REQUEST_TIMEOUT_SUBJECT = "nats-on-req-timeout";
 const REPLY_TO_SUBJECT = "nats-rep";
 const REPLY_TO_DUMMY = "nats-rep-dummy";
-string receivedConsumerMessage = "";
-string receivedOnRequestMessage = "";
-string withoutAnnotMessage = "";
-string receivedReplyMessage = "";
 string authToken = "MyToken";
 const ISOLATED_SUBJECT_NAME = "nats-isolated";
 
 isolated boolean messageReceived = false;
 isolated boolean requestReceived = false;
 isolated string receivedQueueMessage = "";
+isolated string receivedConsumerMessage = "";
+isolated string receivedOnRequestMessage = "";
+isolated string withoutAnnotMessage = "";
+isolated string receivedReplyMessage = "";
+
+isolated function setReceivedConsumerMessage(string message) {
+    lock {
+        receivedConsumerMessage = message;
+    }
+}
+
+isolated function getReceivedConsumerMessage() returns string {
+    lock {
+        return receivedConsumerMessage;
+    }
+}
+
+isolated function setReceivedOnRequestMessage(string message) {
+    lock {
+        receivedOnRequestMessage = message;
+    }
+}
+
+isolated function getReceivedOnRequestMessage() returns string {
+    lock {
+        return receivedOnRequestMessage;
+    }
+}
+
+isolated function setWithoutAnnotMessage(string message) {
+    lock {
+        withoutAnnotMessage = message;
+    }
+}
+
+isolated function getWithoutAnnotMessage() returns string {
+    lock {
+        return withoutAnnotMessage;
+    }
+}
+
+isolated function setReceivedReplyMessage(string message) {
+    lock {
+        receivedReplyMessage = message;
+    }
+}
+
+isolated function getReceivedReplyMessage() returns string {
+    lock {
+        return receivedReplyMessage;
+    }
+}
 
 isolated function setReceivedQueueMessage(string message) {
     lock {
@@ -225,10 +273,23 @@ public function testConsumerService() {
         checkpanic sub.attach(consumerService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
-        runtime:sleep(15);
-        test:assertEquals(receivedConsumerMessage, message, msg = "Message received does not match.");
+        int timeoutInSeconds = 120;
+        // Test fails in 2 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedConsumerMessage() !is "" {
+                string receivedMessage = getReceivedConsumerMessage();
+                test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
+            }
+        }
         checkpanic sub.detach(consumerService);
         checkpanic sub.gracefulStop();
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 2 minutes.");
+        }
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -246,10 +307,23 @@ public function testConsumerService1() {
         checkpanic sub.attach(serviceWithoutAnnotation, SERVICE_SUBJECT_NAME_ANNOT);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME_ANNOT });
-        runtime:sleep(20);
-        test:assertEquals(withoutAnnotMessage, message, msg = "Message received does not match.");
+        int timeoutInSeconds = 120;
+        // Test fails in 2 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getWithoutAnnotMessage() !is "" {
+                string receivedMessage = getWithoutAnnotMessage();
+                test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
+            }
+        }
         checkpanic sub.detach(serviceWithoutAnnotation);
         checkpanic sub.gracefulStop();
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 2 minutes.");
+        }
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -445,9 +519,23 @@ public function testOnRequest1() {
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
                                                     replyTo: REPLY_TO_SUBJECT });
-        runtime:sleep(15);
-        test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
-        test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
+        int timeoutInSeconds = 120;
+        // Test fails in 2 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedOnRequestMessage() !is "" && getReceivedReplyMessage() !is "" {
+                string receivedRequestMessage = getReceivedOnRequestMessage();
+                string receivedReplyMessage = getReceivedReplyMessage();
+                test:assertEquals(receivedRequestMessage, message, msg = "Message received does not match.");
+                test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
+            }
+        }
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 2 minutes.");
+        }
     } else {
         test:assertFail("NATS Connection creation failed.");
     }
@@ -466,8 +554,21 @@ public function testOnRequest2() {
         checkpanic sub.'start();
         Message replyMessage =
             checkpanic newClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT});
-        runtime:sleep(15);
-        test:assertEquals(receivedOnRequestMessage, message, msg = "Message received does not match.");
+        int timeoutInSeconds = 120;
+        // Test fails in 2 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedOnRequestMessage() !is "" {
+                string receivedMessage = getReceivedOnRequestMessage();
+                test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
+            }
+        }
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 2 minutes.");
+        }
 
         byte[] messageContent = <@untainted> replyMessage.content;
         string|error messageTxt = strings:fromBytes(messageContent);
@@ -525,7 +626,7 @@ service object {
 
         string|error message = strings:fromBytes(messageContent);
         if message is string {
-            receivedConsumerMessage = message;
+            setReceivedConsumerMessage(message);
             log:printInfo("Message Received: " + message);
         }
     }
@@ -538,7 +639,7 @@ service object {
 
         string|error message = strings:fromBytes(messageContent);
         if message is string {
-            withoutAnnotMessage = message;
+            setWithoutAnnotMessage(message);
             log:printInfo("Message Received: " + message);
         }
     }
@@ -558,7 +659,7 @@ service object {
 
         string|error message = strings:fromBytes(messageContent);
         if message is string {
-            receivedOnRequestMessage = message;
+            setReceivedOnRequestMessage(message);
             log:printInfo("Message Received: " + message);
         }
         return "Hello Back!";
@@ -575,7 +676,7 @@ service object {
 
         string|error message = strings:fromBytes(messageContent);
         if message is string {
-            receivedReplyMessage = message;
+            setReceivedReplyMessage(message);
             log:printInfo("Message Received: " + message);
         }
     }
