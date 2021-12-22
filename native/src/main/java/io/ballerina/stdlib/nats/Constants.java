@@ -36,9 +36,6 @@ public class Constants {
     // Represent NATS Connection error listener.
     public static final String SERVICE_LIST = "service_list";
 
-    // Represent whether connection close already triggered.
-    public static final String CLOSING = "closing";
-
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
 

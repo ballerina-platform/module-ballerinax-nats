@@ -31,7 +31,7 @@ public isolated function testTlsConnection1() {
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
-    if (newClient is error) {
+    if newClient is error {
         test:assertFail("NATS Connection initialization with TLS failed.");
     }
 }
@@ -50,7 +50,7 @@ public isolated function testTlsConnection2() {
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
-    if (newClient is Client) {
+    if newClient is Client {
         test:assertFail("Error expected for NATS Connection initialization with TLS.");
     }
 }
@@ -67,7 +67,7 @@ public isolated function testTlsConnection3() {
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
-    if (newClient is error) {
+    if newClient is error {
         test:assertFail("NATS Connection initialization with TLS failed.");
     }
 }
@@ -84,7 +84,7 @@ public isolated function testTlsConnection4() {
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
-    if (newClient is Client) {
+    if newClient is Client {
         test:assertFail("Error expected for NATS Connection initialization with TLS.");
     }
 }
@@ -101,7 +101,7 @@ public isolated function testTlsConnection5() {
         }
     };
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
-    if (newClient is Client) {
+    if newClient is Client {
         test:assertFail("Error expected for NATS Connection initialization with TLS.");
     }
 }

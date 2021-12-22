@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,11 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Default URL for NATS connections.
-public const string DEFAULT_URL = "nats://localhost:4222";
+import ballerinax/nats;
 
-# The NATS service type.
-public type Service distinct service object {};
+listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
-# The annotation, which is used to configure the basic subscription.
-public annotation ServiceConfigData ServiceConfig on service, class;
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+    nats:Client natsClient = checkpanic new(nats:DEFAULT_URL);
+
+    remote function onMessage(nats:Message message) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+    string hello = "Hello";
+
+    remote function onRequest(nats:Message message) {
+    }
+}
