@@ -22,13 +22,12 @@ import ballerina/log;
 configurable string LISTENING_SUBJECT = ?;
 configurable string PUBLISH_SUBJECT = ?;
 
-// Creates a NATS client with default configurations
-nats:Client natsClient = check new(nats:DEFAULT_URL);
-
 @nats:ServiceConfig {
     subject: LISTENING_SUBJECT
 }
 service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
+    // Creates a NATS client with default configurations
+    nats:Client natsClient = checkpanic new(nats:DEFAULT_URL);
 
     // Listens to NATS subject for any new orders and process them
     remote function onMessage(nats:Message message) returns error? {
