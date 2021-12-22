@@ -56,8 +56,11 @@ function publishOrder(types:Order 'order) returns error? {
     log:printInfo("Publishing order " + 'order.toString());
 
     // Publish the order to the NATS subject
-    check natsClient->publishMessage({
-                                content: 'order.toString().toBytes(),
-                                subject: SUBJECT });
+    check natsClient->publishMessage(
+        {
+            content: 'order.toString().toBytes(),
+            subject: SUBJECT
+        }
+    );
     return;
 }

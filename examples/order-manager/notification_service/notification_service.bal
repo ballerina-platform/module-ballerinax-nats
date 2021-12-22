@@ -21,12 +21,10 @@ import notification_service.types;
 
 configurable string LISTENING_SUBJECT = ?;
 
-listener nats:Listener subscription = new(nats:DEFAULT_URL);
-
 @nats:ServiceConfig {
     subject: LISTENING_SUBJECT
 }
-service nats:Service on subscription {
+service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
     // Listens to NATS subject for any successful orders
     remote function onMessage(nats:Message message) returns error? {
@@ -34,8 +32,8 @@ service nats:Service on subscription {
         // Convert the byte values in the NATS Message to type Order
         string messageContent = check string:fromBytes(message.content);
         json content = check value:fromJsonString(messageContent);
-        json jsonTweet = content.cloneReadOnly();
-        types:Order newOrder = check jsonTweet.ensureType(types:Order);
+        json jsonMessage = content.cloneReadOnly();
+        types:Order newOrder = check jsonMessage.ensureType(types:Order);
         log:printInfo("We have successfully ordered and going to send success message: " + newOrder.toString());
     }
 }

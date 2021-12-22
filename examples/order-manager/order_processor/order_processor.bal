@@ -25,33 +25,31 @@ configurable string PUBLISH_SUBJECT = ?;
 // Creates a NATS client with default configurations
 nats:Client natsClient = check new(nats:DEFAULT_URL);
 
-listener nats:Listener subscription = new(nats:DEFAULT_URL);
-
 @nats:ServiceConfig {
     subject: LISTENING_SUBJECT
 }
-service nats:Service on subscription {
+service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
     // Listens to NATS subject for any new orders and process them
     remote function onMessage(nats:Message message) returns error? {
 
         // Uses Ballerina query expressions to filter out the successful orders and publish to Kafka topic
-        error? err = from types:Order 'order in check getOrdersFromRecords(message) where 'order.status == types:SUCCESS do {
-            log:printInfo("Sending successful order to " + PUBLISH_SUBJECT + " " + 'order.toString());
-            // Publish the order to the NATS subject
-            check natsClient->publishMessage({
-                                content: 'order.toString().toBytes(),
-                                subject: PUBLISH_SUBJECT });
-        };
-        if err is error {
-            log:printError("Unknown error occured", err);
-        }
+        check from types:Order 'order in check getOrdersFromMessage(message)
+        where 'order.status == types:SUCCESS
+        do {
+             log:printInfo("Sending successful order to " + PUBLISH_SUBJECT + " " + 'order.toString());
+             // Publish the order to the NATS subject
+             check natsClient->publishMessage({
+                  content: 'order.toString().toBytes(),
+                  subject: PUBLISH_SUBJECT
+             });
+         };
         return;
     }
 }
 
 // Convert the byte values in Kafka records to type Order[]
-function getOrdersFromRecords(nats:Message message) returns types:Order[]|error {
+function getOrdersFromMessage(nats:Message message) returns types:Order[]|error {
     types:Order[] receivedOrders = [];
     string messageContent = check string:fromBytes(message.content);
     json jsonContent = check value:fromJsonString(messageContent);

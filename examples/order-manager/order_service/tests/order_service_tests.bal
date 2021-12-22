@@ -36,15 +36,15 @@ isolated function getMessageReceived() returns string {
     }
 }
 
-configurable string username = "user";
-configurable string password = "password";
+configurable string USERNAME = "user";
+configurable string PASSWORD = "password";
 
 @test:Config{}
 function orderServiceTest() returns error? {
     http:Client orderClient = check new ("http://localhost:9090",
         auth = {
-            username: username,
-            password: password
+            username: USERNAME,
+            password: PASSWORD
         }
     );
 
