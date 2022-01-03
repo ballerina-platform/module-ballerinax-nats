@@ -25,7 +25,7 @@ configurable string PUBLISH_SUBJECT = ?;
 @nats:ServiceConfig {
     subject: LISTENING_SUBJECT
 }
-service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
+service "orderProcessorService" on new nats:Listener(nats:DEFAULT_URL) {
     // Creates a NATS client with default configurations
     nats:Client natsClient = checkpanic new(nats:DEFAULT_URL);
 
@@ -38,7 +38,7 @@ service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
         do {
              log:printInfo("Sending successful order to " + PUBLISH_SUBJECT + " " + 'order.toString());
              // Publish the order to the NATS subject
-             check natsClient->publishMessage({
+             check self.natsClient->publishMessage({
                   content: 'order.toString().toBytes(),
                   subject: PUBLISH_SUBJECT
              });

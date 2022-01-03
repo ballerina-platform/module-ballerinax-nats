@@ -47,7 +47,7 @@ function orderProcessorTest() returns error? {
         name: "Test Order",
         status: types:SUCCESS
     };
-    check natsClient->publishMessage({
+    check testProducer->publishMessage({
                                 content: 'order.toString().toBytes(),
                                 subject: LISTENING_SUBJECT });
     runtime:sleep(10);

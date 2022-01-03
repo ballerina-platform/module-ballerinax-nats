@@ -24,7 +24,7 @@ configurable string LISTENING_SUBJECT = ?;
 @nats:ServiceConfig {
     subject: LISTENING_SUBJECT
 }
-service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
+service "notificationService" on new nats:Listener(nats:DEFAULT_URL) {
 
     // Listens to NATS subject for any successful orders
     remote function onMessage(nats:Message message) returns error? {
