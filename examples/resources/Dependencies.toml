@@ -1,0 +1,4 @@
+[[dependency]]
+org = "ballerinax"
+name = "nats"
+version = "@project.version@"
