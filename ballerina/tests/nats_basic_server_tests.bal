@@ -392,8 +392,8 @@ public function testConsumerServiceWithQueue() {
         checkpanic sub.attach(queueService);
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
-        int timeoutInSeconds = 120;
-        // Test fails in 2 minutes if it is failed to receive the message
+        int timeoutInSeconds = 300;
+        // Test fails in 5 minutes if it is failed to receive the message
         while timeoutInSeconds > 0 {
             if getReceivedQueueMessage() !is "" {
                 string receivedMessage = getReceivedQueueMessage();
@@ -407,7 +407,7 @@ public function testConsumerServiceWithQueue() {
         checkpanic sub.detach(queueService);
         checkpanic sub.gracefulStop();
         if timeoutInSeconds == 0 {
-            test:assertFail("Failed to receive the message for 2 minutes.");
+            test:assertFail("Failed to receive the message for 5 minutes.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -519,8 +519,8 @@ public function testOnRequest1() {
         checkpanic sub.'start();
         checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
                                                     replyTo: REPLY_TO_SUBJECT });
-        int timeoutInSeconds = 120;
-        // Test fails in 2 minutes if it is failed to receive the message
+        int timeoutInSeconds = 300;
+        // Test fails in 5 minutes if it is failed to receive the message
         while timeoutInSeconds > 0 {
             if getReceivedOnRequestMessage() !is "" && getReceivedReplyMessage() !is "" {
                 string receivedRequestMessage = getReceivedOnRequestMessage();
@@ -534,7 +534,7 @@ public function testOnRequest1() {
             }
         }
         if timeoutInSeconds == 0 {
-            test:assertFail("Failed to receive the message for 2 minutes.");
+            test:assertFail("Failed to receive the message for 5 minutes.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");
