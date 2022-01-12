@@ -341,8 +341,19 @@ function testIsolatedConsumerService() returns error? {
     check sub.'start();
     check newClient->publishMessage({ content: message.toBytes(),
                                                        subject: ISOLATED_SUBJECT_NAME});
-    runtime:sleep(10);
-    test:assertTrue(isMessageReceived());
+    int timeoutInSeconds = 300;
+    // Test fails in 5 minutes if it is failed to receive the message
+    while timeoutInSeconds > 0 {
+       if isMessageReceived() {
+           break;
+       } else {
+           runtime:sleep(1);
+           timeoutInSeconds = timeoutInSeconds - 1;
+       }
+    }
+    if timeoutInSeconds == 0 {
+        test:assertFail("Failed to receive the message for 5 minutes.");
+    }
     check newClient.close();
     return;
 }
@@ -359,8 +370,19 @@ public function testIsolatedConsumerService2() returns error? {
     checkpanic sub.'start();
     checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
                                                 replyTo: REPLY_TO_DUMMY });
-    runtime:sleep(15);
-    test:assertTrue(isRequestReceived());
+    int timeoutInSeconds = 300;
+    // Test fails in 5 minutes if it is failed to receive the message
+    while timeoutInSeconds > 0 {
+       if isRequestReceived() {
+           break;
+       } else {
+           runtime:sleep(1);
+           timeoutInSeconds = timeoutInSeconds - 1;
+       }
+    }
+    if timeoutInSeconds == 0 {
+        test:assertFail("Failed to receive the message for 5 minutes.");
+    }
     check newClient.close();
 }
 
