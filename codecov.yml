@@ -1,3 +1,8 @@
+ignore:
+  - "compiler-plugin-tests"
+  - "examples"
+  - "load-tests"
+
 coverage:
   precision: 2
   round: down
