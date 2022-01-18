@@ -367,27 +367,23 @@ public function testIsolatedConsumerService2() returns error? {
     Listener sub = checkpanic new(DEFAULT_URL);
     checkpanic sub.attach(isolatedRequestService);
     checkpanic sub.'start();
-    int i = 0;
-    while (i < 5) {
-        string message = "Testing Isolated Consumer Service " + i.toString();
-        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
-                                                    replyTo: REPLY_TO_DUMMY });
-        int timeoutInSeconds = 1000;
-        // Test fails in 5 minutes if it is failed to receive the message
-        while timeoutInSeconds > 0 {
-           if isRequestReceived() {
-               log:printInfo("Message " + message);
-               log:printInfo("Message received at " + timeoutInSeconds.toString());
-               break;
-           } else {
-               runtime:sleep(1);
-               timeoutInSeconds = timeoutInSeconds - 1;
-           }
-        }
-        if timeoutInSeconds == 0 {
-            test:assertFail("Failed to receive the message for 5 minutes.");
-        }
-        i = i + 1;
+    string message = "Testing Isolated Consumer Service";
+    checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
+                                                replyTo: REPLY_TO_DUMMY });
+    int timeoutInSeconds = 1000;
+    // Test fails in 5 minutes if it is failed to receive the message
+    while timeoutInSeconds > 0 {
+       if isRequestReceived() {
+           log:printInfo("Message " + message);
+           log:printInfo("Message received at " + timeoutInSeconds.toString());
+           break;
+       } else {
+           runtime:sleep(1);
+           timeoutInSeconds = timeoutInSeconds - 1;
+       }
+    }
+    if timeoutInSeconds == 0 {
+        test:assertFail("Failed to receive the message for 5 minutes.");
     }
     check newClient.close();
 }
@@ -414,33 +410,29 @@ public function testConsumerService2() {
 }
 public function testConsumerServiceWithQueue() {
     Client newClient = checkpanic new(DEFAULT_URL);
-    int i = 0;
-    while (i < 5) {
-        string message = "Testing Consumer Service with Queues " + i.toString();
-        Listener sub = checkpanic new(DEFAULT_URL);
-        checkpanic sub.attach(queueService);
-        checkpanic sub.'start();
-        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
-        int timeoutInSeconds = 1000;
-        // Test fails in 5 minutes if it is failed to receive the message
-        while timeoutInSeconds > 0 {
-            if getReceivedQueueMessage() !is "" {
-                log:printInfo("Message received at " + timeoutInSeconds.toString());
-                log:printInfo("Message " + message);
-                string receivedMessage = getReceivedQueueMessage();
-                //test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
-                break;
-            } else {
-                runtime:sleep(1);
-                timeoutInSeconds = timeoutInSeconds - 1;
-            }
+    string message = "Testing Consumer Service with Queues";
+    Listener sub = checkpanic new(DEFAULT_URL);
+    checkpanic sub.attach(queueService);
+    checkpanic sub.'start();
+    checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
+    int timeoutInSeconds = 1000;
+    // Test fails in 5 minutes if it is failed to receive the message
+    while timeoutInSeconds > 0 {
+        if getReceivedQueueMessage() !is "" {
+            log:printInfo("Message received at " + timeoutInSeconds.toString());
+            log:printInfo("Message " + message);
+            string receivedMessage = getReceivedQueueMessage();
+            //test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+            break;
+        } else {
+            runtime:sleep(1);
+            timeoutInSeconds = timeoutInSeconds - 1;
         }
-        checkpanic sub.detach(queueService);
-        checkpanic sub.gracefulStop();
-        if timeoutInSeconds == 0 {
-            test:assertFail("Failed to receive the message for 5 minutes.");
-        }
-        i = i + 1;
+    }
+    checkpanic sub.detach(queueService);
+    checkpanic sub.gracefulStop();
+    if timeoutInSeconds == 0 {
+        test:assertFail("Failed to receive the message for 5 minutes.");
     }
 }
 
