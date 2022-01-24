@@ -22,14 +22,12 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
 import java.nio.charset.StandardCharsets;
@@ -65,18 +63,6 @@ public class Utils {
         } else {
             return ((BArray) data).getBytes();
         }
-    }
-
-    public static MethodType getAttachedFunctionType(BObject serviceObject, String functionName) {
-        MethodType function = null;
-        MethodType[] resourceFunctions = serviceObject.getType().getMethods();
-        for (MethodType resourceFunction : resourceFunctions) {
-            if (functionName.equals(resourceFunction.getName())) {
-                function = resourceFunction;
-                break;
-            }
-        }
-        return function;
     }
 
     @SuppressWarnings("unchecked")
