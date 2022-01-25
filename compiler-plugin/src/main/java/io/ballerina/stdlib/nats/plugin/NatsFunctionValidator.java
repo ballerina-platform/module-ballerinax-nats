@@ -19,6 +19,7 @@
 package io.ballerina.stdlib.nats.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -168,11 +169,36 @@ public class NatsFunctionValidator {
                             CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                             DiagnosticSeverity.ERROR, requiredParameterNode.location()));
                 }
+            } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                IntersectionTypeSymbol intersectionTypeSymbol =
+                        (IntersectionTypeSymbol) parameterSymbol.typeDescriptor();
+                // check if nats:Message is included in the intersection
+                validateIntersectionType(intersectionTypeSymbol, requiredParameterNode);
             } else {
                 context.reportDiagnostic(PluginUtils.getDiagnostic(
                         CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
                         DiagnosticSeverity.ERROR, requiredParameterNode.location()));
             }
+        }
+    }
+
+    private void validateIntersectionType(IntersectionTypeSymbol intersectionTypeSymbol,
+                                          RequiredParameterNode requiredParameterNode) {
+        // (readonly & nats:Message - valid, readonly & nats:Client - invalid)
+        // (readonly & string - invalid)
+        TypeReferenceTypeSymbol typeReferenceTypeSymbol = null;
+        int hasType = 0;
+        List<TypeSymbol> intersectionMembers = intersectionTypeSymbol.memberTypeDescriptors();
+        for (TypeSymbol typeSymbol : intersectionMembers) {
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
+                hasType++;
+            }
+        }
+        if (hasType != 1 || !isValidParamTypeMessage(typeReferenceTypeSymbol)) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(
+                    CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
+                    DiagnosticSeverity.ERROR, requiredParameterNode.location()));
         }
     }
 
