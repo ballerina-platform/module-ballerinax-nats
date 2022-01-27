@@ -24,7 +24,7 @@ public isolated client class Client {
     # nats:Client natsClient = check new(nats:DEFAULT_URL);
     # ```
     #
-    # + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
+    # + url - The NATS broker URL. For a clustered use case, provide the URLs as a string array
     # + config - The connection configurations
     public isolated function init(string|string[] url, *ConnectionConfiguration config) returns Error? {
         return clientInit(self, url, config);
@@ -57,6 +57,9 @@ public isolated client class Client {
     } external;
 
     # Closes the NATS client connection.
+    # ```ballerina
+    # check natsClient.close();
+    # ```
     #
     # + return - `()` or else a `nats:Error` if an error is occurred
     public isolated function close() returns Error? =
