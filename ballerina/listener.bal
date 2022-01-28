@@ -22,10 +22,10 @@ public isolated class Listener {
 
     # Initializes the NATS listener.
     # ```ballerina
-    #  nats:Listener natsListener = check new(nats:DEFAULT_URL);
+    # nats:Listener natsListener = check new(nats:DEFAULT_URL);
     # ```
     #
-    # + url - The NATS Broker URL. For a clustered use case, provide the URLs as a string array
+    # + url - The NATS broker URL. For a clustered use case, provide the URLs as a string array
     # + config - The connection configurations
     public isolated function init(string|string[] url, *ConnectionConfiguration config) returns Error? {
         return consumerInit(self, url, config);
