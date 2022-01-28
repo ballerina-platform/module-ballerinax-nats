@@ -13,7 +13,7 @@ distribution = "2201.0.0"
 path = "./lib/jnats-2.8.0.jar"
 
 [[platform.java11.dependency]]
-path = "../native/build/libs/nats-native-2.2.0-SNAPSHOT.jar"
+path = "../native/build/libs/nats-native-2.2.0.jar"
 
 [build-options]
 observabilityIncluded=true
