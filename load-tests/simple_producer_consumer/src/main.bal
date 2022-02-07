@@ -44,7 +44,7 @@ boolean finished = false;
 
 service /nats on new http:Listener(9100) {
     function init() {
-        log:printInfo("SERVICE STARTING!!!");
+        log:printInfo("Service starting...");
     }
 
     resource function get publish() returns boolean {
@@ -81,9 +81,8 @@ function publishMessages() returns error? {
     int endingTimeInSecs = startedTime[0] + 120;
     nats:Client|error natsClient = new("nats://nats:4222");
     if (natsClient is error) {
-        log:printInfo("natsClient is ERROR: line 81");
+        log:printInfo("Error occurred when creating the nats client connection.");
     } else {
-
         while time:utcNow()[0] <= endingTimeInSecs {
             error? result = natsClient->publishMessage({
                                      content: SENDING_MESSAGE.toString().toBytes(),
@@ -113,7 +112,7 @@ function publishMessages() returns error? {
 function startListener() returns error? {
     nats:Listener|error natsListener = new("nats://nats:4222");
     if (natsListener is error) {
-        log:printInfo("natsListener is ERROR: line 108");
+        log:printInfo("Error occurred when creating the nats listener connection.");
     } else {
         check natsListener.attach(natsService);
         check natsListener.start();
