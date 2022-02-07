@@ -21,17 +21,17 @@ First, clone this repository, and then, run the following commands in the given 
 
 1. Run the Order Service.
 ```sh
-$ cd examples/order_manager/order_service
+$ cd examples/order-manager/order-service
 $ bal run
 ```
 2. Run the Order processor.
 ```sh
-$ cd examples/order_manager/order_processor
+$ cd examples/order-manager/order-processor
 $ bal run
 ```
 3. Run the Notification service.
 ```sh
-$ cd examples/order_manager/notification_service
+$ cd examples/order-manager/notification-service
 $ bal run
 ```
 4. Send a request to the order service with order details using `curl`.
