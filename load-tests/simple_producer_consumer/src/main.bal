@@ -122,6 +122,9 @@ function startListener() returns error? {
 }
 
 nats:Service natsService =
+@nats:ServiceConfig {
+    subject: SUBJECT
+}
 service object {
     remote function onMessage(nats:Message message) returns error? {
         string|error messageContent = 'string:fromBytes(message.content);
