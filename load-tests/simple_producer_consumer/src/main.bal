@@ -16,6 +16,7 @@
 
 import ballerinax/nats;
 import ballerina/lang.runtime;
+import ballerina/log;
 import ballerina/http;
 import ballerina/time;
 import ballerina/lang.value;
@@ -42,6 +43,9 @@ time:Utc endedTime = time:utcNow();
 boolean finished = false;
 
 service /nats on new http:Listener(9100) {
+    function init() {
+        log:printInfo("SERVICE STARTING!!!");
+    }
 
     resource function get publish() returns boolean {
         error? result = startListener();
@@ -75,11 +79,27 @@ function publishMessages() returns error? {
     startedTime = time:utcNow();
     // Sending messages for only 2 minutes to test the setup
     int endingTimeInSecs = startedTime[0] + 120;
-    nats:Client producer = check new(nats:DEFAULT_URL);
-    while time:utcNow()[0] <= endingTimeInSecs {
+    nats:Client|error natsClient = new("nats://nats:4222");
+    if (natsClient is error) {
+        log:printInfo("natsClient is ERROR: line 81");
+    } else {
+
+        while time:utcNow()[0] <= endingTimeInSecs {
+            error? result = natsClient->publishMessage({
+                                     content: SENDING_MESSAGE.toString().toBytes(),
+                                     subject: SUBJECT});
+            if result is error {
+                lock {
+                    errorCount += 1;
+                }
+            } else {
+                sentCount +=1;
+            }
+            runtime:sleep(0.1);
+        }
         error? result = natsClient->publishMessage({
-                                 content: SENDING_MESSAGE.toString().toBytes(),
-                                 subject: SUBJECT});
+                                     content: FINAL_MESSAGE.toString().toBytes(),
+                                     subject: SUBJECT});
         if result is error {
             lock {
                 errorCount += 1;
@@ -87,25 +107,18 @@ function publishMessages() returns error? {
         } else {
             sentCount +=1;
         }
-        runtime:sleep(0.1);
-    }
-    error? result = natsClient->publishMessage({
-                                 content: FINAL_MESSAGE.toString().toBytes(),
-                                 subject: SUBJECT});
-    if result is error {
-        lock {
-            errorCount += 1;
-        }
-    } else {
-        sentCount +=1;
     }
 }
 
 function startListener() returns error? {
-    nats:Listener natsListener = check new(nats:DEFAULT_URL);
-    check natsListener.attach(natsService);
-    check natsListener.start();
-    runtime:registerListener(natsListener);
+    nats:Listener|error natsListener = new("nats://nats:4222");
+    if (natsListener is error) {
+        log:printInfo("natsListener is ERROR: line 108");
+    } else {
+        check natsListener.attach(natsService);
+        check natsListener.start();
+        runtime:registerListener(natsListener);
+    }
 }
 
 nats:Service natsService =

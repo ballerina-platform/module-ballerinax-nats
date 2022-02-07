@@ -1,0 +1,19 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-producer-consumer
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: bal.perf.test
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: simple-producer
+                port:
+                  number: 9100
