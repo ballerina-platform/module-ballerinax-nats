@@ -3,13 +3,18 @@
 _Owners_: @aashikam @shafreenAnfar  
 _Reviewers_: @shafreenAnfar  
 _Created_: 2020/10/28  
-_Updated_: 2021/11/29  
+_Updated_: 2022/02/07  
+_Edition_: Swan Lake  
 _Issue_: [#2214](https://github.com/ballerina-platform/ballerina-standard-library/issues/2214)
 
 # Introduction
-This is the specification for NATS standard library which is used to send and receive messages by connecting to the NATS server. 
-This library is programmed in the [Ballerina programming language](https://ballerina.io/), which is an open-source programming language for the cloud
-that makes it easier to use, combine, and create network services.
+This is the specification for the NATS standard library of [Ballerina language](https://ballerina.io/), which provides NATS client functionalities to produce and consume messages by connecting to the NATS server.
+
+The NATS library specification has evolved and may continue to evolve in the future. Released versions of the specification can be found under the relevant GitHub tag.
+
+If you have any feedback or suggestions about the library, start a discussion via a [GitHub issue](https://github.com/ballerina-platform/ballerina-standard-library/issues) or in the [Slack channel](https://ballerina.io/community/). Based on the outcome of the discussion, specification and implementation can be updated. Community feedback is always welcome. Any accepted proposal which affects the specification is stored under `/docs/proposals`. Proposals under discussion can be found with the label `type/proposal` in GitHub.
+
+Conforming implementation of the specification is released to Ballerina central. Any deviation from the specification is considered a bug.
 
 # Contents
 
