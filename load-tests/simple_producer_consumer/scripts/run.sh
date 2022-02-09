@@ -20,4 +20,4 @@ set -e
 source base-scenario.sh
 
 echo "----------Running Load Test----------"
-java -jar $scriptsDir/load_test.jar "Kafka Simple Producer Consumer" "$resultsDir/summary.csv"
+java -jar $scriptsDir/load_test.jar "NATS Simple Producer Consumer" "$resultsDir/summary.csv"

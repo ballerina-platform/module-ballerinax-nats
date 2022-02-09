@@ -36,7 +36,7 @@ public function main(string label, string output_csv_path) returns error? {
     while !finished {
         boolean|map<string>|error res = loadTestClient->get("/nats/getResults");
         if res is error {
-            log:printError("Error occured", res);
+            log:printError("Error occurred", res);
         } else if res is boolean {
             log:printInfo(res.toString());
         } else {
