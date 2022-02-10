@@ -32,7 +32,7 @@ service "orderProcessorService" on new nats:Listener(nats:DEFAULT_URL) {
     // Listens to NATS subject for any new orders and process them
     remote function onMessage(nats:Message message) returns error? {
 
-        // Uses Ballerina query expressions to filter out the successful orders and publish to Kafka topic
+        // Uses Ballerina query expressions to filter out the successful orders and publish to NATS subject
         check from types:Order 'order in check getOrdersFromMessage(message)
         where 'order.status == types:SUCCESS
         do {
@@ -47,7 +47,7 @@ service "orderProcessorService" on new nats:Listener(nats:DEFAULT_URL) {
     }
 }
 
-// Convert the byte values in Kafka records to type Order[]
+// Convert the byte values in NATS message to type Order[]
 function getOrdersFromMessage(nats:Message message) returns types:Order[]|error {
     types:Order[] receivedOrders = [];
     string messageContent = check string:fromBytes(message.content);

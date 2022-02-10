@@ -38,3 +38,6 @@ target
 # Ballerina
 velocity.log*
 *Ballerina.lock
+
+# Auto generated Dependencies.toml files
+load-tests/**/Dependencies.toml
