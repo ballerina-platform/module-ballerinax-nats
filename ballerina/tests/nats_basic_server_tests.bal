@@ -429,16 +429,15 @@ public function testIsolatedConsumerService2() returns error? {
     groups: ["nats-basic"]
 }
 public function testConsumerService2() {
-    Listener? sub = listenerObj;
-    if sub is Listener {
-        error? result = trap sub.attach(serviceWithoutAnnotation);
-        if result is () {
-            test:assertFail("Expected error in attaching a service without a service name.");
-        } else {
-            string expected = "Subject name cannot be found";
-            test:assertEquals(result.message(), expected, msg = "Error message mismatch");
-        }
+    Listener sub = checkpanic new(DEFAULT_URL);
+    error? result = trap sub.attach(serviceWithoutAnnotation);
+    if result is () {
+        test:assertFail("Expected error in attaching a service without a service name.");
+    } else {
+        string expected = "Subject name cannot be found";
+        test:assertEquals(result.message(), expected, msg = "Error message mismatch");
     }
+    checkpanic sub.gracefulStop();
 }
 
 @test:Config {
@@ -580,28 +579,32 @@ public function testOnRequest1() {
     string message = "Hello from the other side!";
     Client? newClient = clientObj;
     if newClient is Client {
-        Listener sub = checkpanic new(DEFAULT_URL);
-        checkpanic sub.attach(onRequestService);
-        checkpanic sub.attach(onReplyService);
-        checkpanic sub.'start();
-        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
-                                                    replyTo: REPLY_TO_SUBJECT });
-        int timeoutInSeconds = 300;
-        // Test fails in 5 minutes if it is failed to receive the message
-        while timeoutInSeconds > 0 {
-            if getReceivedOnRequestMessage() !is "" && getReceivedReplyMessage() !is "" {
-                string receivedRequestMessage = getReceivedOnRequestMessage();
-                string receivedReplyMessage = getReceivedReplyMessage();
-                test:assertEquals(receivedRequestMessage, message, msg = "Message received does not match.");
-                test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
-                break;
-            } else {
-                runtime:sleep(1);
-                timeoutInSeconds = timeoutInSeconds - 1;
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(onRequestService);
+            checkpanic sub.attach(onReplyService);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
+                                                        replyTo: REPLY_TO_SUBJECT });
+            int timeoutInSeconds = 300;
+            // Test fails in 5 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if getReceivedOnRequestMessage() !is "" && getReceivedReplyMessage() !is "" {
+                    string receivedRequestMessage = getReceivedOnRequestMessage();
+                    string receivedReplyMessage = getReceivedReplyMessage();
+                    test:assertEquals(receivedRequestMessage, message, msg = "Message received does not match.");
+                    test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
             }
-        }
-        if timeoutInSeconds == 0 {
-            test:assertFail("Failed to receive the message for 5 minutes.");
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 5 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");

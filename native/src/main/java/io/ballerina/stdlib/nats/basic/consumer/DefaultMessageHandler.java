@@ -44,8 +44,6 @@ import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +61,6 @@ public class DefaultMessageHandler implements MessageHandler {
     private final Runtime runtime;
     private final NatsMetricsReporter natsMetricsReporter;
     private final Connection natsConnection;
-    private static final PrintStream console;
 
     DefaultMessageHandler(BObject serviceObject, Runtime runtime, Connection natsConnection,
                           NatsMetricsReporter natsMetricsReporter) {
@@ -74,10 +71,6 @@ public class DefaultMessageHandler implements MessageHandler {
         this.natsConnection = natsConnection;
     }
 
-    static {
-        console = System.out;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -86,8 +79,6 @@ public class DefaultMessageHandler implements MessageHandler {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         String replyTo = message.getReplyTo();
         String subject = message.getSubject();
-        String response = new String(message.getData(), StandardCharsets.UTF_8);
-        console.println("Message received java: " + response);
         try {
             if (replyTo != null && getAttachedFunctionType(serviceObject,
                     Constants.ON_REQUEST_RESOURCE) != null) {
