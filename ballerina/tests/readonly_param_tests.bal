@@ -22,9 +22,9 @@ import ballerina/test;
 isolated string receivedReadOnlyMessage = "";
 isolated string receivedReadOnlyOnRequestMessage = "";
 
-const READONLY_PARAM_SUBJECT_NAME = "basic-service-readonly";
-const READONLY_PARAM_ON_REQUEST = "on-req-readonly";
-const READONLY_REPLY_TO_SUBJECT = "nats-rep-readonly";
+const READONLY_PARAM_SUBJECT_NAME = "msg.readonly";
+const READONLY_PARAM_ON_REQUEST = "req.readonly";
+const READONLY_REPLY_TO_SUBJECT = "rep.readonly";
 
 isolated function setReceivedReadOnlyOnRequestMessage(string message) {
     lock {

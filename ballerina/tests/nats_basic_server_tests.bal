@@ -22,7 +22,7 @@ import ballerina/test;
 Client? clientObj = ();
 const SUBJECT_NAME = "nats-basic";
 const PENDING_LIMITS_SUBJECT = "nats-pending";
-const QUEUE_GROUP_SUBJECT = "nats-queues";
+const QUEUE_GROUP_SUBJECT = "queue.subject";
 const STOP_SUBJECT_NAME = "stopping-subject";
 const SERVICE_SUBJECT_NAME = "nats-basic-service";
 const SERVICE_SUBJECT_NAME_ANNOT = "nats-basic-service-annot";
