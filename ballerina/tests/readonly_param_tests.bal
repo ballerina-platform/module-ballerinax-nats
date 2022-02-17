@@ -22,9 +22,9 @@ import ballerina/test;
 isolated string receivedReadOnlyMessage = "";
 isolated string receivedReadOnlyOnRequestMessage = "";
 
-const READONLY_PARAM_SUBJECT_NAME = "basic-service-readonly";
-const READONLY_PARAM_ON_REQUEST = "on-req-readonly";
-const READONLY_REPLY_TO_SUBJECT = "nats-rep-readonly";
+const READONLY_PARAM_SUBJECT_NAME = "msg.readonly";
+const READONLY_PARAM_ON_REQUEST = "req.readonly";
+const READONLY_REPLY_TO_SUBJECT = "rep.readonly";
 
 isolated function setReceivedReadOnlyOnRequestMessage(string message) {
     lock {
@@ -56,29 +56,35 @@ isolated function getReceivedReadOnlyMessage() returns string {
 }
 public function testConsumerServiceWithReadOnlyParams() {
     string message = "Testing Consumer Service with Readonly params";
-    Client newClient = checkpanic new(DEFAULT_URL);
-    Listener sub = checkpanic new(DEFAULT_URL);
-    checkpanic sub.attach(consumerServiceWithReadOnlyParams);
-    checkpanic sub.'start();
-    checkpanic newClient->publishMessage({ content: message.toBytes(), subject: READONLY_PARAM_SUBJECT_NAME });
-    int timeoutInSeconds = 300;
-    // Test fails in 5 minutes if it is failed to receive the message
-    while timeoutInSeconds > 0 {
-        if getReceivedReadOnlyMessage() !is "" {
-            string receivedMessage = getReceivedReadOnlyMessage();
-            test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
-            break;
+    Client? newClient = clientObj;
+    Listener? sub = listenerObj;
+    if sub is Listener {
+        checkpanic sub.attach(consumerServiceWithReadOnlyParams);
+        checkpanic sub.'start();
+        if newClient is Client {
+            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: READONLY_PARAM_SUBJECT_NAME });
+            int timeoutInSeconds = 300;
+            // Test fails in 5 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if getReceivedReadOnlyMessage() !is "" {
+                    string receivedMessage = getReceivedReadOnlyMessage();
+                    test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceWithReadOnlyParams);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 5 minutes.");
+            }
         } else {
-            runtime:sleep(1);
-            timeoutInSeconds = timeoutInSeconds - 1;
+            test:assertFail("NATS Connection creation failed.");
         }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
     }
-    checkpanic sub.detach(consumerServiceWithReadOnlyParams);
-    checkpanic sub.gracefulStop();
-    if timeoutInSeconds == 0 {
-        test:assertFail("Failed to receive the message for 5 minutes.");
-    }
-    checkpanic newClient.close();
 }
 
 @test:Config {
@@ -87,30 +93,35 @@ public function testConsumerServiceWithReadOnlyParams() {
 }
 public function testOnRequestWithReadOnlyParams() {
     string message = "Hello from the other side But ReadOnly!";
-    Client newClient = checkpanic new(DEFAULT_URL);
-    Listener sub = checkpanic new(DEFAULT_URL);
-    checkpanic sub.attach(onRequestReadOnlyService);
-    checkpanic sub.'start();
-    checkpanic newClient->publishMessage({ content: message.toBytes(), subject: READONLY_PARAM_ON_REQUEST,
-                                                replyTo: READONLY_REPLY_TO_SUBJECT });
-    int timeoutInSeconds = 300;
-    // Test fails in 5 minutes if it is failed to receive the message
-    while timeoutInSeconds > 0 {
-        if getReceivedReadOnlyOnRequestMessage() !is "" {
-            string receivedMessage = getReceivedReadOnlyOnRequestMessage();
-            test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
-            break;
+    Client? newClient = clientObj;
+    Listener? sub = listenerObj;
+    if sub is Listener {
+        checkpanic sub.attach(onRequestReadOnlyService);
+        checkpanic sub.'start();
+        if newClient is Client {
+            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: READONLY_PARAM_ON_REQUEST,
+                                                        replyTo: READONLY_REPLY_TO_SUBJECT });
+            int timeoutInSeconds = 300;
+            // Test fails in 5 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if getReceivedReadOnlyOnRequestMessage() !is "" {
+                    string receivedMessage = getReceivedReadOnlyOnRequestMessage();
+                    test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 5 minutes.");
+            }
         } else {
-            runtime:sleep(1);
-            timeoutInSeconds = timeoutInSeconds - 1;
+            test:assertFail("NATS Connection creation failed.");
         }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
     }
-    checkpanic sub.detach(onRequestReadOnlyService);
-    checkpanic sub.gracefulStop();
-    if timeoutInSeconds == 0 {
-        test:assertFail("Failed to receive the message for 5 minutes.");
-    }
-    checkpanic newClient.close();
 }
 
 Service consumerServiceWithReadOnlyParams =
