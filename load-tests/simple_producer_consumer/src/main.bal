@@ -77,8 +77,8 @@ service /nats on new http:Listener(9100) {
 
 function publishMessages() returns error? {
     startedTime = time:utcNow();
-    // Sending messages for only 2 minutes to test the setup
-    int endingTimeInSecs = startedTime[0] + 120;
+    // Publishing messages for 1 hour
+    int endingTimeInSecs = startedTime[0] + 3600;
     nats:Client|error natsClient = new("nats://nats:4222");
     if (natsClient is error) {
         log:printInfo("Error occurred when creating the nats client connection.");
