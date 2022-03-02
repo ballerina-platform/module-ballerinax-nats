@@ -29,5 +29,6 @@ public class NatsCompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext compilerPluginContext) {
         compilerPluginContext.addCodeAnalyzer(new NatsCodeAnalyzer());
+        compilerPluginContext.addCodeAction(new NatsCodeTemplate());
     }
 }

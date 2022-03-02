@@ -49,6 +49,16 @@ public class NatsServiceValidator {
     public void validate(SyntaxNodeAnalysisContext context) {
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
         NodeList<Node> memberNodes = serviceDeclarationNode.members();
+
+        boolean hasRemoteFunction = serviceDeclarationNode.members().stream().anyMatch(child ->
+                child.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
+                        PluginUtils.isRemoteFunction(context, (FunctionDefinitionNode) child));
+
+        if (serviceDeclarationNode.members().isEmpty() || !hasRemoteFunction) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.TEMPLATE_CODE_GENERATION_HINT,
+                   DiagnosticSeverity.INTERNAL, serviceDeclarationNode.location()));
+        }
+
         validateAttachPoint(context);
         FunctionDefinitionNode onMessage = null;
         FunctionDefinitionNode onRequest = null;
