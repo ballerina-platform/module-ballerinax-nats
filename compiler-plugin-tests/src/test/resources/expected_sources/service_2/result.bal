@@ -1,6 +1,6 @@
-import ballerinax/kafka;
+import ballerinax/nats;
 
-service kafka:Service on new kafka:Listener("localhost:9090") {
+service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
     int x = 5;
     string y = "xx";
         remote function onMessage(nats:Message message) returns nats:Error? {
