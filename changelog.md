@@ -3,6 +3,11 @@ This file contains all the notable changes done to the Ballerina NATS package th
 
 ## [Unreleased]
 
+### Added
+- [Add code-actions to generate nats:Service template.](https://github.com/ballerina-platform/ballerina-standard-library/issues/2687)
+
+## [2.2.1] - 2022-03-01
+
 ### Changed
 - [Mark NATS service type as distinct.](https://github.com/ballerina-platform/ballerina-standard-library/issues/2398)
 
