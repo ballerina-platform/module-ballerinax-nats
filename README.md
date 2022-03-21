@@ -10,9 +10,9 @@ This library provides the capability to send and receive messages by connecting 
 
 NATS messaging enables the communication of data that is segmented into messages among computer applications and services. Data is encoded and framed as a message and sent by a publisher. The message is received, decoded, and processed by one or more subscribers. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.
 
-### Basic Usage
+### Basic usage
 
-#### Setting up the Connection
+#### Set up the connection
 
 First, you need to set up the connection with the NATS Basic server. The following ways can be used to connect to a
 NATS Basic server.
@@ -36,9 +36,9 @@ nats:ConnectionConfiguration config = {
 nats:Client natsClient = check new(["nats://serverone:4222",  "nats://servertwo:4222"],  config);
 ```
 
-#### Publishing Messages
+#### Publish messages
 
-##### Publishing Messages to the NATS Basic Server
+##### Publish messages to the NATS basic server
 
 Once connected, publishing is accomplished via one of the three methods below.
 
@@ -63,9 +63,9 @@ nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: 
                                                     replyTo: "demo.reply" });
 ```
 
-#### Listening to Incoming Messages
+#### Listen to incoming messages
 
-##### Listening to Messages from a NATS Server
+##### Listen to messages from a NATS server
 
 1. Listen to incoming messages with the `onMessage` remote method:
 ```ballerina
@@ -95,14 +95,14 @@ service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 }
 ```
 
-### Advanced Usage
+### Advanced usage
 
-#### Setting up TLS
+#### Set up TLS
 
 The Ballerina NATS library allows the use of TLS in communication. This setting expects a secure socket to be
 set in the connection configuration as shown below.
 
-##### Configuring TLS in the `nats:Listener`
+##### Configure TLS in the `nats:Listener`
 ```ballerina
 nats:SecureSocket secured = {
     cert: {
@@ -117,7 +117,7 @@ nats:SecureSocket secured = {
 nats:Listener natsListener = check new("nats://serverone:4222", secureSocket = secured);
 ```
 
-##### Configuring TLS in the `nats:Client`
+##### Configure TLS in the `nats:Client`
 ```ballerina
 nats:SecureSocket secured = {
     cert: {
@@ -132,15 +132,15 @@ nats:SecureSocket secured = {
 nats:Client natsClient = check new("nats://serverone:4222", secureSocket = secured);
 ```
 
-## Issues and Projects 
+## Issues and projects 
 
 Issues and Projects tabs are disabled for this repository as this is part of the Ballerina Standard Library. To report bugs, request new features, start new discussions, view project boards, etc. please visit Ballerina Standard Library [parent repository](https://github.com/ballerina-platform/ballerina-standard-library). 
 
 This repository only contains the source code for the library.
 
-## Building from the Source
+## Build from the source
 
-### Setting Up the Prerequisites
+### Set up the prerequisites
 
 * Download and install Java SE Development Kit (JDK) version 11 (from one of the following locations).
 
@@ -163,7 +163,7 @@ The before suite initializes the docker container before executing the tests).
   
    * For information on installing Docker on Windows, goo to <a target="_blank" href="https://docs.docker.com/docker-for-windows/">Get Started with Docker for Windows</a>.
 
-### Building the Source
+### Build the source
 
 Execute the commands below to build from source.
 
@@ -201,17 +201,17 @@ Execute the commands below to build from source.
    ./gradlew clean build -PpublishToCentral=true
    ```
 
-## Contributing to Ballerina
+## Contribute to Ballerina
 
 As an open source project, Ballerina welcomes contributions from the community. 
 
 For more information, go to the [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md).
 
-## Code of Conduct
+## Code of conduct
 
 All contributors are encouraged to read the [Ballerina Code of Conduct](https://ballerina.io/code-of-conduct).
 
-## Useful Links
+## Useful links
 
 * For more information go to the [`nats` library](https://lib.ballerina.io/ballerinax/nats/latest).
 * For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/learn/by-example/).
