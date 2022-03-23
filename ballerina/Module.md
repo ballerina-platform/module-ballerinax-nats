@@ -4,9 +4,9 @@ This module provides the capability to send and receive messages by connecting t
 
 NATS messaging enables the communication of data that is segmented into messages among computer applications and services. Data is encoded and framed as a message and sent by a publisher. The message is received, decoded, and processed by one or more subscribers. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.
 
-### Basic Usage
+### Basic usage
 
-#### Setting up the Connection
+#### Set up the connection
 
 First, you need to set up the connection with the NATS Basic server. The following ways can be used to connect to a
 NATS Basic server.
@@ -30,9 +30,9 @@ nats:ConnectionConfiguration config = {
 nats:Client natsClient = check new(["nats://serverone:4222",  "nats://servertwo:4222"],  config);
 ```
 
-#### Publishing Messages
+#### Publish messages
 
-##### Publishing Messages to the NATS Basic Server
+##### Publish messages to the NATS basic server
 
 Once connected, publishing is accomplished via one of the three methods below.
 
@@ -57,9 +57,9 @@ nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: 
                                                     replyTo: "demo.reply" });
 ```
 
-#### Listening to Incoming Messages
+#### Listen to incoming messages
 
-##### Listening to Messages from a NATS Server
+##### Listen to messages from a NATS server
 
 1. Listen to incoming messages with the `onMessage` remote method:
 ```ballerina
@@ -89,14 +89,14 @@ service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 }
 ```
 
-### Advanced Usage
+### Advanced usage
 
-#### Setting up TLS
+#### Set up TLS
 
 The Ballerina NATS module allows the use of TLS in communication. This setting expects a secure socket to be
 set in the connection configuration as shown below.
 
-##### Configuring TLS in the `nats:Listener`
+##### Configure TLS in the `nats:Listener`
 ```ballerina
 nats:SecureSocket secured = {
     cert: {
@@ -111,7 +111,7 @@ nats:SecureSocket secured = {
 nats:Listener natsListener = check new("nats://serverone:4222", secureSocket = secured);
 ```
 
-##### Configuring TLS in the `nats:Client`
+##### Configure TLS in the `nats:Client`
 ```ballerina
 nats:SecureSocket secured = {
     cert: {

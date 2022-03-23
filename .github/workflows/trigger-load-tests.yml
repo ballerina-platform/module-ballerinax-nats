@@ -60,4 +60,4 @@ jobs:
           repo: ballerina-platform/ballerina-performance-cloud
           ref: refs/heads/main
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          inputs: '{ "repo-name": "module-ballerinax-nats", "tests": "${{ steps.formatTestNames.outputs.testNames }}", "zipURL": ${{ steps.setRuntimeUrl.outputs.runtimeUrl}}, "clusterName": "${{ github.event.inputs.clusterName }}", "dispatchType": "nats-load-test" }'
+          inputs: '{ "repo-name": "module-ballerinax-nats", "tests": "${{ steps.formatTestNames.outputs.testNames }}", "zipURL": ${{ steps.setRuntimeUrl.outputs.runtimeUrl}}, "clusterName": "${{ steps.processClusterName.outputs.clusterName }}", "dispatchType": "nats-load-test" }'
