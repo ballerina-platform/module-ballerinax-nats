@@ -1,7 +1,9 @@
 import ballerinax/nats;
 
-service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
-        remote function onMessage(nats:Message message) returns nats:Error? {
+listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
-        }
+service "demo" on subscription {
+	remote function onMessage(nats:Message message) returns nats:Error? {
+
+	}
 }

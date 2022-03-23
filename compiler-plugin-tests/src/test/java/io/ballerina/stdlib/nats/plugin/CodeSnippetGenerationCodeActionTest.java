@@ -47,8 +47,8 @@ public class CodeSnippetGenerationCodeActionTest extends AbstractCodeActionTest 
         Path resultPath = RESOURCE_DIRECTORY.resolve(EXPECTED_SOURCES)
                 .resolve("service_1")
                 .resolve("result.bal");
-        performTest(filePath, LinePosition.from(2, 0),
-                getExpectedCodeAction("service.bal", 2, 64), resultPath);
+        performTest(filePath, LinePosition.from(4, 0),
+                getExpectedCodeAction("service.bal", 6, 1), resultPath);
     }
 
     @Test
@@ -60,12 +60,12 @@ public class CodeSnippetGenerationCodeActionTest extends AbstractCodeActionTest 
         Path resultPath = RESOURCE_DIRECTORY.resolve(EXPECTED_SOURCES)
                 .resolve("service_2")
                 .resolve("result.bal");
-        performTest(filePath, LinePosition.from(2, 0),
-                getExpectedCodeAction("service.bal", 5, 1), resultPath);
+        performTest(filePath, LinePosition.from(4, 0),
+                getExpectedCodeAction("service.bal", 7, 1), resultPath);
     }
 
     private CodeActionInfo getExpectedCodeAction(String filePath, int line, int offset) {
-        LineRange lineRange = LineRange.from(filePath, LinePosition.from(2, 0),
+        LineRange lineRange = LineRange.from(filePath, LinePosition.from(4, 0),
                 LinePosition.from(line, offset));
         CodeActionArgument locationArg = CodeActionArgument.from(NODE_LOCATION, lineRange);
         CodeActionInfo codeAction = CodeActionInfo.from("Insert service template", List.of(locationArg));

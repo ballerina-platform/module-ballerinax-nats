@@ -1,6 +1,8 @@
 import ballerinax/nats;
 
-service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
+listener nats:Listener subscription = new(nats:DEFAULT_URL);
+
+service "demo" on subscription {
     int x = 5;
     string y = "xx";
 }
