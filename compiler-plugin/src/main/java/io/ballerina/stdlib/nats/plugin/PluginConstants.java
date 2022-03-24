@@ -31,9 +31,6 @@ public class PluginConstants {
 
     // parameters
     public static final String MESSAGE = "Message";
-    public static final String CONTENT_FIELD = "content";
-    public static final String REPLY_TO_FIELD = "replyTo";
-    public static final String SUBJECT_FIELD = "subject";
     public static final String ERROR_PARAM = "Error";
 
     // return types error or nil
@@ -74,7 +71,8 @@ public class PluginConstants {
         INVALID_ANNOTATION("Invalid service config annotation. Only @nats:ServiceConfig{} is allowed.",
                 "NATS_117"),
         INVALID_SERVICE_ATTACH_POINT("Invalid service attach point. Only string literals are allowed.",
-                "NATS_118");
+                "NATS_118"),
+        TEMPLATE_CODE_GENERATION_HINT("Template generation for empty service", "NATS_119");
 
         private final String error;
         private final String errorCode;
