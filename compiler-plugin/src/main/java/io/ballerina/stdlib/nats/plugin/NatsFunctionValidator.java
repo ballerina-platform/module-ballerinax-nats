@@ -19,11 +19,13 @@
 package io.ballerina.stdlib.nats.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -40,6 +42,7 @@ import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +62,7 @@ public class NatsFunctionValidator {
     FunctionDefinitionNode onMessage;
     FunctionDefinitionNode onRequest;
     FunctionDefinitionNode onError;
+    boolean onMessageWithDataBindingFirstParam;
 
     public NatsFunctionValidator(SyntaxNodeAnalysisContext context, FunctionDefinitionNode onMessage,
                                  FunctionDefinitionNode onRequest, FunctionDefinitionNode onError) {
@@ -128,14 +132,21 @@ public class NatsFunctionValidator {
 
     private void validateFunctionParameters(SeparatedNodeList<ParameterNode> parameters,
                                             FunctionDefinitionNode functionDefinitionNode) {
-        if (parameters.size() > 0) {
-            validateFirstParam(parameters.get(0));
-        }
-        if (parameters.size() < 1) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.MUST_HAVE_MESSAGE,
+        if (parameters.size() == 0) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.MUST_HAVE_MESSAGE_OR_ANYDATA,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }
-        if (parameters.size() > 1) {
+
+        if (parameters.size() == 1) {
+            validateFirstParam(parameters.get(0));
+        }
+
+        if (parameters.size() == 2) {
+            validateFirstParam(parameters.get(0));
+            validateSecondParam(parameters.get(1));
+        }
+
+        if (parameters.size() > 2) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.ONLY_PARAMS_ALLOWED,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }
@@ -144,7 +155,7 @@ public class NatsFunctionValidator {
     private void validateOnErrorFunctionParameters(SeparatedNodeList<ParameterNode> parameters,
                                                    FunctionDefinitionNode functionDefinitionNode) {
         if (parameters.size() > 1) {
-            validateFirstParam(parameters.get(0));
+            validateFirstParamOnError(parameters.get(0));
             validateErrorParam(parameters.get(1));
         }
         if (parameters.size() < 2) {
@@ -158,6 +169,49 @@ public class NatsFunctionValidator {
     }
 
     private void validateFirstParam(ParameterNode parameterNode) {
+        onMessageWithDataBindingFirstParam = false;
+        // first param can be nats:Message or anydata
+        RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
+        SemanticModel semanticModel = context.semanticModel();
+        Optional<Symbol> symbol = semanticModel.symbol(requiredParameterNode);
+        if (symbol.isPresent()) {
+            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
+            if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                if (!isValidParamTypeMessage((TypeReferenceTypeSymbol) parameterSymbol.typeDescriptor()) &&
+                        !isRecordTypeReference((TypeReferenceTypeSymbol) parameterSymbol.typeDescriptor())) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA,
+                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                }
+            } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                IntersectionTypeSymbol intersectionTypeSymbol =
+                        (IntersectionTypeSymbol) parameterSymbol.typeDescriptor();
+                // check if nats:Message is included in the intersection
+                validateIntersectionType(intersectionTypeSymbol, requiredParameterNode);
+            } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.ARRAY) {
+                TypeSymbol member = ((ArrayTypeSymbol)(parameterSymbol.typeDescriptor())).
+                        memberTypeDescriptor();
+                if (member.typeKind() == TypeDescKind.TYPE_REFERENCE ) {
+                    if (((TypeDefinitionSymbol) (((TypeReferenceTypeSymbol) member).definition()))
+                            .typeDescriptor().typeKind() != TypeDescKind.RECORD) {
+                        context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA,
+                                DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                    }
+                } else if (!isParameterTypeAnydata(member.typeKind())) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA,
+                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                }
+            } else if (!isParameterTypeAnydata(parameterSymbol.typeDescriptor().typeKind())) {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(
+                        CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA,
+                        DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+            }
+        }
+    }
+
+    private void validateFirstParamOnError(ParameterNode parameterNode) {
         RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
         SemanticModel semanticModel = context.semanticModel();
         Optional<Symbol> symbol = semanticModel.symbol(requiredParameterNode);
@@ -182,6 +236,108 @@ public class NatsFunctionValidator {
         }
     }
 
+    private boolean isRecordTypeReference(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
+        TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) typeReferenceTypeSymbol.definition();
+        boolean isRecord = typeDefinitionSymbol.typeDescriptor().typeKind() == TypeDescKind.RECORD;
+        if (isRecord) {
+            onMessageWithDataBindingFirstParam = true;
+        }
+        return isRecord;
+    }
+
+    private boolean isParameterTypeAnydata(TypeDescKind typeDescKind) {
+        boolean isAnydata = typeDescKind == TypeDescKind.INT || typeDescKind == TypeDescKind.STRING ||
+                typeDescKind == TypeDescKind.BOOLEAN || typeDescKind == TypeDescKind.FLOAT ||
+                typeDescKind == TypeDescKind.DECIMAL || typeDescKind == TypeDescKind.RECORD ||
+                typeDescKind == TypeDescKind.MAP || typeDescKind == TypeDescKind.BYTE ||
+                typeDescKind == TypeDescKind.TABLE || typeDescKind == TypeDescKind.JSON ||
+                typeDescKind == TypeDescKind.XML || typeDescKind == TypeDescKind.ANYDATA;
+        if (isAnydata) {
+            onMessageWithDataBindingFirstParam = true;
+        }
+        return isAnydata;
+    }
+
+    private void validateSecondParam(ParameterNode parameterNode) {
+        // second param can only be anydata
+        // if the first param is also anydata, second cannot be anydata
+        if (onMessageWithDataBindingFirstParam) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(
+                    CompilationErrors.DATA_BINDING_ALREADY_EXISTS,
+                    DiagnosticSeverity.ERROR, parameterNode.location()));
+            return;
+        }
+        RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
+        SemanticModel semanticModel = context.semanticModel();
+        Optional<Symbol> symbol = semanticModel.symbol(requiredParameterNode);
+        if (symbol.isPresent()) {
+            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
+            if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                if (!isRecordTypeReference((TypeReferenceTypeSymbol) parameterSymbol.typeDescriptor())) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
+                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                }
+            } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                IntersectionTypeSymbol intersectionTypeSymbol =
+                        (IntersectionTypeSymbol) parameterSymbol.typeDescriptor();
+                // check if nats:Message is included in the intersection
+                validateIntersectionTypeForSecondParam(intersectionTypeSymbol, requiredParameterNode);
+            } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.ARRAY) {
+                TypeSymbol member = ((ArrayTypeSymbol)(parameterSymbol.typeDescriptor())).
+                        memberTypeDescriptor();
+                if (member.typeKind() == TypeDescKind.TYPE_REFERENCE ) {
+                    if (((TypeDefinitionSymbol) (((TypeReferenceTypeSymbol) member).definition()))
+                            .typeDescriptor().typeKind() != TypeDescKind.RECORD) {
+                        context.reportDiagnostic(PluginUtils.getDiagnostic(
+                                CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
+                                DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                    }
+                } else if (!isParameterTypeAnydata(member.typeKind())) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
+                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                }
+            } else if (!isParameterTypeAnydata(parameterSymbol.typeDescriptor().typeKind())) {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(
+                        CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
+                        DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+            }
+        }
+    }
+
+    private void validateIntersectionTypeForSecondParam(IntersectionTypeSymbol intersectionTypeSymbol,
+                                                        RequiredParameterNode requiredParameterNode) {
+        // (readonly & nats:Message - valid, readonly & nats:Client - invalid)
+        // (readonly & string - invalid)
+        TypeReferenceTypeSymbol typeReferenceTypeSymbol;
+        int hasType = 0;
+        List<TypeSymbol> intersectionMembers = intersectionTypeSymbol.memberTypeDescriptors();
+        for (TypeSymbol typeSymbol : intersectionMembers) {
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
+                if (((TypeDefinitionSymbol) typeReferenceTypeSymbol.definition()).typeDescriptor().typeKind() !=
+                TypeDescKind.RECORD) {
+                    context.reportDiagnostic(PluginUtils.getDiagnostic(
+                            CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
+                            DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+                }
+                hasType++;
+            } else if (typeSymbol.typeKind() == TypeDescKind.ARRAY
+                    && isParameterTypeAnydata(((ArrayTypeSymbol)typeSymbol).memberTypeDescriptor().typeKind())) {
+                hasType++;
+            } else if (isParameterTypeAnydata(typeSymbol.typeKind())) {
+                hasType++;
+            }
+        }
+
+        if (hasType != 1) {
+            context.reportDiagnostic(PluginUtils.getDiagnostic(
+                    CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
+                    DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+        }
+    }
+
     private void validateIntersectionType(IntersectionTypeSymbol intersectionTypeSymbol,
                                           RequiredParameterNode requiredParameterNode) {
         // (readonly & nats:Message - valid, readonly & nats:Client - invalid)
@@ -193,12 +349,24 @@ public class NatsFunctionValidator {
             if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
                 hasType++;
+            } else if (typeSymbol.typeKind() == TypeDescKind.ARRAY
+                    && isParameterTypeAnydata(((ArrayTypeSymbol)typeSymbol).memberTypeDescriptor().typeKind())) {
+                hasType++;
+            } else if (isParameterTypeAnydata(typeSymbol.typeKind())) {
+                hasType++;
             }
         }
-        if (hasType != 1 || !isValidParamTypeMessage(typeReferenceTypeSymbol)) {
+
+        if (hasType != 1) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(
-                    CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE,
+                    CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA,
                     DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+        } else {
+            if (typeReferenceTypeSymbol != null && !isValidParamTypeMessage(typeReferenceTypeSymbol)) {
+                context.reportDiagnostic(PluginUtils.getDiagnostic(
+                        CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA,
+                        DiagnosticSeverity.ERROR, requiredParameterNode.location()));
+            }
         }
     }
 

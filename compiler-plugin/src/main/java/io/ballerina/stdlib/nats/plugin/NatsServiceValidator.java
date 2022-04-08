@@ -77,7 +77,7 @@ public class NatsServiceValidator {
                     } else if (functionName.get().equals(PluginConstants.ON_ERROR_FUNC)) {
                         onError = functionDefinitionNode;
                     } else if (PluginUtils.isRemoteFunction(context, functionDefinitionNode)) {
-                        context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_REMOTE_FUNCTION,
+                        context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_RESOURCE_FUNCTION,
                                 DiagnosticSeverity.ERROR, functionDefinitionNode.location()));
                     }
                 }
