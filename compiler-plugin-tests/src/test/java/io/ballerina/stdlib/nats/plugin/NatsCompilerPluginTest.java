@@ -274,6 +274,55 @@ public class NatsCompilerPluginTest {
         assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA);
     }
 
+    @Test
+    public void testInvalidService18() {
+        Package currentPackage = loadPackage("invalid_service_18");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 3);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE_AND_ERROR);
+        }
+    }
+
+    @Test
+    public void testInvalidService19() {
+        Package currentPackage = loadPackage("invalid_service_19");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.DATA_BINDING_ALREADY_EXISTS);
+    }
+
+    @Test
+    public void testInvalidService20() {
+        Package currentPackage = loadPackage("invalid_service_20");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 3);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE_AND_ERROR);
+        }
+    }
+
+    @Test
+    public void testInvalidService21() {
+        Package currentPackage = loadPackage("invalid_service_21");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 3);
+        Object[] diagnostics = diagnosticResult.errors().toArray();
+        for (Object obj : diagnostics) {
+            Diagnostic diagnostic = (Diagnostic) obj;
+            assertDiagnostic(diagnostic, CompilationErrors.DATA_BINDING_ALREADY_EXISTS);
+        }
+    }
+
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(BALLERINA_SOURCES).resolve(path);
         BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);

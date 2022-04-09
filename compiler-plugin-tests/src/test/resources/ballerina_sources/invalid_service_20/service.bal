@@ -25,6 +25,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 service nats:Service on subscription {
 
     remote function onRequest(nats:Message message, string data) returns string? {
+        return "Hello from the other side";
     }
 
     remote function onError() {
