@@ -129,7 +129,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.errors().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
-        assertDiagnostic(diagnostic, CompilationErrors.INVALID_REMOTE_FUNCTION);
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_RESOURCE_FUNCTION);
     }
 
     @Test
@@ -152,17 +152,7 @@ public class NatsCompilerPluginTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.errors().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
-        assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE);
-    }
-
-    @Test
-    public void testInvalidService6() {
-        Package currentPackage = loadPackage("invalid_service_6");
-        PackageCompilation compilation = currentPackage.getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errors().size(), 1);
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
-        assertDiagnostic(diagnostic, CompilationErrors.ONLY_PARAMS_ALLOWED);
+        assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE_OR_ANYDATA);
     }
 
     @Test
@@ -170,12 +160,9 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_7");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errors().size(), 2);
-        Object[] diagnostics = diagnosticResult.errors().toArray();
-        for (Object obj : diagnostics) {
-            Diagnostic diagnostic = (Diagnostic) obj;
-            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
-        }
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA);
     }
 
     @Test
@@ -193,12 +180,9 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_9");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errors().size(), 2);
-        Object[] diagnostics = diagnosticResult.errors().toArray();
-        for (Object obj : diagnostics) {
-            Diagnostic diagnostic = (Diagnostic) obj;
-            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
-        }
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA);
     }
 
     @Test
@@ -285,12 +269,9 @@ public class NatsCompilerPluginTest {
         Package currentPackage = loadPackage("invalid_service_17");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.errors().size(), 3);
-        Object[] diagnostics = diagnosticResult.errors().toArray();
-        for (Object obj : diagnostics) {
-            Diagnostic diagnostic = (Diagnostic) obj;
-            assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
-        }
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA);
     }
 
     private Package loadPackage(String path) {

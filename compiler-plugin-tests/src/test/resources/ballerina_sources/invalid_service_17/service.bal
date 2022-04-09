@@ -26,21 +26,3 @@ service nats:Service on subscription {
     remote function onMessage(readonly & nats:Client message) {
     }
 }
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onMessage(readonly & string message) {
-    }
-}
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onMessage(readonly & byte[] message) {
-    }
-}

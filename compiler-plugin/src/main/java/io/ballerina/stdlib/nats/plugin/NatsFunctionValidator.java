@@ -20,6 +20,7 @@ package io.ballerina.stdlib.nats.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -237,6 +238,9 @@ public class NatsFunctionValidator {
     }
 
     private boolean isRecordTypeReference(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
+        if (typeReferenceTypeSymbol.definition() instanceof ClassSymbol) {
+            return false;
+        }
         TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) typeReferenceTypeSymbol.definition();
         boolean isRecord = typeDefinitionSymbol.typeDescriptor().typeKind() == TypeDescKind.RECORD;
         if (isRecord) {
