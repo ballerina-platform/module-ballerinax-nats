@@ -43,7 +43,6 @@ import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -190,9 +189,9 @@ public class NatsFunctionValidator {
                 // check if nats:Message is included in the intersection
                 validateIntersectionType(intersectionTypeSymbol, requiredParameterNode);
             } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                TypeSymbol member = ((ArrayTypeSymbol)(parameterSymbol.typeDescriptor())).
+                TypeSymbol member = ((ArrayTypeSymbol) (parameterSymbol.typeDescriptor())).
                         memberTypeDescriptor();
-                if (member.typeKind() == TypeDescKind.TYPE_REFERENCE ) {
+                if (member.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     if (((TypeDefinitionSymbol) (((TypeReferenceTypeSymbol) member).definition()))
                             .typeDescriptor().typeKind() != TypeDescKind.RECORD) {
                         context.reportDiagnostic(PluginUtils.getDiagnostic(
@@ -288,9 +287,9 @@ public class NatsFunctionValidator {
                 // check if nats:Message is included in the intersection
                 validateIntersectionTypeForSecondParam(intersectionTypeSymbol, requiredParameterNode);
             } else if (parameterSymbol.typeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                TypeSymbol member = ((ArrayTypeSymbol)(parameterSymbol.typeDescriptor())).
+                TypeSymbol member = ((ArrayTypeSymbol) (parameterSymbol.typeDescriptor())).
                         memberTypeDescriptor();
-                if (member.typeKind() == TypeDescKind.TYPE_REFERENCE ) {
+                if (member.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     if (((TypeDefinitionSymbol) (((TypeReferenceTypeSymbol) member).definition()))
                             .typeDescriptor().typeKind() != TypeDescKind.RECORD) {
                         context.reportDiagnostic(PluginUtils.getDiagnostic(
@@ -321,14 +320,14 @@ public class NatsFunctionValidator {
             if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
                 if (((TypeDefinitionSymbol) typeReferenceTypeSymbol.definition()).typeDescriptor().typeKind() !=
-                TypeDescKind.RECORD) {
+                        TypeDescKind.RECORD) {
                     context.reportDiagnostic(PluginUtils.getDiagnostic(
                             CompilationErrors.INVALID_FUNCTION_PARAM_ANYDATA,
                             DiagnosticSeverity.ERROR, requiredParameterNode.location()));
                 }
                 hasType++;
             } else if (typeSymbol.typeKind() == TypeDescKind.ARRAY
-                    && isParameterTypeAnydata(((ArrayTypeSymbol)typeSymbol).memberTypeDescriptor().typeKind())) {
+                    && isParameterTypeAnydata(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor().typeKind())) {
                 hasType++;
             } else if (isParameterTypeAnydata(typeSymbol.typeKind())) {
                 hasType++;
@@ -354,7 +353,7 @@ public class NatsFunctionValidator {
                 typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
                 hasType++;
             } else if (typeSymbol.typeKind() == TypeDescKind.ARRAY
-                    && isParameterTypeAnydata(((ArrayTypeSymbol)typeSymbol).memberTypeDescriptor().typeKind())) {
+                    && isParameterTypeAnydata(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor().typeKind())) {
                 hasType++;
             } else if (isParameterTypeAnydata(typeSymbol.typeKind())) {
                 hasType++;
@@ -442,7 +441,7 @@ public class NatsFunctionValidator {
                             if (returnType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                                 TypeReferenceTypeSymbol returnTypeRef = (TypeReferenceTypeSymbol) returnType;
                                 String returnTypeName = returnTypeRef.definition().getName().isPresent() ?
-                                            returnTypeRef.definition().getName().get() : "";
+                                        returnTypeRef.definition().getName().get() : "";
                                 if (!returnTypeName.equalsIgnoreCase(PluginConstants.ERROR) ||
                                         !validateModuleId(returnType.getModule().get())) {
                                     context.reportDiagnostic(PluginUtils.getDiagnostic(

@@ -56,8 +56,8 @@ public class PluginConstants {
                 "NATS_109"),
         INVALID_FUNCTION_PARAM_ANYDATA("Invalid method parameter. Only anydata is allowed.",
                 "NATS_110"),
-        DATA_BINDING_ALREADY_EXISTS("Invalid second parameter. " +
-                                            "If the first parameter is of type anydata, a second parameter is not allowed.", "NATS111"),
+        DATA_BINDING_ALREADY_EXISTS("Invalid second parameter. If the first parameter is of type anydata, " +
+                "a second parameter is not allowed.", "NATS111"),
         INVALID_FUNCTION_PARAM_ERROR("Invalid method parameter. Only nats:Error is allowed.",
                 "NATS_112"),
         ONLY_PARAMS_ALLOWED("Invalid method parameter count. Only nats:Message and/or anydata is allowed.",
