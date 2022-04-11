@@ -78,7 +78,8 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, byte[] data) returns json? {
+    remote function onRequest(nats:Message message, byte[] data) returns string? {
+        return ();
     }
 
     remote function onError(nats:Message message, nats:Error err) {
@@ -91,6 +92,7 @@ service nats:Service on subscription {
 service nats:Service on subscription {
 
     remote function onRequest(readonly & nats:Message message, anydata data) returns xml|error? {
+        return ();
     }
 
     remote function onError(nats:Message message, nats:Error err) {
@@ -115,6 +117,7 @@ service nats:Service on subscription {
 service nats:Service on subscription {
 
     remote function onRequest(readonly & nats:Message message, boolean data) returns boolean? {
+        return false;
     }
 
     remote function onError(nats:Message message, nats:Error err) {
@@ -131,7 +134,8 @@ public type Employee record {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, Employee employee) returns Employee? {
+    remote function onRequest(nats:Message message, Employee employee) returns anydata? {
+        return ();
     }
 
     remote function onError(nats:Message message, nats:Error err) {
@@ -167,7 +171,8 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, int[] data) returns string[]? {
+    remote function onRequest(nats:Message message, int[] data) returns string|error? {
+        return ();
     }
 
     remote function onError(nats:Message message, nats:Error err) {
@@ -192,7 +197,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, json[] data) return error? {
+    remote function onRequest(readonly & nats:Message message, json[] data) returns error? {
     }
 
     remote function onError(nats:Message message, nats:Error err) returns nats:Error? {
@@ -204,7 +209,8 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, readonly & xml[] data) returns Employee[]|error? {
+    remote function onRequest(readonly & nats:Message message, readonly & xml[] data) returns int|error? {
+        return ();
     }
 
     remote function onError(nats:Message message, nats:Error err) {
