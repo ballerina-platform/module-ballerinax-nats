@@ -118,6 +118,17 @@ public type Message record {|
     string replyTo?;
 |};
 
+# Represents the anydata message, which a NATS server sends to its subscribed services.
+#
+# + content - The message content, which can of type anydata
+# + replyTo - The `replyTo` subject of the message
+# + subject - The subject to which the message was sent to
+public type AnydataMessage record {|
+    anydata content;
+    string subject;
+    string replyTo?;
+|};
+
 # The configurations for the NATS basic subscription.
 #
 # + subject - Name of the subject
