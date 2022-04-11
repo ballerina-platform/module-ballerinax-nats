@@ -52,11 +52,11 @@ public class PluginConstants {
         INVALID_FUNCTION("Resource functions are not allowed.", "NATS_107"),
         INVALID_FUNCTION_PARAM_MESSAGE("Invalid method parameter. Only nats:Message or anydata is allowed.",
                 "NATS_108"),
-        INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA("Invalid method parameter. Only nats:Message or anydata is allowed.",
+        INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA("Invalid first method parameter. Only nats:Message or anydata is allowed.",
                 "NATS_109"),
-        INVALID_FUNCTION_PARAM_ANYDATA("Invalid method parameter. Only anydata is allowed.",
+        INVALID_FUNCTION_PARAM_ANYDATA("Invalid second method parameter. Only anydata is allowed.",
                 "NATS_110"),
-        DATA_BINDING_ALREADY_EXISTS("Invalid second parameter. If the first parameter is of type anydata, " +
+        DATA_BINDING_ALREADY_EXISTS("Invalid second method parameter. If the first parameter is of type anydata, " +
                 "a second parameter is not allowed.", "NATS111"),
         INVALID_FUNCTION_PARAM_ERROR("Invalid method parameter. Only nats:Error is allowed.",
                 "NATS_112"),
