@@ -41,7 +41,7 @@ import io.nats.client.Connection;
  */
 public class Publish {
 
-    public static Object publishMessage(Environment environment, BObject clientObject,
+    public static Object publish(Environment environment, BObject clientObject,
                                         BMap<BString, Object> message) {
         String subject = message.getStringValue(StringUtils.fromString("subject")).getValue();
         BArray data = message.getArrayValue(StringUtils.fromString("content"));

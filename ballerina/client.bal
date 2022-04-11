@@ -37,10 +37,25 @@ public isolated client class Client {
     #
     # + message - The message to be published
     # + return -  `()` or else a `nats:Error` if an error occurred
-    isolated remote function publishMessage(AnydataMessage message) returns Error? =
-    @java:Method {
-        'class: "io.ballerina.stdlib.nats.basic.client.Publish"
-    } external;
+    isolated remote function publishMessage(AnydataMessage message) returns Error? {
+        byte[] messageContent;
+        anydata anydataContent = message.content;
+        if anydataContent is byte[] {
+            messageContent = anydataContent;
+        } else if anydataContent is xml {
+            messageContent = anydataContent.toString().toBytes();
+        } else if anydataContent is string {
+            messageContent = anydataContent.toBytes();
+        } else {
+            messageContent = anydataContent.toJsonString().toBytes();
+        }
+        string? replyToValue = message.replyTo;
+        if replyToValue is () {
+                return publish(self, { content: messageContent, subject: message.subject });
+        } else {
+            return publish(self, { content: messageContent, subject: message.subject, replyTo: replyToValue });
+        }
+    }
 
     # Publishes data to a given subject and waits for a response.
     # ```ballerina
@@ -71,4 +86,9 @@ public isolated client class Client {
 isolated function clientInit(Client clientObj, string|string[] url, *ConnectionConfiguration config) returns Error? =
 @java:Method {
     'class: "io.ballerina.stdlib.nats.basic.client.Init"
+} external;
+
+isolated function publish(Client clientObj, Message message) returns Error? =
+@java:Method {
+    'class: "io.ballerina.stdlib.nats.basic.client.Publish"
 } external;
