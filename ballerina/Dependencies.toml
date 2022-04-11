@@ -20,6 +20,16 @@ modules = [
 
 [[package]]
 org = "ballerina"
+name = "io"
+version = "1.2.1"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.value"}
+]
+
+[[package]]
+org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
 modules = [
@@ -28,10 +38,70 @@ modules = [
 
 [[package]]
 org = "ballerina"
+name = "lang.runtime"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+modules = [
+	{org = "ballerina", packageName = "lang.runtime", moduleName = "lang.runtime"}
+]
+
+[[package]]
+org = "ballerina"
+name = "lang.string"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+modules = [
+	{org = "ballerina", packageName = "lang.string", moduleName = "lang.string"}
+]
+
+[[package]]
+org = "ballerina"
+name = "lang.value"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
+name = "log"
+version = "2.2.1"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "io"},
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.value"},
+	{org = "ballerina", name = "observe"}
+]
+modules = [
+	{org = "ballerina", packageName = "log", moduleName = "log"}
+]
+
+[[package]]
+org = "ballerina"
 name = "observe"
 version = "1.0.3"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
+name = "test"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+modules = [
+	{org = "ballerina", packageName = "test", moduleName = "test"}
 ]
 
 [[package]]
@@ -61,6 +131,10 @@ version = "2.2.2"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.runtime"},
+	{org = "ballerina", name = "lang.string"},
+	{org = "ballerina", name = "log"},
+	{org = "ballerina", name = "test"},
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
