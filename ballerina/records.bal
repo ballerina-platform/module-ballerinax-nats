@@ -129,6 +129,14 @@ public type AnydataMessage record {|
     string replyTo?;
 |};
 
+# Represents the subtype of `AnydataMessage` record where the message content is a byte array.
+#
+# + content - Message content in bytes
+public type BytesMessage record {|
+    *AnydataMessage;
+    byte[] content;
+|};
+
 # The configurations for the NATS basic subscription.
 #
 # + subject - Name of the subject

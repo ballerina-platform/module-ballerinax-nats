@@ -56,7 +56,7 @@ public class Request {
     public static Object requestMessage(Environment environment, BObject clientObj, BMap<BString, Object> message,
                                        Object duration) {
         String subject = message.getStringValue(StringUtils.fromString("subject")).getValue();
-        BArray data = message.getArrayValue(StringUtils.fromString("content"));
+        Object data = message.get(StringUtils.fromString("content"));
         NatsTracingUtil.traceResourceInvocation(environment, clientObj, subject);
         Connection natsConnection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =

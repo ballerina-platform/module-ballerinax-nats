@@ -65,8 +65,7 @@ public isolated client class Client {
     # + message - The message to be published
     # + duration - The time (in seconds) to wait for the response
     # + return -  The response or else a `nats:Error` if an error occurred
-    isolated remote function requestMessage(Message message, decimal? duration = ())
-            returns Message|Error =
+    isolated remote function requestMessage(AnydataMessage message, decimal? duration = ()) returns Message|Error =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.basic.client.Request"
     } external;
