@@ -101,6 +101,17 @@ public class Utils {
         return recordType;
     }
 
+    public static RecordType getRecordType(Type type) {
+        RecordType recordType;
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            recordType = (RecordType)
+                    ((IntersectionType) (type)).getConstituentTypes().get(0);
+        } else {
+            recordType = (RecordType) type;
+        }
+        return recordType;
+    }
+
     public static Object getValueWithIntendedType(Type type, byte[] value) {
         String strValue = new String(value, StandardCharsets.UTF_8);
         try {

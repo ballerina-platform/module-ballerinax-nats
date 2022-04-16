@@ -64,6 +64,7 @@ public isolated client class Client {
     #
     # + message - The message to be published
     # + duration - The time (in seconds) to wait for the response
+    # + T - Type of AnydataMessage to be returned
     # + return -  The response or else a `nats:Error` if an error occurred
     isolated remote function requestMessage(AnydataMessage message, decimal? duration = (),
         typedesc<AnydataMessage> T = <>) returns T|Error =
