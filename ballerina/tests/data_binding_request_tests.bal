@@ -14,12 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'string as strings;
 import ballerina/lang.runtime as runtime;
 import ballerina/test;
 import ballerina/log;
 
 const DATA_BINDING_REQUEST_SUBJECT = "bind.request";
 string receivedStringValueRequest = "";
+string receivedBytesValueRequest = "";
 
 @test:Config {
     dependsOn: [testProducer],
@@ -71,5 +73,70 @@ service object {
         receivedStringValueRequest = msg.content;
         log:printInfo("Message Received: " + receivedStringValueRequest);
         return "consumerServiceStringRequest received message";
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingStringRequest],
+    groups: ["nats-basic"]
+}
+public function testDataBindingBytesRequest() {
+    string messageToReceive = "consumerServiceBytesRequest received message";
+    string messageToSend = "Testing Consumer Service With Bytes Data Binding.";
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceBytesRequest);
+            checkpanic sub.'start();
+            BytesMessage dataBoundMessage = 
+                checkpanic newClient->requestMessage({ content: messageToSend.toBytes(), subject: DATA_BINDING_REQUEST_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedBytesValueRequest !is "" {
+                    string receivedMessage = receivedBytesValueRequest;
+                    test:assertEquals(receivedMessage, messageToSend, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            byte[] messageContent = <@untainted> dataBoundMessage.content;
+            string|error message = 'strings:fromBytes(messageContent);
+            if (message is string) {
+                test:assertEquals(message, messageToReceive, msg = "Message received does not match.");
+            } else {
+                test:assertFail("Failed to convert message to string from byte message.");
+            }
+
+            checkpanic sub.detach(consumerServiceBytesRequest);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceBytesRequest =
+@ServiceConfig {
+    subject: DATA_BINDING_REQUEST_SUBJECT
+}
+service object {
+    remote function onRequest(BytesMessage msg) returns anydata {
+        byte[] messageContent = <@untainted> msg.content;
+        string|error message = 'strings:fromBytes(messageContent);
+        if message is string {
+            receivedBytesValueRequest = message;
+            log:printInfo("Message Received: " + message);
+            return "consumerServiceBytesRequest received message";
+        } else {
+            return "error";
+        }
     }
 };
