@@ -74,8 +74,13 @@ public class Utils {
     public static byte[] convertDataIntoByteArray(Object data) {
         Type dataType = TypeUtils.getType(data);
         int typeTag = dataType.getTag();
-        if (typeTag == org.wso2.ballerinalang.compiler.util.TypeTags.STRING) {
+        if (typeTag == STRING_TAG) {
             return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
+        } else if (typeTag == TypeTags.XML_ELEMENT_TAG || typeTag == XML_TAG || typeTag == TypeTags.MAP_TAG ||
+                typeTag == TypeTags.JSON_TAG || typeTag == TypeTags.TABLE_TAG || typeTag == RECORD_TYPE_TAG ||
+                typeTag == TypeTags.INT_TAG || typeTag == TypeTags.DECIMAL_TAG || typeTag == TypeTags.FLOAT_TAG ||
+                typeTag == TypeTags.BOOLEAN_TAG) {
+            return data.toString().getBytes(StandardCharsets.UTF_8);
         } else {
             return ((BArray) data).getBytes();
         }
