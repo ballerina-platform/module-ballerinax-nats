@@ -23,6 +23,14 @@ const DATA_BINDING_PUBLISH_SUBJECT = "bind.publish";
 string receivedStringValuePublish = "";
 string receivedBytesValuePublish = "";
 string receivedXmlValuePublish = "";
+json? receivedJsonValuePublish = ();
+int receivedIntValuePublish = 0;
+float receivedFloatValuePublish = 0.0;
+decimal receivedDecimalValuePublish = 0d;
+boolean receivedBooleanValuePublish = false;
+Person? receivedPersonValuePublish = ();
+map<Person>? receivedMapValuePublish = ();
+table<Person>? receivedTableValuePublish = ();
 
 @test:Config {
     dependsOn: [testProducer],
@@ -172,5 +180,388 @@ service object {
             receivedXmlValuePublish = message;
             log:printInfo("Message Received: " + message);
         }
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingXmlPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingJsonPublish() {
+    json messageToSend = jsonData;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceJsonPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedJsonValuePublish !is () {
+                    json receivedMessage = receivedJsonValuePublish;
+                    test:assertEquals(receivedMessage, messageToSend, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceJsonPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceJsonPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(JsonMessage msg) {
+        receivedJsonValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toJsonString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingJsonPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingIntPublish() {
+    int messageToSend = 521;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceIntPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedIntValuePublish !is 0 {
+                    int receivedMessage = receivedIntValuePublish;
+                    test:assertEquals(receivedMessage, messageToSend, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceIntPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceIntPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(IntMessage msg) {
+        receivedIntValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingIntPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingFloatPublish() {
+    float messageToSend = 1995.52;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceFloatPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedFloatValuePublish !is 0.0 {
+                    float receivedMessage = receivedFloatValuePublish;
+                    test:assertEquals(receivedMessage, messageToSend, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceFloatPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceFloatPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(FloatMessage msg) {
+        receivedFloatValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingFloatPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingDecimalPublish() {
+    decimal messageToSend = 1995.52d;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceDecimalPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedDecimalValuePublish !is 0d {
+                    decimal receivedMessage = receivedDecimalValuePublish;
+                    test:assertEquals(receivedMessage, messageToSend, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceDecimalPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceDecimalPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(DecimalMessage msg) {
+        receivedDecimalValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingDecimalPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingBooleanPublish() {
+    boolean messageToSend = true;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceBooleanPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedBooleanValuePublish !is false {
+                    test:assertTrue(receivedBooleanValuePublish, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceBooleanPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceBooleanPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(BooleanMessage msg) {
+        receivedBooleanValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingBooleanPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingPersonPublish() {
+    Person messageToSend = personRecord1;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServicePersonPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if (receivedPersonValuePublish is Person) {
+                    test:assertEquals(receivedPersonValuePublish.toJsonString(), messageToSend.toJsonString(), msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServicePersonPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServicePersonPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(PersonMessage msg) {
+        receivedPersonValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toJsonString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingPersonPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingMapPublish() {
+    map<Person> messageToSend = personMap;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceMapPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if (receivedMapValuePublish is map<Person>) {
+                    test:assertEquals(receivedMapValuePublish.toJsonString(), messageToSend.toJsonString(), msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceMapPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceMapPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(MapMessage msg) {
+        receivedMapValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toJsonString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingMapPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingTablePublish() {
+    table<Person> messageToSend = table [];
+    messageToSend.add(personRecord1);
+    messageToSend.add(personRecord2);
+    messageToSend.add(personRecord3);
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceTablePublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if (receivedTableValuePublish is table<Person>) {
+                    test:assertEquals(receivedTableValuePublish.toJsonString(), messageToSend.toJsonString(), msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceTablePublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceTablePublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(TableMessage msg) {
+        receivedTableValuePublish = msg.content;
+        log:printInfo("Message Received: " + msg.content.toJsonString());
     }
 };

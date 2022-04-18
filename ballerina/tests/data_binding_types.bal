@@ -56,7 +56,7 @@ public type PersonMessage record {|
 |};
 
 public type MapMessage record {|
-    map<PersonMessage> content;
+    map<Person> content;
     string subject;
     string replyTo?;
 |};

@@ -143,6 +143,7 @@ service object {
 };
 
 @test:Config {
+    enable: false,
     dependsOn: [testDataBindingBytesRequest],
     groups: ["nats-basic"]
 }
