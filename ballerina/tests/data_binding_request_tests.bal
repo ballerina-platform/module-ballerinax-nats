@@ -22,6 +22,7 @@ import ballerina/log;
 const DATA_BINDING_REQUEST_SUBJECT = "bind.request";
 string receivedStringValueRequest = "";
 string receivedBytesValueRequest = "";
+string receivedXmlValueRequest = "";
 
 @test:Config {
     dependsOn: [testProducer],
@@ -138,5 +139,60 @@ service object {
         } else {
             return "error";
         }
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingBytesRequest],
+    groups: ["nats-basic"]
+}
+public function testDataBindingXmlRequest() {
+    xml messageToReceive = xml `<start><Person><name>wso2</name><location>col-03</location></Person><Person><name>wso2</name><location>col-03</location></Person></start>`;
+    xml messageToSend = xml `<start><Person><name>wso2</name><location>col-03</location></Person><Person><name>wso2</name><location>col-03</location></Person></start>`;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceXmlRequest);
+            checkpanic sub.'start();
+            XmlMessage dataBoundMessage =
+                checkpanic newClient->requestMessage({ content: messageToSend, subject: DATA_BINDING_REQUEST_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedXmlValueRequest !is "" {
+                    string receivedMessage = receivedXmlValueRequest;
+                    test:assertEquals(receivedMessage, messageToSend.toString(), msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            test:assertEquals(dataBoundMessage.content.toString(), messageToReceive, msg = "Message received does not match.");
+            checkpanic sub.detach(consumerServiceXmlRequest);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceXmlRequest =
+@ServiceConfig {
+    subject: DATA_BINDING_REQUEST_SUBJECT
+}
+service object {
+    remote function onRequest(XmlMessage msg) returns anydata {
+        string|error message = msg.content.toString();
+        if message is string {
+            receivedXmlValueRequest = message;
+            log:printInfo("Message Received: " + message);
+        }
+        return xml `<start><Person><name>wso2</name><location>col-03</location></Person><Person><name>wso2</name><location>col-03</location></Person></start>`;
     }
 };

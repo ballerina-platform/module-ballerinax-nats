@@ -22,6 +22,7 @@ import ballerina/log;
 const DATA_BINDING_PUBLISH_SUBJECT = "bind.publish";
 string receivedStringValuePublish = "";
 string receivedBytesValuePublish = "";
+string receivedXmlValuePublish = "";
 
 @test:Config {
     dependsOn: [testProducer],
@@ -118,6 +119,57 @@ service object {
         string|error message = 'strings:fromBytes(messageContent);
         if message is string {
             receivedBytesValuePublish = message;
+            log:printInfo("Message Received: " + message);
+        }
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingBytesPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingXmlPublish() {
+    xml messageToSend = xml `<start><Person><name>wso2</name><location>col-03</location></Person><Person><name>wso2</name><location>col-03</location></Person></start>`;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceXmlPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedXmlValuePublish !is "" {
+                    string receivedMessage = receivedXmlValuePublish;
+                    test:assertEquals(receivedMessage, messageToSend.toString(), msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceXmlPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceXmlPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(XmlMessage msg) {
+        string|error message = msg.content.toString();
+        if message is string {
+            receivedXmlValuePublish = message;
             log:printInfo("Message Received: " + message);
         }
     }

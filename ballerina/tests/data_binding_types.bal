@@ -73,6 +73,12 @@ public type JsonMessage record {|
     string replyTo?;
 |};
 
+public type TableMessage record {|
+    table<Person> content;
+    string subject;
+    string replyTo?;
+|};
+
 // BytesMessage -- Already defined in module
 
 Person personRecord1 = {
