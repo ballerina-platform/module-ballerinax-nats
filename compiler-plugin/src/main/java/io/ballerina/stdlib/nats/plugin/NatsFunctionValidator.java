@@ -135,18 +135,12 @@ public class NatsFunctionValidator {
         if (parameters.size() == 0) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.MUST_HAVE_MESSAGE_OR_ANYDATA,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
-        }
-
-        if (parameters.size() == 1) {
+        } else if (parameters.size() == 1) {
             validateFirstParam(parameters.get(0));
-        }
-
-        if (parameters.size() == 2) {
+        } else if (parameters.size() == 2) {
             validateFirstParam(parameters.get(0));
             validateSecondParam(parameters.get(1));
-        }
-
-        if (parameters.size() > 2) {
+        } else if (parameters.size() > 2) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.ONLY_PARAMS_ALLOWED,
                     DiagnosticSeverity.ERROR, functionDefinitionNode.functionSignature().location()));
         }

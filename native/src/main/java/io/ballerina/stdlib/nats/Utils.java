@@ -71,10 +71,11 @@ public class Utils {
                 null, null);
     }
 
-    public static byte[] convertDataIntoByteArray(Object data) {
-        Type dataType = TypeUtils.getType(data);
+    public static byte[] convertDataIntoByteArray(Object data, Type dataType) {
         int typeTag = dataType.getTag();
-        if (typeTag == STRING_TAG) {
+        if (typeTag == ARRAY_TAG) {
+            return convertDataIntoByteArray(data, ((BArray) data).getElementType());
+        } else if (typeTag == STRING_TAG) {
             return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
         } else if (typeTag == TypeTags.XML_ELEMENT_TAG || typeTag == XML_TAG || typeTag == TypeTags.MAP_TAG ||
                 typeTag == TypeTags.JSON_TAG || typeTag == TypeTags.TABLE_TAG || typeTag == RECORD_TYPE_TAG ||
@@ -107,14 +108,10 @@ public class Utils {
     }
 
     public static RecordType getRecordType(Type type) {
-        RecordType recordType;
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            recordType = (RecordType)
-                    ((IntersectionType) (type)).getConstituentTypes().get(0);
-        } else {
-            recordType = (RecordType) type;
+            return (RecordType) ((IntersectionType) (type)).getConstituentTypes().get(0);
         }
-        return recordType;
+        return (RecordType) type;
     }
 
     public static Object getValueWithIntendedType(Type type, byte[] value) {

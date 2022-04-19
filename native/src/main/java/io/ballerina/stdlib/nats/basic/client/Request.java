@@ -65,7 +65,7 @@ public class Request {
         Connection natsConnection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL);
-        byte[] byteContent = convertDataIntoByteArray(data);
+        byte[] byteContent = convertDataIntoByteArray(data, TypeUtils.getType(data));
         try {
             Message reply;
             Future<Message> incoming = natsConnection.request(subject, byteContent);

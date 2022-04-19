@@ -112,6 +112,7 @@ public type RetryConfig record {|
 # + content - The message content
 # + replyTo - The `replyTo` subject of the message
 # + subject - The subject to which the message was sent to
+@deprecated
 public type Message record {|
     byte[] content;
     string subject;
