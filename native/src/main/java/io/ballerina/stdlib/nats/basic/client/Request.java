@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -94,7 +95,8 @@ public class Request {
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Request to subject " + subject +
                                                  " timed out while waiting for a reply");
-        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException ex) {
+        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException
+                | BError ex) {
             natsMetricsReporter.reportProducerError(subject,
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Error while requesting message to " +

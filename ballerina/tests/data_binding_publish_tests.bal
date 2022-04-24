@@ -31,6 +31,8 @@ boolean receivedBooleanValuePublish = false;
 Person? receivedPersonValuePublish = ();
 map<Person>? receivedMapValuePublish = ();
 table<Person>? receivedTableValuePublish = ();
+boolean onErrorReceived = false;
+string onErrorMessage = "";
 
 @test:Config {
     dependsOn: [testProducer],
@@ -563,5 +565,58 @@ service object {
     remote function onMessage(TableMessage msg) {
         receivedTableValuePublish = msg.content;
         log:printInfo("Message Received: " + msg.content.toJsonString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingTablePublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindingPublishError() {
+    json messageToSend = jsonData;
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServicePublishError);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: messageToSend, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if (onErrorReceived) {
+                    string errorMessage = "Data binding failed: failed to parse xml:";
+                    test:assertTrue(onErrorMessage.startsWith(errorMessage), msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServicePublishError);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServicePublishError =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(XmlMessage msg) {
+    }
+
+    remote function onError(Message message, Error err) {
+        log:printInfo("Error Received: " + err.message());
+        onErrorReceived = true;
+        onErrorMessage = err.message();
+
     }
 };

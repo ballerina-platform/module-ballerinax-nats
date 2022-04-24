@@ -114,7 +114,7 @@ public class Utils {
         return (RecordType) type;
     }
 
-    public static Object getValueWithIntendedType(Type type, byte[] value) {
+    public static Object getValueWithIntendedType(Type type, byte[] value) throws BError {
         String strValue = new String(value, StandardCharsets.UTF_8);
         try {
             switch (type.getTag()) {
