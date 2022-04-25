@@ -24,10 +24,13 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -98,12 +101,14 @@ public class DefaultMessageHandler implements MessageHandler {
     /**
      * Dispatch only the message to the onMessage resource.
      */
-    private void dispatchOnRequest(String subject, String replyTo, byte[] data) throws InterruptedException {
+    private void dispatchOnRequest(String subject, String replyTo, byte[] data)
+            throws InterruptedException {
         MethodType methodType = getAttachedFunctionType(this.serviceObject, Constants.ON_REQUEST_RESOURCE);
         Parameter[] parameters = methodType.getParameters();
+        RecordType recordType = Utils.getRecordType(parameters[0].type);
         int messageType = parameters[0].type.getTag();
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executeOnRequestResource(countDownLatch, messageType, subject, replyTo, data);
+        executeOnRequestResource(countDownLatch, messageType, subject, replyTo, data, recordType);
         countDownLatch.await();
     }
 
@@ -113,9 +118,10 @@ public class DefaultMessageHandler implements MessageHandler {
     private void dispatchOnMessage(String subject, String replyTo, byte[] data) throws InterruptedException {
         MethodType methodType = getAttachedFunctionType(this.serviceObject, Constants.ON_MESSAGE_RESOURCE);
         Parameter[] parameters = methodType.getParameters();
+        RecordType recordType = Utils.getRecordType(parameters[0].type);
         int messageType = parameters[0].type.getTag();
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        executeOnMessageResource(countDownLatch, messageType, subject, replyTo, data);
+        executeOnMessageResource(countDownLatch, messageType, subject, replyTo, data, recordType);
         countDownLatch.await();
     }
 
@@ -132,31 +138,57 @@ public class DefaultMessageHandler implements MessageHandler {
     }
 
     private void executeOnRequestResource(CountDownLatch countDownLatch, int tag,
-                                          String subject, String replyTo, byte[] data) {
-        BMap<BString, Object> msgObj = null;
+                                          String subject, String replyTo, byte[] data, RecordType recordType) {
+        BMap<BString, Object> msgObj;
         BArray msgData = ValueCreator.createArrayValue(data);
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(Constants.MESSAGE_CONTENT, msgData);
         valueMap.put(Constants.MESSAGE_SUBJECT, StringUtils.fromString(subject));
         valueMap.put(Constants.MESSAGE_REPLY_TO, StringUtils.fromString(replyTo));
-
-        if (tag == TypeTags.INTERSECTION_TAG) {
-            msgObj = ValueCreator.createReadonlyRecordValue(Utils.getModule(),
+        try {
+            if (tag == TypeTags.INTERSECTION_TAG) {
+                msgObj = ValueCreator.createReadonlyRecordValue(Utils.getModule(),
                         Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
-        } else {
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(),
-                    Constants.NATS_MESSAGE_OBJ_NAME);
-            msgObj = ValueCreator.createRecordValue(msgRecord, msgData, StringUtils.fromString(subject),
-                    StringUtils.fromString(replyTo));
+            } else {
+                BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(recordType);
+                Map<String, Field> fieldMap = recordType.getFields();
+                Type contentType = fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType();
+                Object msg = Utils.getValueWithIntendedType(contentType, data);
+                msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
+                        StringUtils.fromString(replyTo));
+            }
+            StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
+                    Utils.getModule().getVersion(), Constants.ON_REQUEST_RESOURCE);
+            executeResource(msgObj, Constants.ON_REQUEST_RESOURCE, new ResponseCallback(countDownLatch, subject,
+                    natsMetricsReporter, replyTo, this.natsConnection), metadata, PredefinedTypes.TYPE_ANYDATA);
+        } catch (BError bError) {
+            if (getAttachedFunctionType(serviceObject, Constants.ON_ERROR_RESOURCE) != null) {
+                executeOnErrorResource(countDownLatch, subject, replyTo, data, bError);
+            }
         }
+    }
+
+    private void executeOnErrorResource(CountDownLatch countDownLatch, String subject, String replyTo, byte[] data,
+                                        BError bError) {
+        BMap<BString, Object> msgObj;
+        BArray msgData = ValueCreator.createArrayValue(data);
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put(Constants.MESSAGE_CONTENT, msgData);
+        valueMap.put(Constants.MESSAGE_SUBJECT, StringUtils.fromString(subject));
+        if (replyTo != null) {
+            valueMap.put(Constants.MESSAGE_REPLY_TO, StringUtils.fromString(replyTo));
+        }
+        msgObj = ValueCreator.createReadonlyRecordValue(Utils.getModule(),
+                Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
-                                                     Utils.getModule().getVersion(), Constants.ON_REQUEST_RESOURCE);
-        executeResource(msgObj, Constants.ON_REQUEST_RESOURCE, new ResponseCallback(countDownLatch, subject,
-                natsMetricsReporter, replyTo, this.natsConnection), metadata, PredefinedTypes.TYPE_ANYDATA);
+                Utils.getModule().getVersion(), Constants.ON_ERROR_RESOURCE);
+        runtime.invokeMethodAsyncSequentially(serviceObject, Constants.ON_ERROR_RESOURCE, null, metadata,
+                new ResponseCallback(countDownLatch, subject, natsMetricsReporter), null,
+                PredefinedTypes.TYPE_NULL, msgObj, true, bError, true);
     }
 
     private void executeOnMessageResource(CountDownLatch countDownLatch, int tag,
-                                          String subject, String replyTo, byte[] data) {
+                                          String subject, String replyTo, byte[] data, RecordType recordType) {
         BMap<BString, Object> msgObj;
         BArray msgData = ValueCreator.createArrayValue(data);
         Map<String, Object> valueMap = new HashMap<>();
@@ -166,19 +198,27 @@ public class DefaultMessageHandler implements MessageHandler {
             valueMap.put(Constants.MESSAGE_REPLY_TO, StringUtils.fromString(replyTo));
         }
 
-        if (tag == TypeTags.INTERSECTION_TAG) {
-            msgObj = ValueCreator.createReadonlyRecordValue(Utils.getModule(),
-                    Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
-        } else {
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(),
-                    Constants.NATS_MESSAGE_OBJ_NAME);
-            msgObj = ValueCreator.createRecordValue(msgRecord, msgData, StringUtils.fromString(subject),
-                    StringUtils.fromString(replyTo));
+        try {
+            if (tag == TypeTags.INTERSECTION_TAG) {
+                msgObj = ValueCreator.createReadonlyRecordValue(Utils.getModule(),
+                        Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
+            } else {
+                BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(recordType);
+                Map<String, Field> fieldMap = recordType.getFields();
+                Type contentType = fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType();
+                Object msg = Utils.getValueWithIntendedType(contentType, data);
+                msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
+                        StringUtils.fromString(replyTo));
+            }
+            StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
+                    Utils.getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
+            executeResource(msgObj, Constants.ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch, subject,
+                    natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL);
+        } catch (BError bError) {
+            if (getAttachedFunctionType(serviceObject, Constants.ON_ERROR_RESOURCE) != null) {
+                executeOnErrorResource(countDownLatch, subject, replyTo, data, bError);
+            }
         }
-        StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
-                                                     Utils.getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
-        executeResource(msgObj, Constants.ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch, subject,
-                        natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL);
     }
 
     private void executeResource(BMap<BString, Object>  msgObj, String function, Callback callback,
@@ -242,7 +282,7 @@ public class DefaultMessageHandler implements MessageHandler {
             if (obj instanceof BError) {
                 ((BError) obj).printStackTrace();
             } else if (replyTo != null) {
-                natsConnection.publish(replyTo, Utils.convertDataIntoByteArray(obj));
+                natsConnection.publish(replyTo, Utils.convertDataIntoByteArray(obj, TypeUtils.getType(obj)));
             }
             natsMetricsReporter.reportDelivery(subject);
             countDownLatch.countDown();

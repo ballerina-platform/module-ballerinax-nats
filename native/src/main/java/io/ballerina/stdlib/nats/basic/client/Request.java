@@ -21,13 +21,17 @@ package io.ballerina.stdlib.nats.basic.client;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.nats.Constants;
 import io.ballerina.stdlib.nats.Utils;
 import io.ballerina.stdlib.nats.observability.NatsMetricsReporter;
@@ -37,6 +41,7 @@ import io.nats.client.Connection;
 import io.nats.client.Message;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -54,14 +59,14 @@ public class Request {
     
     @SuppressWarnings("unused")
     public static Object requestMessage(Environment environment, BObject clientObj, BMap<BString, Object> message,
-                                       Object duration) {
-        String subject = message.getStringValue(StringUtils.fromString("subject")).getValue();
-        BArray data = message.getArrayValue(StringUtils.fromString("content"));
+                                       Object duration, BTypedesc bTypedesc) {
+        String subject = message.getStringValue(StringUtils.fromString(Constants.MESSAGE_SUBJECT)).getValue();
+        Object data = message.get(StringUtils.fromString(Constants.MESSAGE_CONTENT));
         NatsTracingUtil.traceResourceInvocation(environment, clientObj, subject);
         Connection natsConnection = (Connection) clientObj.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL);
-        byte[] byteContent = convertDataIntoByteArray(data);
+        byte[] byteContent = convertDataIntoByteArray(data, TypeUtils.getType(data));
         try {
             Message reply;
             Future<Message> incoming = natsConnection.request(subject, byteContent);
@@ -73,12 +78,16 @@ public class Request {
             } else {
                 reply = incoming.get();
             }
-            BArray msgData = ValueCreator.createArrayValue(reply.getData());
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(),
-                                                                             Constants.NATS_MESSAGE_OBJ_NAME);
-            BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord, msgData,
-                                                                   StringUtils.fromString(reply.getSubject()),
-                                                                   StringUtils.fromString(reply.getReplyTo()));
+            RecordType recordType = Utils.getRecordType(bTypedesc);
+
+            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(recordType);
+            Map<String, Field> fieldMap = recordType.getFields();
+            Type contentType = fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType();
+
+            BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord,
+                    Utils.getValueWithIntendedType(contentType, reply.getData()),
+                    StringUtils.fromString(reply.getSubject()),
+                    StringUtils.fromString(reply.getReplyTo()));
             natsMetricsReporter.reportResponse(subject);
             return populatedRecord;
         } catch (TimeoutException ex) {
@@ -86,7 +95,8 @@ public class Request {
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Request to subject " + subject +
                                                  " timed out while waiting for a reply");
-        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException ex) {
+        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException
+                | BError ex) {
             natsMetricsReporter.reportProducerError(subject,
                                                     NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Error while requesting message to " +

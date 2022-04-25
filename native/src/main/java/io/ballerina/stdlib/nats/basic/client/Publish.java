@@ -41,11 +41,11 @@ import io.nats.client.Connection;
  */
 public class Publish {
 
-    public static Object publishMessage(Environment environment, BObject clientObject,
+    public static Object publish(Environment environment, BObject clientObject,
                                         BMap<BString, Object> message) {
-        String subject = message.getStringValue(StringUtils.fromString("subject")).getValue();
-        BArray data = message.getArrayValue(StringUtils.fromString("content"));
-        Object replyTo = message.get(StringUtils.fromString("replyTo"));
+        String subject = message.getStringValue(StringUtils.fromString(Constants.MESSAGE_SUBJECT)).getValue();
+        BArray data = message.getArrayValue(StringUtils.fromString(Constants.MESSAGE_CONTENT));
+        Object replyTo = message.get(StringUtils.fromString(Constants.MESSAGE_REPLY_TO));
         NatsTracingUtil.traceResourceInvocation(environment, clientObject, subject);
         Connection natsConnection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
         NatsMetricsReporter natsMetricsReporter =

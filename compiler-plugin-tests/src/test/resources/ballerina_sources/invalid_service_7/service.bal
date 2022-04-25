@@ -26,12 +26,3 @@ service nats:Service on subscription {
     remote function onMessage(nats:Client clientObj) {
     }
 }
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onMessage(string msg) {
-    }
-}

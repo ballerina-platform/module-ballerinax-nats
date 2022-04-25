@@ -16,6 +16,7 @@
 
 import ballerinax/nats;
 
+// two data binding parameters
 listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
 @nats:ServiceConfig {
@@ -23,6 +24,33 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onMessage(readonly & nats:Client message) {
+    remote function onRequest(string data, xml message) returns error? {
+    }
+
+    remote function onError(nats:Message message, nats:Error err) returns error? {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onRequest(json[] data, int message) returns error? {
+    }
+
+    remote function onError(nats:Message message, nats:Error err) returns error? {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onRequest(readonly & byte[] data, int message) returns error? {
+    }
+
+    remote function onError(nats:Message message, nats:Error err) returns error? {
     }
 }

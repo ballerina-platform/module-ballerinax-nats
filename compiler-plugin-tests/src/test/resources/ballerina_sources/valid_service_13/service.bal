@@ -23,6 +23,21 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Client clientObj) {
+    remote function onMessage(nats:AnydataMessage message) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onRequest(nats:AnydataMessage message) {
+    }
+}
+
+service "hello" on subscription {
+
+    remote function onRequest(nats:AnydataMessage message) {
     }
 }

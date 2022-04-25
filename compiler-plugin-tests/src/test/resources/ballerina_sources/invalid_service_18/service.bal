@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,6 +16,7 @@
 
 import ballerinax/nats;
 
+// invalid onError functions
 listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
 @nats:ServiceConfig {
@@ -23,6 +24,33 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Client clientObj) {
+    remote function onMessage(readonly & nats:Message message, string data) {
+    }
+
+    remote function onError() {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(nats:Message message, xml data) {
+    }
+
+    remote function onError(nats:Message message) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(readonly & nats:Message message, decimal[] data) {
+    }
+
+    remote function onError(error err) {
     }
 }

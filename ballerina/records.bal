@@ -112,10 +112,30 @@ public type RetryConfig record {|
 # + content - The message content
 # + replyTo - The `replyTo` subject of the message
 # + subject - The subject to which the message was sent to
+@deprecated
 public type Message record {|
     byte[] content;
     string subject;
     string replyTo?;
+|};
+
+# Represents the anydata message, which a NATS server sends to its subscribed services.
+#
+# + content - The message content, which can of type anydata
+# + replyTo - The `replyTo` subject of the message
+# + subject - The subject to which the message was sent to
+public type AnydataMessage record {|
+    anydata content;
+    string subject;
+    string replyTo?;
+|};
+
+# Represents the subtype of `AnydataMessage` record where the message content is a byte array.
+#
+# + content - Message content in bytes
+public type BytesMessage record {|
+    *AnydataMessage;
+    byte[] content;
 |};
 
 # The configurations for the NATS basic subscription.

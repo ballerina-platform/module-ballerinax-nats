@@ -22,15 +22,31 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import org.ballerinalang.langlib.value.CloneWithType;
+import org.ballerinalang.langlib.value.FromJsonWithType;
 
 import java.nio.charset.StandardCharsets;
+
+import static io.ballerina.runtime.api.TypeTags.ANYDATA_TAG;
+import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
+import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
+import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.TypeTags.XML_TAG;
 
 /**
  * Utilities for producing and consuming via NATS sever.
@@ -55,11 +71,17 @@ public class Utils {
                 null, null);
     }
 
-    public static byte[] convertDataIntoByteArray(Object data) {
-        Type dataType = TypeUtils.getType(data);
+    public static byte[] convertDataIntoByteArray(Object data, Type dataType) {
         int typeTag = dataType.getTag();
-        if (typeTag == org.wso2.ballerinalang.compiler.util.TypeTags.STRING) {
+        if (typeTag == ARRAY_TAG) {
+            return convertDataIntoByteArray(data, ((BArray) data).getElementType());
+        } else if (typeTag == STRING_TAG) {
             return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
+        } else if (typeTag == TypeTags.XML_ELEMENT_TAG || typeTag == XML_TAG || typeTag == TypeTags.MAP_TAG ||
+                typeTag == TypeTags.JSON_TAG || typeTag == TypeTags.TABLE_TAG || typeTag == RECORD_TYPE_TAG ||
+                typeTag == TypeTags.INT_TAG || typeTag == TypeTags.DECIMAL_TAG || typeTag == TypeTags.FLOAT_TAG ||
+                typeTag == TypeTags.BOOLEAN_TAG) {
+            return data.toString().getBytes(StandardCharsets.UTF_8);
         } else {
             return ((BArray) data).getBytes();
         }
@@ -72,5 +94,49 @@ public class Utils {
             annotationRecord = (BMap) annotationData;
         }
         return annotationRecord;
+    }
+
+    public static RecordType getRecordType(BTypedesc bTypedesc) {
+        RecordType recordType;
+        if (bTypedesc.getDescribingType().isReadOnly()) {
+            recordType = (RecordType)
+                    ((IntersectionType) (bTypedesc.getDescribingType())).getConstituentTypes().get(0);
+        } else {
+            recordType = (RecordType) bTypedesc.getDescribingType();
+        }
+        return recordType;
+    }
+
+    public static RecordType getRecordType(Type type) {
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return (RecordType) ((IntersectionType) (type)).getConstituentTypes().get(0);
+        }
+        return (RecordType) type;
+    }
+
+    public static Object getValueWithIntendedType(Type type, byte[] value) throws BError {
+        String strValue = new String(value, StandardCharsets.UTF_8);
+        try {
+            switch (type.getTag()) {
+                case STRING_TAG:
+                    return StringUtils.fromString(strValue);
+                case XML_TAG:
+                    return XmlUtils.parse(strValue);
+                case ANYDATA_TAG:
+                    return ValueCreator.createArrayValue(value);
+                case RECORD_TYPE_TAG:
+                    return CloneWithType.convert(type, JsonUtils.parse(strValue));
+                case ARRAY_TAG:
+                    if (((ArrayType) type).getElementType().getTag() == BYTE_TAG) {
+                        return ValueCreator.createArrayValue(value);
+                    }
+                    /*-fallthrough*/
+                default:
+                    BTypedesc typeDesc = ValueCreator.createTypedescValue(type);
+                    return FromJsonWithType.fromJsonWithType(JsonUtils.parse(strValue), typeDesc);
+            }
+        } catch (BError bError) {
+            throw createNatsError(String.format("Data binding failed: %s", bError.getMessage()));
+        }
     }
 }

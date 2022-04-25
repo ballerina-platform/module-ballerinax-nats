@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,6 +16,7 @@
 
 import ballerinax/nats;
 
+// Invalid first param
 listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
 @nats:ServiceConfig {
@@ -23,6 +24,21 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message msg, string data) {
+    remote function onRequest(nats:Client message, string data) returns error? {
+    }
+
+    remote function onError(nats:Message message, nats:Error err) returns error? {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(nats:Error err, anydata[] data) returns error? {
+    }
+
+    remote function onError(nats:Message message, nats:Error err) returns error? {
     }
 }

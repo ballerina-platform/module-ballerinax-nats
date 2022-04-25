@@ -49,6 +49,7 @@ public class Constants {
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_REQUEST_RESOURCE = "onRequest";
+    public static final String ON_ERROR_RESOURCE = "onError";
     public static final String COUNTDOWN_LATCH = "count_down_latch";
     public static final String SERVICE_NAME = "service_name";
 
