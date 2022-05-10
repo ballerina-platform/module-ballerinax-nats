@@ -1037,7 +1037,7 @@ public function testDataBindingPersonPayloadPublish() {
             int timeoutInSeconds = 120;
             // Test fails in 2 minutes if it is failed to receive the message
             while timeoutInSeconds > 0 {
-                if (receivedPersonValuePublish is Person) {
+                if (receivedPersonPayloadValuePublish is Person) {
                     test:assertEquals(receivedPersonPayloadValuePublish.toJsonString(), messageToSend.toJsonString(), msg = "Message received does not match.");
                     break;
                 } else {
