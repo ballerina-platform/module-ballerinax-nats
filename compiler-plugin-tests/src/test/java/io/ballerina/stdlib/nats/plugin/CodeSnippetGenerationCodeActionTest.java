@@ -69,7 +69,7 @@ public class CodeSnippetGenerationCodeActionTest extends AbstractCodeActionTest 
                 LinePosition.from(line, offset));
         CodeActionArgument locationArg = CodeActionArgument.from(NODE_LOCATION, lineRange);
         CodeActionInfo codeAction = CodeActionInfo.from("Insert service template", List.of(locationArg));
-        codeAction.setProviderName("NATS_122/ballerinax/nats/ADD_REMOTE_FUNCTION_CODE_SNIPPET");
+        codeAction.setProviderName("NATS_121/ballerinax/nats/ADD_REMOTE_FUNCTION_CODE_SNIPPET");
         return codeAction;
     }
 }
