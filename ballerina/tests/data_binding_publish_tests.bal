@@ -43,8 +43,15 @@ Person? receivedPersonPayloadValuePublish = ();
 map<Person>? receivedMapPayloadValuePublish = ();
 table<Person>? receivedTablePayloadValuePublish = ();
 int|string? receivedUnionPayloadValuePublish = ();
+RandomPayload? receivedRandomPayloadValuePublish = ();
 boolean onErrorReceived = false;
 string onErrorMessage = "";
+
+public type RandomPayload record {|
+    string content;
+    string subject;
+    string replyTo?;
+|};
 
 @test:Config {
     dependsOn: [testProducer],
@@ -1160,7 +1167,7 @@ Service consumerServiceTablePayloadPublish =
     subject: DATA_BINDING_PUBLISH_SUBJECT
 }
 service object {
-    remote function onMessage(table<Person> payload) {
+    remote function onMessage(TableMessage msg, table<Person> payload) {
         receivedTablePayloadValuePublish = payload;
         log:printInfo("Message Received: " + payload.toJsonString());
     }
@@ -1208,6 +1215,57 @@ Service consumerServiceUnionPayloadPublish =
 service object {
     remote function onMessage(int|string payload) {
         receivedUnionPayloadValuePublish = payload;
+        log:printInfo("Message Received: " + payload.toJsonString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindinUnionPayloadPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindinRandomPayloadPublish() {
+    RandomPayload randomPayload = {
+        content: "Hello",
+        replyTo: "test",
+        subject: "test-subject"
+    };
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceRandomPayloadPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: randomPayload, subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if (receivedRandomPayloadValuePublish is RandomPayload) {
+                    test:assertEquals(receivedRandomPayloadValuePublish, randomPayload, msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceRandomPayloadPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceRandomPayloadPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(@Payload RandomPayload payload) {
+        receivedRandomPayloadValuePublish = payload;
         log:printInfo("Message Received: " + payload.toJsonString());
     }
 };

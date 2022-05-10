@@ -162,3 +162,9 @@ public type PendingLimits record {|
     int maxMessages;
     int maxBytes;
 |};
+
+# Defines the Payload remote function parameter.
+public type NatsPayload record {||};
+
+# The annotation which is used to define the payload parameter in the `onMessage` service method.
+public annotation NatsPayload Payload on parameter;
