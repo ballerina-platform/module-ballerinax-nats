@@ -70,3 +70,39 @@ service nats:Service on subscription {
     remote function onMessage(BytesMessage message, @nats:Payload RandomPayload payload) {
     }
 }
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(BytesMessage message, string & readonly payload) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(BytesMessage message, int & readonly payload) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(BytesMessage message, Person & readonly payload) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(BytesMessage message, @nats:Payload RandomPayload & readonly payload) {
+    }
+}
