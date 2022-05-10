@@ -21,10 +21,17 @@ package io.ballerina.stdlib.nats;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
+import static io.ballerina.stdlib.nats.Utils.getModule;
+
 /**
  * Represents the constants which will be used for NATS.
  */
 public class Constants {
+
+    // RabbitMQ package name constant fields
+    public static final String ORG_NAME = "ballerinax";
+    public static final String NATS = "nats";
+
     // Represents the NATS objects.
     public static final String NATS_CONNECTION = "nats_connection";
 
@@ -80,6 +87,13 @@ public class Constants {
     public static final BString KEY_PASSWORD = StringUtils.fromString("keyPassword");
     public static final String NATIVE_DATA_PUBLIC_KEY_CERTIFICATE = "NATIVE_DATA_PUBLIC_KEY_CERTIFICATE";
     public static final String NATIVE_DATA_PRIVATE_KEY = "NATIVE_DATA_PRIVATE_KEY";
+
+    // Payload related constants
+    public static final String PARAM_ANNOTATION_PREFIX = "$param$.";
+    public static final BString PARAM_PAYLOAD_ANNOTATION_NAME = StringUtils.fromString(
+            getModule().toString() + ":Payload");
+    public static final String TYPE_CHECKER_OBJECT_NAME = "TypeChecker";
+    public static final String IS_ANYDATA_MESSAGE = "isAnydataMessage";
 
     private Constants() {
     }
