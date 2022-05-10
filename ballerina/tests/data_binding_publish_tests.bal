@@ -42,6 +42,7 @@ boolean receivedBooleanPayloadValuePublish = false;
 Person? receivedPersonPayloadValuePublish = ();
 map<Person>? receivedMapPayloadValuePublish = ();
 table<Person>? receivedTablePayloadValuePublish = ();
+int|string? receivedUnionPayloadValuePublish = ();
 boolean onErrorReceived = false;
 string onErrorMessage = "";
 
@@ -1161,6 +1162,52 @@ Service consumerServiceTablePayloadPublish =
 service object {
     remote function onMessage(table<Person> payload) {
         receivedTablePayloadValuePublish = payload;
+        log:printInfo("Message Received: " + payload.toJsonString());
+    }
+};
+
+@test:Config {
+    dependsOn: [testDataBindingTablePayloadPublish],
+    groups: ["nats-basic"]
+}
+public function testDataBindinUnionPayloadPublish() {
+    Client? newClient = clientObj;
+    if newClient is Client {
+        Listener? sub = listenerObj;
+        if sub is Listener {
+            checkpanic sub.attach(consumerServiceUnionPayloadPublish);
+            checkpanic sub.'start();
+            checkpanic newClient->publishMessage({ content: "Hello", subject: DATA_BINDING_PUBLISH_SUBJECT });
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if (receivedUnionPayloadValuePublish !is ()) {
+                    test:assertEquals(receivedUnionPayloadValuePublish, "Hello", msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            checkpanic sub.detach(consumerServiceUnionPayloadPublish);
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
+        } else {
+            test:assertFail("NATS Connection creation failed.");
+        }
+    } else {
+        test:assertFail("NATS Connection creation failed.");
+    }
+}
+
+Service consumerServiceUnionPayloadPublish =
+@ServiceConfig {
+    subject: DATA_BINDING_PUBLISH_SUBJECT
+}
+service object {
+    remote function onMessage(int|string payload) {
+        receivedUnionPayloadValuePublish = payload;
         log:printInfo("Message Received: " + payload.toJsonString());
     }
 };
