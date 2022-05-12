@@ -29,6 +29,11 @@ public class PluginConstants {
     public static final String ON_REQUEST_FUNC = "onRequest";
     public static final String ON_ERROR_FUNC = "onError";
 
+    // message fields
+    public static final String MESSAGE_CONTENT = "content";
+    public static final String MESSAGE_SUBJECT = "subject";
+    public static final String MESSAGE_REPLY_TO = "replyTo";
+
     // parameters
     public static final String MESSAGE = "Message";
     public static final String ERROR_PARAM = "Error";
@@ -36,6 +41,8 @@ public class PluginConstants {
     // return types error or nil
     public static final String ERROR = "error";
     static final String[] ANY_DATA_RETURN_VALUES = {"string", "int", "float", "decimal", "boolean", "xml", "anydata"};
+
+    public static final String PAYLOAD_ANNOTATION = "nats:Payload ";
 
     /**
      * Compilation errors.
@@ -46,39 +53,36 @@ public class PluginConstants {
                 "NATS_102"),
         INVALID_RESOURCE_FUNCTION("Resource functions not allowed", "NATS_103"),
         FUNCTION_SHOULD_BE_REMOTE("Method must have the remote qualifier.", "NATS_104"),
-        MUST_HAVE_MESSAGE_OR_ANYDATA("Must have the method parameter nats:Message or anydata.", "NATS_105"),
-        MUST_HAVE_MESSAGE_AND_ERROR("Must have the method parameters nats:Message and nats:Error.",
-                "NATS_106"),
+        MUST_HAVE_MESSAGE_OR_ANYDATA("Must have the method parameter nats:AnydataMessage or anydata.", "NATS_105"),
+        MUST_HAVE_MESSAGE_AND_ERROR("Must have the method parameters nats:Message and nats:Error.", "NATS_106"),
         INVALID_FUNCTION("Resource functions are not allowed.", "NATS_107"),
-        INVALID_FUNCTION_PARAM_MESSAGE("Invalid method parameter. Only nats:Message or anydata is allowed.",
-                "NATS_108"),
+        INVALID_FUNCTION_PARAM_MESSAGE("Invalid method parameter. Only subtypes of nats:AnydataMessage " +
+                "or anydata is allowed.", "NATS_108"),
         INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA("Invalid first method parameter. " +
-                "Only nats:Message or anydata is allowed.", "NATS_109"),
+                "Only subtypes of nats:AnydataMessage is allowed.", "NATS_109"),
         INVALID_FUNCTION_PARAM_ANYDATA("Invalid second method parameter. Only anydata is allowed.",
                 "NATS_110"),
-        DATA_BINDING_ALREADY_EXISTS("Invalid second method parameter. If the first parameter is of type anydata, " +
-                "a second parameter is not allowed.", "NATS111"),
         INVALID_FUNCTION_PARAM_ERROR("Invalid method parameter. Only nats:Error is allowed.",
-                "NATS_112"),
-        ONLY_PARAMS_ALLOWED("Invalid method parameter count. Only nats:Message and/or anydata is allowed.",
-                "NATS_113"),
-        ONLY_PARAMS_ALLOWED_ON_ERROR("Invalid method parameter count. Only nats:Message and nats:Error are allowed.",
-                "NATS_114"),
+                "NATS_111"),
+        ONLY_PARAMS_ALLOWED("Invalid method parameter count. Only subtypes of nats:AnydataMessage and/or " +
+                "anydata is allowed.", "NATS_112"),
+        ONLY_PARAMS_ALLOWED_ON_ERROR("Invalid method parameter count. Only nats:AnydataMessage " +
+                "and nats:Error are allowed.", "NATS_113"),
         INVALID_RETURN_TYPE_ERROR_OR_NIL("Invalid return type. Only error? or nats:Error? is allowed.",
-                "NATS_115"),
+                "NATS_114"),
         INVALID_RETURN_TYPE_ANY_DATA("Invalid return type. Only anydata or error is allowed.",
-                "NATS_116"),
+                "NATS_115"),
         INVALID_MULTIPLE_LISTENERS("Multiple listener attachments. Only one nats:Listener is allowed.",
-                "NATS_117"),
+                "NATS_116"),
         INVALID_ANNOTATION_NUMBER("Only one service config annotation is allowed.",
-                "NATS_118"),
+                "NATS_117"),
         NO_ANNOTATION("No @nats:ServiceConfig{} annotation is found.",
-                "NATS_119"),
+                "NATS_118"),
         INVALID_ANNOTATION("Invalid service config annotation. Only @nats:ServiceConfig{} is allowed.",
-                "NATS_120"),
+                "NATS_119"),
         INVALID_SERVICE_ATTACH_POINT("Invalid service attach point. Only string literals are allowed.",
-                "NATS_121"),
-        TEMPLATE_CODE_GENERATION_HINT("Template generation for empty service", "NATS_122");
+                "NATS_120"),
+        TEMPLATE_CODE_GENERATION_HINT("Template generation for empty service", "NATS_121");
 
         private final String error;
         private final String errorCode;

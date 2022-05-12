@@ -18,43 +18,16 @@ import ballerinax/nats;
 
 listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
-public type BytesMessage record {|
-    *nats:AnydataMessage;
-    byte[] content;
+public type RandomPayload record {|
+    string content;
+    string subject;
+    string replyTo?;
 |};
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onMessage(BytesMessage message) {
-    }
-}
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onRequest(BytesMessage message) {
-    }
-}
-
-service "hello" on subscription {
-
-    remote function onRequest(BytesMessage message) {
-    }
-}
 
 public type Person record {|
     string name;
-|};
-
-public type PersonMessage record {|
-    Person content;
-    string subject;
-    string replyTo?;
+    int age;
+    boolean isMarried;
 |};
 
 @nats:ServiceConfig {
@@ -62,7 +35,7 @@ public type PersonMessage record {|
 }
 service nats:Service on subscription {
 
-    remote function onMessage(PersonMessage message) {
+    remote function onMessage(string payload) {
     }
 }
 
@@ -71,28 +44,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(PersonMessage message) {
-    }
-}
-
-service "hello" on subscription {
-
-    remote function onRequest(PersonMessage message) {
-    }
-}
-
-public type JsonMessage record {|
-    json content;
-    string subject;
-    string replyTo?;
-|};
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onMessage(JsonMessage message) {
+    remote function onMessage(int payload) {
     }
 }
 
@@ -101,27 +53,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(JsonMessage message) {
-    }
-}
-
-service "hello" on subscription {
-
-    remote function onRequest(JsonMessage message) {
-    }
-}
-
-public type XmlMessage record {|
-    *nats:AnydataMessage;
-    xml content;
-|};
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onMessage(XmlMessage message) {
+    remote function onMessage(Person payload) {
     }
 }
 
@@ -130,12 +62,42 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(XmlMessage message) {
+    remote function onMessage(@nats:Payload RandomPayload payload) {
     }
 }
 
-service "hello" on subscription {
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
 
-    remote function onRequest(XmlMessage message) {
+    remote function onMessage(string & readonly payload) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(int & readonly payload) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(Person & readonly payload) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onMessage(@nats:Payload RandomPayload & readonly payload) {
     }
 }
