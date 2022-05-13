@@ -3,7 +3,7 @@
 _Owners_: @aashikam @shafreenAnfar  
 _Reviewers_: @shafreenAnfar  
 _Created_: 2020/10/28  
-_Updated_: 2022/02/17  
+_Updated_: 2022/05/13  
 _Edition_: Swan Lake  
 _Issue_: [#2214](https://github.com/ballerina-platform/ballerina-standard-library/issues/2214)
 
@@ -219,14 +219,24 @@ NATS is a publish-subscribe messaging system based on subjects. NATS also suppor
 
 ```ballerina
     # Represents the message, which a NATS server sends to its subscribed services.
-    public type Message record {|
+    public type AnydataMessage record {|
         # The message content in the form of a byte array. 
-        byte[] content;
+        anydata content;
         # The subject to which the message was sent to. 
         string subject;
         # The `replyTo` subject of the message. 
         string replyTo?;
     |};
+```
+`nats:BytesMessage` can be used to get the content as a `byte[]` array.
+```ballerina
+# Represents the subtype of `AnydataMessage` record where the message content is a byte array.
+#
+# + content - Message content in bytes
+public type BytesMessage record {|
+    *AnydataMessage;
+    byte[] content;
+|};
 ```
 
 - `publishMessage`:
@@ -235,7 +245,7 @@ NATS is a publish-subscribe messaging system based on subjects. NATS also suppor
     #
     # + message - The message to be published
     # + return -  `()` or else a `nats:Error` if an error occurred
-    isolated remote function publishMessage(Message message) returns Error?;
+    isolated remote function publishMessage(AnydataMessage message) returns Error?;
 ```
 
 - `requestMessage`:
@@ -245,29 +255,29 @@ NATS is a publish-subscribe messaging system based on subjects. NATS also suppor
     # + message - The message to be published
     # + duration - The time (in seconds) to wait for the response
     # + return -  The response or else a `nats:Error` if an error occurred
-    isolated remote function requestMessage(Message message, decimal? duration = ())
-            returns Message|Error;
+    isolated remote function requestMessage(AnydataMessage message, decimal? duration = ())
+            returns AnydataMessage|Error;
 ```
 
 1. Publishing a message using `publishMessage`. This publishes message content in the form of a byte array to the given subject.
 ```ballerina
    string message = "hello world";
    nats:Error? result = 
-         natsClient->publishMessage({ content: message.toBytes(), subject: "demo.nats.basic"});
+         natsClient->publishMessage({ content: message, subject: "demo.nats.basic"});
 ```
 
 2. Publishing a message using `publishMessage` with a `replyTo` subject. The reply to subject can be retrieved by the receiver to respond.
 ```ballerina
    string message = "hello world";
-   nats:Error? result = natsClient->publishMessage({ content: message.toBytes(), subject: "demo.nats.basic",
+   nats:Error? result = natsClient->publishMessage({ content: message, subject: "demo.nats.basic",
                                                     replyTo: "demo.reply" });
 ```
 
 3. Sending a request using `requestMessage`. This publishes data to a given subject and waits for a response. The replyTo is reserved for internal use as the address for the server to respond to the client with the consumer's reply.
 ```ballerina
    string message = "hello world";
-   nats:Message|nats:Error reqReply = 
-         natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5);
+   nats:AnydataMessage|nats:Error reqReply = 
+         natsClient->requestMessage({ content: message, subject: "demo.nats.basic"}, 5);
 ```
 
 ## 4. Subscribing
@@ -306,7 +316,7 @@ Subscribers listening on a subject receive messages published on that subject. I
    }
    service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
    
-       remote function onMessage(nats:Message message) {
+       remote function onMessage(nats:AnydataMessage message) {
          // Do something with the message. 
        }
    }
@@ -315,7 +325,7 @@ Subscribers listening on a subject receive messages published on that subject. I
    service "demo.bbe" on new nats:Listener(nats:DEFAULT_URL) {
    
        // The returned message will be published to the replyTo subject of the consumed message
-       remote function onRequest(nats:Message message) returns string? {
+       remote function onRequest(nats:AnydataMessage message) returns string? {
            return "Reply Message";
        }
    }
@@ -329,9 +339,22 @@ Subscribers listening on a subject receive messages published on that subject. I
       subject: "demo.example.*"
    }
    service object {
-      remote function onMessage(nats:Message message) {
+      remote function onMessage(nats:AnydataMessage message) {
             // Do something with the message. 
           }
+      }
+   };
+```
+
+If metadata like `subject`, `replyTo` are not needed, `content` can be directly received as well.
+```ballerina
+   nats:Service listenerService =
+   @nats:ServiceConfig {
+      subject: "demo.example.*"
+   }
+   service object {
+      remote function onMessage(string payload) returns string {
+         return "Hello Back!";
       }
    };
 ```
@@ -391,7 +414,7 @@ import ballerinax/nats;
 public function main() returns error? {
     string message = "Hello from Ballerina";
     nats:Client natsClient = check new(nats:DEFAULT_URL);
-    check natsClient->publishMessage({content: message.toBytes(), subject: "demo.bbe"});
+    check natsClient->publishMessage({content: message, subject: "demo.bbe"});
     check natsClient.close();
 }
 ```
@@ -400,15 +423,21 @@ public function main() returns error? {
 import ballerina/log;
 import ballerinax/nats;
 
+public type Person record {|
+    string name;
+    int age;
+|};
+
+public type PersonMessage record {|
+    *nats:AnydataMessage;
+    Person content;
+|};
+
 listener nats:Listener subscription = new(nats:DEFAULT_URL);
 
 service "demo.bbe" on subscription {
-
-    remote function onMessage(nats:Message message) returns error? {
-        string|error messageContent = string:fromBytes(message.content);
-        if messageContent is string {
-            log:printInfo("Received message: " + messageContent);
-        }
+    remote function onMessage(PersonMessage message) returns error? {
+         log:printInfo("Received message: " + message.content);
     }
 }
 ```
@@ -419,13 +448,22 @@ service "demo.bbe" on subscription {
 import ballerina/io;
 import ballerinax/nats;
 
+public type Person record {|
+    string name;
+    int age;
+|};
+
+public type PersonMessage record {|
+    *nats:AnydataMessage;
+    Person content;
+|};
+
 public function main() returns error? {
     string message = "Hello from Ballerina";
     nats:Client natsClient = check new(nats:DEFAULT_URL);
-    nats:Message reply = check natsClient->requestMessage({content: message.toBytes(), 
+    PersonMessage reply = check natsClient->requestMessage({content: message, 
                                  subject: "demo.bbe"});
-    string replyContent = check string:fromBytes(reply.content);
-    io:println("Reply message: " + replyContent);
+    io:println("Reply message: " + reply.content);
     check natsClient.close();
 }
 ```
@@ -435,14 +473,16 @@ public function main() returns error? {
    import ballerina/log;
    import ballerinax/nats;
    
+   public type Person record {|
+       string name;
+       int age;
+   |};
+
    listener nats:Listener subscription = new(nats:DEFAULT_URL);
    service "demo.bbe" on subscription {
    
-       remote function onRequest(nats:Message message) returns string {
-           string|error messageContent = string:fromBytes(message.content);
-           if (messageContent is string) {
-               log:printInfo("Received message: " + messageContent);
-           }
+       remote function onRequest(Person payload) returns string {
+           log:printInfo("Received person payload: " + payload.toString());
            return "Hello Back!";
        }
    }
@@ -459,7 +499,7 @@ import ballerinax/nats;
 public function main() returns error? {
     string message = "Hello from Ballerina";
     nats:Client natsClient = check new(nats:DEFAULT_URL);
-    check natsClient->publishMessage({content: message.toBytes(), subject: "demo.bbe"});
+    check natsClient->publishMessage({content: message, subject: "demo.bbe"});
     check natsClient.close();
 }
 ```
@@ -474,8 +514,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
     queueName: "queue-group-1"
 }
 service "demo.bbe" on subscription {
-
-    remote function onMessage(nats:Message message) returns error? {
+    remote function onMessage(nats:BytesMessage message) returns error? {
         string|error messageContent = string:fromBytes(message.content);
         if messageContent is string {
             log:printInfo("Received message: " + messageContent);
