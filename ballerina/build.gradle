@@ -165,7 +165,13 @@ publishing {
     }
 }
 
-updateTomlFiles.dependsOn copyStdlibs
+def checkForBreakingChanges = (System.getenv('CHECK_BRAEKING_CHANGES') == "true")
+
+if (checkForBreakingChanges) {
+    updateTomlFiles.dependsOn copyToLib
+} else {
+    updateTomlFiles.dependsOn copyStdlibs
+}
 
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-native:build"

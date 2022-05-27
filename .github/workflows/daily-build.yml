@@ -3,6 +3,9 @@ name: Daily build
 on:
   schedule:
     - cron: '30 2 * * *'
+  repository_dispatch:
+    types:
+      check_connector_for_breaking_changes
 
 jobs:
   build:
@@ -17,23 +20,37 @@ jobs:
           distribution: 'adopt'
           java-version: 11
 
+      - name: Set environment variable
+        if: github.event.action == 'check_connector_for_breaking_changes'
+        run: |
+          echo "CHECK_BRAEKING_CHANGES=true" >> $GITHUB_ENV
+          echo "GRADLE_SKIP_TASKS=-x :nats-compiler-plugin-tests:test"  >> $GITHUB_ENV
+
+      # Build the project with Gradle
       - name: Build with Gradle
         env:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-            ./gradlew clean build
+          ./gradlew clean build $GRADLE_SKIP_TASKS
 
       - name: Notify failure
         if: ${{ failure() }}
         run: |
+          eventType="notify-build-failure"
+
+          if [[ "${{ github.event.action }}" == "check_connector_for_breaking_changes" ]]; then
+            eventType="notify-ballerinax-connector-build-failure"
+          fi
+
           curl -X POST \
           'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
           -H 'Accept: application/vnd.github.v3+json' \
           -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
           --data "{
-            \"event_type\": \"notify-build-failure\",
+            \"event_type\": \"$eventType\",
             \"client_payload\": {
-              \"repoName\": \"module-ballerinax-nats\"
+              \"repoName\": \"module-ballerinax-nats\",
+              \"workflow\": \"Daily build\"
             }
           }"
