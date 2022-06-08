@@ -1,4 +1,4 @@
-# Proposal: Data binding support for Nats
+# Proposal: Data binding support for NATS
 
 _Owners_: @shafreenAnfar @aashikam @dilanSachi     
 _Reviewers_: @shafreenAnfar @aashikam  
