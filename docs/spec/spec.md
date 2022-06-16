@@ -5,7 +5,6 @@ _Reviewers_: @shafreenAnfar
 _Created_: 2020/10/28  
 _Updated_: 2022/05/13  
 _Edition_: Swan Lake  
-_Issue_: [#2214](https://github.com/ballerina-platform/ballerina-standard-library/issues/2214)
 
 # Introduction
 This is the specification for the NATS standard library of [Ballerina language](https://ballerina.io/), which provides NATS client functionalities to produce and consume messages by connecting to the NATS server.
