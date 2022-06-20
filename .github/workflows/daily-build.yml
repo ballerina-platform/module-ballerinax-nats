@@ -23,7 +23,7 @@ jobs:
       - name: Set environment variable
         if: github.event.action == 'check_connector_for_breaking_changes'
         run: |
-          echo "CHECK_BRAEKING_CHANGES=true" >> $GITHUB_ENV
+          echo "BUILD_USING_DOCKER=true" >> $GITHUB_ENV
           echo "GRADLE_SKIP_TASKS=-x :nats-compiler-plugin-tests:test"  >> $GITHUB_ENV
 
       # Build the project with Gradle
