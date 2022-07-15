@@ -16,3 +16,9 @@
 
 # Represents the NATS module related errors.
 public type Error distinct error;
+
+# Represents an error, which occurred due to payload binding.
+public type PayloadBindingError distinct Error;
+
+# Represents an error, which occurred due to payload constraint validation.
+public type PayloadValidationError distinct PayloadBindingError;
