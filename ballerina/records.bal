@@ -83,6 +83,14 @@ public enum Protocol {
     DTLS
 }
 
+# Represents constraint validation options
+public enum ConstraintValidation {
+    INGRESS,
+    EGRESS,
+    INGRESS_EGRESS,
+    DISABLED
+}
+
 # Configurations related to pinging the server.
 #
 # + pingInterval - The interval (in seconds) between the attempts of pinging the server
