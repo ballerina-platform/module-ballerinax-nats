@@ -51,6 +51,8 @@ public class Constants {
 
     // Error code for i/o.
     static final String NATS_ERROR = "Error";
+    public static final String PAYLOAD_BINDING_ERROR = "PayloadBindingError";
+    public static final String PAYLOAD_VALIDATION_ERROR = "PayloadValidationError";
 
     public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
 

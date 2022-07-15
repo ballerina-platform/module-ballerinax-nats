@@ -61,8 +61,10 @@ import static io.ballerina.stdlib.nats.Constants.ORG_NAME;
 import static io.ballerina.stdlib.nats.Constants.PARAM_ANNOTATION_PREFIX;
 import static io.ballerina.stdlib.nats.Constants.PARAM_PAYLOAD_ANNOTATION_NAME;
 import static io.ballerina.stdlib.nats.Constants.TYPE_CHECKER_OBJECT_NAME;
+import static io.ballerina.stdlib.nats.Utils.getElementTypeDescFromArrayTypeDesc;
 import static io.ballerina.stdlib.nats.Utils.getModule;
 import static io.ballerina.stdlib.nats.Utils.getRecordType;
+import static io.ballerina.stdlib.nats.Utils.validateConstraints;
 
 /**
  * Handles incoming message for a given subscription.
@@ -162,7 +164,7 @@ public class DefaultMessageHandler implements MessageHandler {
         } else {
             BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) parameter.type);
             Map<String, Field> fieldMap = ((RecordType) parameter.type).getFields();
-            Type contentType = fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType();
+            Type contentType = TypeUtils.getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
             Object msg = Utils.getValueWithIntendedType(contentType, message);
             msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
                     StringUtils.fromString(replyTo));
@@ -261,7 +263,9 @@ public class DefaultMessageHandler implements MessageHandler {
                             throw Utils.createNatsError("Invalid remote function signature");
                         }
                         messageExists = true;
-                        arguments[index++] = createAndPopulateMessageRecord(message, replyTo, subject, parameter);
+                        Object record = createAndPopulateMessageRecord(message, replyTo, subject, parameter);
+                        arguments[index++] = validateConstraints(record,
+                                getElementTypeDescFromArrayTypeDesc(ValueCreator.createTypedescValue(parameter.type)));
                         arguments[index++] = true;
                         break;
                     }
@@ -271,7 +275,9 @@ public class DefaultMessageHandler implements MessageHandler {
                         throw Utils.createNatsError("Invalid remote function signature");
                     }
                     payloadExists = true;
-                    arguments[index++] = Utils.getValueWithIntendedType(getPayloadType(parameter.type), message);
+                    Object value = Utils.getValueWithIntendedType(getPayloadType(parameter.type), message);
+                    arguments[index++] = validateConstraints(value,
+                            getElementTypeDescFromArrayTypeDesc(ValueCreator.createTypedescValue(parameter.type)));
                     arguments[index++] = true;
                     break;
             }

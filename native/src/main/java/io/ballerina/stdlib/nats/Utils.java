@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.stdlib.constraint.Constraints;
 import org.ballerinalang.langlib.value.CloneWithType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
 
@@ -45,10 +46,14 @@ import java.nio.charset.StandardCharsets;
 import static io.ballerina.runtime.api.TypeTags.ANYDATA_TAG;
 import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
 import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
+import static io.ballerina.runtime.api.TypeTags.INTERSECTION_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 import static io.ballerina.runtime.api.TypeTags.UNION_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_TAG;
+import static io.ballerina.stdlib.nats.Constants.NATS_ERROR;
+import static io.ballerina.stdlib.nats.Constants.PAYLOAD_BINDING_ERROR;
+import static io.ballerina.stdlib.nats.Constants.PAYLOAD_VALIDATION_ERROR;
 
 /**
  * Utilities for producing and consuming via NATS sever.
@@ -69,14 +74,24 @@ public class Utils {
     }
 
     public static BError createNatsError(String detailedErrorMessage) {
-        return ErrorCreator.createError(getModule(), Constants.NATS_ERROR, StringUtils.fromString(detailedErrorMessage),
+        return ErrorCreator.createError(getModule(), NATS_ERROR, StringUtils.fromString(detailedErrorMessage),
                 null, null);
+    }
+
+    public static BError createPayloadValidationError(String message, Object results) {
+        return ErrorCreator.createError(getModule(), PAYLOAD_VALIDATION_ERROR, StringUtils.fromString(message),
+                ErrorCreator.createError(StringUtils.fromString(results.toString())), null);
+    }
+
+    public static BError createPayloadBindingError(String message, BError cause) {
+        return ErrorCreator.createError(getModule(), PAYLOAD_BINDING_ERROR, StringUtils.fromString(message),
+                cause, null);
     }
 
     public static byte[] convertDataIntoByteArray(Object data, Type dataType) {
         int typeTag = dataType.getTag();
         if (typeTag == ARRAY_TAG) {
-            return convertDataIntoByteArray(data, ((BArray) data).getElementType());
+            return convertDataIntoByteArray(data, TypeUtils.getReferredType(((BArray) data).getElementType()));
         } else if (typeTag == STRING_TAG) {
             return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
         } else if (typeTag == TypeTags.XML_ELEMENT_TAG || typeTag == XML_TAG || typeTag == TypeTags.MAP_TAG ||
@@ -134,7 +149,7 @@ public class Utils {
                     }
                     return getValueFromJson(type, strValue);
                 case ARRAY_TAG:
-                    if (((ArrayType) type).getElementType().getTag() == BYTE_TAG) {
+                    if (TypeUtils.getReferredType(((ArrayType) type).getElementType()).getTag() == BYTE_TAG) {
                         return ValueCreator.createArrayValue(value);
                     }
                     /*-fallthrough*/
@@ -158,5 +173,21 @@ public class Utils {
     private static Object getValueFromJson(Type type, String stringValue) {
         BTypedesc typeDesc = ValueCreator.createTypedescValue(type);
         return FromJsonWithType.fromJsonWithType(JsonUtils.parse(stringValue), typeDesc);
+    }
+
+    public static Object validateConstraints(Object value, BTypedesc bTypedesc) {
+        Object validationResult = Constraints.validate(value, bTypedesc);
+        if (validationResult instanceof BError) {
+            throw createPayloadValidationError("Failed to validate", value);
+        }
+        return value;
+    }
+
+    public static BTypedesc getElementTypeDescFromArrayTypeDesc(BTypedesc bTypeDesc) {
+        if (bTypeDesc.getDescribingType().getTag() == INTERSECTION_TAG) {
+            return ValueCreator.createTypedescValue((((IntersectionType) bTypeDesc.getDescribingType())
+                    .getConstituentTypes().get(0)));
+        }
+        return ValueCreator.createTypedescValue((bTypeDesc.getDescribingType()));
     }
 }
