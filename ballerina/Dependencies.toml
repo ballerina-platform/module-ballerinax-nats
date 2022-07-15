@@ -87,7 +87,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "observe"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -127,7 +127,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "2.3.0"
+version = "2.3.1"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
