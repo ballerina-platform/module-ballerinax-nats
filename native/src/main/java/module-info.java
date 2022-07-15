@@ -23,6 +23,7 @@ module io.ballerina.stdlib.nats.runtime {
     requires io.ballerina.lang;
     requires io.ballerina.lang.value;
     requires io.ballerina.stdlib.crypto;
+    requires io.ballerina.stdlib.constraint;
     exports io.ballerina.stdlib.nats.basic.consumer;
     exports io.ballerina.stdlib.nats.basic.client;
     exports io.ballerina.stdlib.nats.connection;
