@@ -175,10 +175,12 @@ public class Utils {
         return FromJsonWithType.fromJsonWithType(JsonUtils.parse(stringValue), typeDesc);
     }
 
-    public static Object validateConstraints(Object value, BTypedesc bTypedesc) {
-        Object validationResult = Constraints.validate(value, bTypedesc);
-        if (validationResult instanceof BError) {
-            throw createPayloadValidationError("Failed to validate", value);
+    public static Object validateConstraints(Object value, BTypedesc bTypedesc, boolean constraintValidation) {
+        if (constraintValidation) {
+            Object validationResult = Constraints.validate(value, bTypedesc);
+            if (validationResult instanceof BError) {
+                throw createPayloadValidationError("Failed to validate", value);
+            }
         }
         return value;
     }

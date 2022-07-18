@@ -47,6 +47,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 import static io.ballerina.stdlib.nats.Utils.convertDataIntoByteArray;
 import static io.ballerina.stdlib.nats.Utils.getElementTypeDescFromArrayTypeDesc;
 import static io.ballerina.stdlib.nats.Utils.validateConstraints;
@@ -90,7 +91,8 @@ public class Request {
                     Utils.getValueWithIntendedType(contentType, reply.getData()),
                     StringUtils.fromString(reply.getSubject()),
                     StringUtils.fromString(reply.getReplyTo()));
-            validateConstraints(populatedRecord, getElementTypeDescFromArrayTypeDesc(bTypedesc));
+            boolean constraintValidation = (boolean) clientObj.getNativeData(CONSTRAINT_VALIDATION);
+            validateConstraints(populatedRecord, getElementTypeDescFromArrayTypeDesc(bTypedesc), constraintValidation);
             natsMetricsReporter.reportResponse(subject);
             return populatedRecord;
         } catch (TimeoutException ex) {

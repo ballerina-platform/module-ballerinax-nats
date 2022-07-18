@@ -35,6 +35,8 @@ public class Constants {
     // Represents the NATS objects.
     public static final String NATS_CONNECTION = "nats_connection";
 
+    public static final String CONSTRAINT_VALIDATION = "constraintValidation";
+
     public static final String NATS_METRIC_UTIL = "nats_metric_util";
 
     // Represents dispatcher list.

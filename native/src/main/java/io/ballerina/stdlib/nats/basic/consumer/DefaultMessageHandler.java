@@ -55,6 +55,8 @@ import java.util.concurrent.Semaphore;
 
 import static io.ballerina.runtime.api.TypeTags.INTERSECTION_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 import static io.ballerina.stdlib.nats.Constants.IS_ANYDATA_MESSAGE;
 import static io.ballerina.stdlib.nats.Constants.NATS;
 import static io.ballerina.stdlib.nats.Constants.ORG_NAME;
@@ -79,14 +81,16 @@ public class DefaultMessageHandler implements MessageHandler {
     private final Runtime runtime;
     private final NatsMetricsReporter natsMetricsReporter;
     private final Connection natsConnection;
+    private final BObject listenerObj;
 
     DefaultMessageHandler(BObject serviceObject, Runtime runtime, Connection natsConnection,
-                          NatsMetricsReporter natsMetricsReporter) {
+                          NatsMetricsReporter natsMetricsReporter, BObject listenerObj) {
         this.serviceObject = serviceObject;
         this.runtime = runtime;
         this.connectedUrl = natsConnection.getConnectedUrl();
         this.natsMetricsReporter = natsMetricsReporter;
         this.natsConnection = natsConnection;
+        this.listenerObj = listenerObj;
     }
 
     /**
@@ -158,12 +162,13 @@ public class DefaultMessageHandler implements MessageHandler {
         if (replyTo != null) {
             valueMap.put(Constants.MESSAGE_REPLY_TO, StringUtils.fromString(replyTo));
         }
-        if (parameter.type.getTag() == TypeTags.INTERSECTION_TAG) {
+        Type referredType = getReferredType(parameter.type);
+        if (referredType.getTag() == TypeTags.INTERSECTION_TAG) {
             msgObj = ValueCreator.createReadonlyRecordValue(getModule(),
                     Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
         } else {
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) parameter.type);
-            Map<String, Field> fieldMap = ((RecordType) parameter.type).getFields();
+            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) referredType);
+            Map<String, Field> fieldMap = ((RecordType) referredType).getFields();
             Type contentType = TypeUtils.getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
             Object msg = Utils.getValueWithIntendedType(contentType, message);
             msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
@@ -252,10 +257,12 @@ public class DefaultMessageHandler implements MessageHandler {
         Parameter[] parameters = remoteFunction.getParameters();
         boolean messageExists = false;
         boolean payloadExists = false;
+        boolean constraintValidation = (boolean) listenerObj.getNativeData(CONSTRAINT_VALIDATION);
         Object[] arguments = new Object[parameters.length * 2];
         int index = 0;
         for (Parameter parameter : parameters) {
-            switch (parameter.type.getTag()) {
+            Type referredType = getReferredType(parameter.type);
+            switch (referredType.getTag()) {
                 case INTERSECTION_TAG:
                 case RECORD_TYPE_TAG:
                     if (isMessageType(parameter, remoteFunction.getAnnotations())) {
@@ -264,8 +271,8 @@ public class DefaultMessageHandler implements MessageHandler {
                         }
                         messageExists = true;
                         Object record = createAndPopulateMessageRecord(message, replyTo, subject, parameter);
-                        arguments[index++] = validateConstraints(record,
-                                getElementTypeDescFromArrayTypeDesc(ValueCreator.createTypedescValue(parameter.type)));
+                        arguments[index++] = validateConstraints(record, getElementTypeDescFromArrayTypeDesc(
+                                ValueCreator.createTypedescValue(referredType)), constraintValidation);
                         arguments[index++] = true;
                         break;
                     }
@@ -275,9 +282,9 @@ public class DefaultMessageHandler implements MessageHandler {
                         throw Utils.createNatsError("Invalid remote function signature");
                     }
                     payloadExists = true;
-                    Object value = Utils.getValueWithIntendedType(getPayloadType(parameter.type), message);
-                    arguments[index++] = validateConstraints(value,
-                            getElementTypeDescFromArrayTypeDesc(ValueCreator.createTypedescValue(parameter.type)));
+                    Object value = Utils.getValueWithIntendedType(getPayloadType(referredType), message);
+                    arguments[index++] = validateConstraints(value, getElementTypeDescFromArrayTypeDesc(
+                            ValueCreator.createTypedescValue(parameter.type)), constraintValidation);
                     arguments[index++] = true;
                     break;
             }
@@ -293,7 +300,7 @@ public class DefaultMessageHandler implements MessageHandler {
                 return false;
             }
         }
-        return invokeIsAnydataMessageTypeMethod(getRecordType(parameter.type));
+        return invokeIsAnydataMessageTypeMethod(getRecordType(getReferredType(parameter.type)));
     }
 
     private boolean invokeIsAnydataMessageTypeMethod(Type paramType) {

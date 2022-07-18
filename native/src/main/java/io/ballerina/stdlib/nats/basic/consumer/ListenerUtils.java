@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.nats.basic.consumer;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.stdlib.nats.Constants;
@@ -36,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
+
+import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 
 /**
  * Contains listener stop functions.
@@ -125,6 +128,8 @@ public class ListenerUtils {
         }
         listenerObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
         listenerObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+        listenerObject.addNativeData(CONSTRAINT_VALIDATION,
+                connectionConfig.getBooleanValue(StringUtils.fromString(CONSTRAINT_VALIDATION)));
         ((NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportNewClient();
 
         // Initialize dispatcher list to use in service register and listener close.
