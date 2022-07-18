@@ -26,6 +26,7 @@ import ballerina/crypto;
 # + noEcho - Turns off echoing. This prevents the server from echoing messages back to the connection if it
 #            has subscriptions on the subject being published to
 # + secureSocket - The configurations related to SSL/TLS
+# + constraintValidation - Configuration related to constraint validation check
 public type ConnectionConfiguration record {|
     string connectionName = "ballerina-nats";
     RetryConfig retryConfig?;
@@ -34,6 +35,7 @@ public type ConnectionConfiguration record {|
     string inboxPrefix = "_INBOX.";
     boolean noEcho = false;
     SecureSocket secureSocket?;
+    boolean constraintValidation = true;
 |};
 
 # Configurations related to token based authentication.
@@ -81,14 +83,6 @@ public enum Protocol {
     SSL,
     TLS,
     DTLS
-}
-
-# Represents constraint validation options
-public enum ConstraintValidation {
-    INGRESS,
-    EGRESS,
-    INGRESS_EGRESS,
-    DISABLED
 }
 
 # Configurations related to pinging the server.
