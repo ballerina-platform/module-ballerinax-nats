@@ -179,7 +179,7 @@ public class Utils {
         if (constraintValidation) {
             Object validationResult = Constraints.validate(value, bTypedesc);
             if (validationResult instanceof BError) {
-                throw createPayloadValidationError("Failed to validate", value);
+                throw createPayloadValidationError(((BError) validationResult).getMessage(), value);
             }
         }
         return value;

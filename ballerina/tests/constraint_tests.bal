@@ -106,7 +106,7 @@ function testMaxLengthStringConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: maxLengthStringSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedStringMaxLengthConstraintError, "Failed to validate");
+    test:assertEquals(receivedStringMaxLengthConstraintError, "Validation failed for 'maxLength' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -119,7 +119,7 @@ function testMaxValueIntConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: 1099.toString(), subject: maxValueIntSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedIntMaxValueConstraintError, "Failed to validate");
+    test:assertEquals(receivedIntMaxValueConstraintError, "Validation failed for 'maxValue' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -132,7 +132,7 @@ function testMinValueFloatConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: 1.99.toString(), subject: minValueFloatSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedFloatMinValueConstraintError, "Failed to validate");
+    test:assertEquals(receivedFloatMinValueConstraintError, "Validation failed for 'minValue' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -145,7 +145,7 @@ function testMaxValueNumberConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: 1123.595.toString(), subject: maxValueNumberSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedNumberMaxValueConstraintError, "Failed to validate");
+    test:assertEquals(receivedNumberMaxValueConstraintError, "Validation failed for 'maxValue' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -158,7 +158,7 @@ function testMaxLengthArrayConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: [1, 2, 3, 4, 5, 6, 7].toString(), subject: maxLengthArraySubject});
     runtime:sleep(3);
-    test:assertEquals(receivedArrayMaxLengthConstraintError, "Failed to validate");
+    test:assertEquals(receivedArrayMaxLengthConstraintError, "Validation failed for 'maxLength' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
