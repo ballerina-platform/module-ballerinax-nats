@@ -87,7 +87,6 @@ function testValidStringConstraint() returns error? {
     Listener sub = check new(DEFAULT_URL);
     check sub.attach(validStringService);
     check sub.'start();
-    //check reqClient->publishMessage({ content: message.toBytes(), subject: "avc" });
     Message|error result = reqClient->requestMessage({content: "Hello".toBytes(), subject: validStringSubject}, 2);
     if result is error {
         test:assertFail(result.message());
