@@ -49,6 +49,7 @@ import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 import static io.ballerina.runtime.api.TypeTags.UNION_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_TAG;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * Utilities for producing and consuming via NATS sever.
@@ -76,7 +77,7 @@ public class Utils {
     public static byte[] convertDataIntoByteArray(Object data, Type dataType) {
         int typeTag = dataType.getTag();
         if (typeTag == ARRAY_TAG) {
-            return convertDataIntoByteArray(data, ((BArray) data).getElementType());
+            return convertDataIntoByteArray(data, getReferredType(((BArray) data).getElementType()));
         } else if (typeTag == STRING_TAG) {
             return ((BString) data).getValue().getBytes(StandardCharsets.UTF_8);
         } else if (typeTag == TypeTags.XML_ELEMENT_TAG || typeTag == XML_TAG || typeTag == TypeTags.MAP_TAG ||
@@ -134,7 +135,7 @@ public class Utils {
                     }
                     return getValueFromJson(type, strValue);
                 case ARRAY_TAG:
-                    if (((ArrayType) type).getElementType().getTag() == BYTE_TAG) {
+                    if (getReferredType(((ArrayType) type).getElementType()).getTag() == BYTE_TAG) {
                         return ValueCreator.createArrayValue(value);
                     }
                     /*-fallthrough*/
