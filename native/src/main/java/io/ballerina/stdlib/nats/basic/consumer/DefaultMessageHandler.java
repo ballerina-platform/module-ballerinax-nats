@@ -55,6 +55,7 @@ import java.util.concurrent.Semaphore;
 
 import static io.ballerina.runtime.api.TypeTags.INTERSECTION_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.stdlib.nats.Constants.IS_ANYDATA_MESSAGE;
 import static io.ballerina.stdlib.nats.Constants.NATS;
 import static io.ballerina.stdlib.nats.Constants.ORG_NAME;
@@ -156,13 +157,14 @@ public class DefaultMessageHandler implements MessageHandler {
         if (replyTo != null) {
             valueMap.put(Constants.MESSAGE_REPLY_TO, StringUtils.fromString(replyTo));
         }
-        if (parameter.type.getTag() == TypeTags.INTERSECTION_TAG) {
+        Type referredType = getReferredType(parameter.type);
+        if (referredType.getTag() == TypeTags.INTERSECTION_TAG) {
             msgObj = ValueCreator.createReadonlyRecordValue(getModule(),
                     Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
         } else {
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) parameter.type);
-            Map<String, Field> fieldMap = ((RecordType) parameter.type).getFields();
-            Type contentType = fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType();
+            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) referredType);
+            Map<String, Field> fieldMap = ((RecordType) referredType).getFields();
+            Type contentType = getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
             Object msg = Utils.getValueWithIntendedType(contentType, message);
             msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
                     StringUtils.fromString(replyTo));
@@ -253,7 +255,8 @@ public class DefaultMessageHandler implements MessageHandler {
         Object[] arguments = new Object[parameters.length * 2];
         int index = 0;
         for (Parameter parameter : parameters) {
-            switch (parameter.type.getTag()) {
+            Type referredType = getReferredType(parameter.type);
+            switch (referredType.getTag()) {
                 case INTERSECTION_TAG:
                 case RECORD_TYPE_TAG:
                     if (isMessageType(parameter, remoteFunction.getAnnotations())) {
@@ -271,7 +274,7 @@ public class DefaultMessageHandler implements MessageHandler {
                         throw Utils.createNatsError("Invalid remote function signature");
                     }
                     payloadExists = true;
-                    arguments[index++] = Utils.getValueWithIntendedType(getPayloadType(parameter.type), message);
+                    arguments[index++] = Utils.getValueWithIntendedType(getPayloadType(referredType), message);
                     arguments[index++] = true;
                     break;
             }
@@ -287,7 +290,7 @@ public class DefaultMessageHandler implements MessageHandler {
                 return false;
             }
         }
-        return invokeIsAnydataMessageTypeMethod(getRecordType(parameter.type));
+        return invokeIsAnydataMessageTypeMethod(getRecordType(getReferredType(parameter.type)));
     }
 
     private boolean invokeIsAnydataMessageTypeMethod(Type paramType) {

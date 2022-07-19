@@ -47,6 +47,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.stdlib.nats.Utils.convertDataIntoByteArray;
 
 /**
@@ -82,7 +83,7 @@ public class Request {
 
             BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(recordType);
             Map<String, Field> fieldMap = recordType.getFields();
-            Type contentType = fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType();
+            Type contentType = getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
 
             BMap<BString, Object> populatedRecord = ValueCreator.createRecordValue(msgRecord,
                     Utils.getValueWithIntendedType(contentType, reply.getData()),
