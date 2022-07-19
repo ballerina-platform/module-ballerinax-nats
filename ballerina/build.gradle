@@ -71,6 +71,7 @@ dependencies {
     externalJars(group: 'io.nats', name: 'jnats', version: "${natsVersion}") {
         transitive = false
     }
+    externalJars(group: 'io.ballerina.stdlib', name: 'constraint-native', version: "${stdlibConstraintVersion}")
 }
 
 task updateTomlFiles {
@@ -80,6 +81,7 @@ task updateTomlFiles {
         def newConfig = ballerinaTomlFilePlaceHolder.text.replace("@project.version@", project.version)
         newConfig = newConfig.replace("@toml.version@", tomlVersion)
         newConfig = newConfig.replace("@nats.client.version@", natsClientVersion)
+        newConfig = newConfig.replace("@constraint.native.version@", stdlibConstraintVersion)
         ballerinaTomlFile.text = newConfig
 
         def newPluginConfig = compilerPluginTomlFilePlaceHolder.text.replace("@project.version@", project.version)
