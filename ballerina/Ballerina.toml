@@ -18,7 +18,7 @@ path = "../native/build/libs/nats-native-2.4.0-SNAPSHOT.jar"
 [[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "constraint-native"
-version = "1.0.0-20220718-173500-74bf392"
+version = "1.0.0"
 path = "./lib/constraint-native-1.0.0-20220718-173500-74bf392.jar"
 
 [build-options]
