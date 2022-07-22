@@ -66,11 +66,13 @@ public type Child record {|
 |};
 
 string receivedValidStringValue = "";
+string receivedDisabledValidationValue = "";
 string receivedStringMaxLengthConstraintError = "";
 string receivedIntMaxValueConstraintError = "";
 string receivedFloatMinValueConstraintError = "";
 string receivedNumberMaxValueConstraintError = "";
 string receivedArrayMaxLengthConstraintError = "";
+string receivedDisabledValidationConstraintError = "";
 Child? receivedValidRecordValue = ();
 
 string validStringSubject = "valid.string.subject";
@@ -80,6 +82,7 @@ string minValueFloatSubject = "min.value.float.subject";
 string maxValueNumberSubject = "max.value.number.subject";
 string maxLengthArraySubject = "max.length.array.subject";
 string validRecordSubject = "valid.record.subject";
+string disabledValidationSubject = "disabled.validation.subject";
 
 @test:Config {}
 function testValidStringConstraint() returns error? {
@@ -176,6 +179,20 @@ function testValidRecordConstraint() returns error? {
         test:assertEquals(strings:fromBytes(result.content), "Hello Back!");
         test:assertEquals(receivedValidRecordValue, {name: "PhilDunphy", age: 12});
     }
+    checkpanic reqClient.close();
+    check sub.gracefulStop();
+}
+
+@test:Config {}
+function testMaxLengthStringConstraintWithValidationDisabled() returns error? {
+    Client reqClient = check new(DEFAULT_URL, {validation: false});
+    Listener sub = check new(DEFAULT_URL, {validation: false});
+    check sub.attach(disabledValidationService);
+    check sub.'start();
+    check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: disabledValidationSubject});
+    runtime:sleep(3);
+    test:assertEquals(receivedDisabledValidationValue, "Hello World!!!");
+    test:assertEquals(receivedDisabledValidationConstraintError, "");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -286,5 +303,21 @@ service object {
         log:printInfo("Message Received: " + msg.toString());
         receivedValidRecordValue = msg;
         return "Hello Back!";
+    }
+};
+
+Service disabledValidationService =
+@ServiceConfig {
+    subject: disabledValidationSubject
+}
+service object {
+    remote function onMessage(StringConstraintMessage msg) {
+        log:printInfo("Message Received: " + msg.toString());
+        receivedDisabledValidationValue = msg.content;
+    }
+
+    remote function onError(Message message, Error err) {
+        log:printInfo("Error Received: " + err.message());
+        receivedDisabledValidationConstraintError = err.message();
     }
 };
