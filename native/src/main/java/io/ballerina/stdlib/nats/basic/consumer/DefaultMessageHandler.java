@@ -169,7 +169,7 @@ public class DefaultMessageHandler implements MessageHandler {
         } else {
             BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) referredType);
             Map<String, Field> fieldMap = ((RecordType) referredType).getFields();
-            Type contentType = TypeUtils.getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
+            Type contentType = getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
             Object msg = Utils.getValueWithIntendedType(contentType, message);
             msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
                     StringUtils.fromString(replyTo));
