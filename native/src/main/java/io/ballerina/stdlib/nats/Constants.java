@@ -35,6 +35,8 @@ public class Constants {
     // Represents the NATS objects.
     public static final String NATS_CONNECTION = "nats_connection";
 
+    public static final String CONSTRAINT_VALIDATION = "validation";
+
     public static final String NATS_METRIC_UTIL = "nats_metric_util";
 
     // Represents dispatcher list.
@@ -51,6 +53,8 @@ public class Constants {
 
     // Error code for i/o.
     static final String NATS_ERROR = "Error";
+    public static final String PAYLOAD_BINDING_ERROR = "PayloadBindingError";
+    public static final String PAYLOAD_VALIDATION_ERROR = "PayloadValidationError";
 
     public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
 

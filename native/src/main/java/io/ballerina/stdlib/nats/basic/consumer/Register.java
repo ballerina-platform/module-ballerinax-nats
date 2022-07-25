@@ -70,7 +70,7 @@ public class Register {
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listenerObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(
-                service, runtime, natsConnection, natsMetricsReporter));
+                service, runtime, natsConnection, natsMetricsReporter, listenerObject));
 
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")

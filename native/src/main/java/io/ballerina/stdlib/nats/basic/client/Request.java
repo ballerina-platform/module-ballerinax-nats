@@ -48,7 +48,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 import static io.ballerina.stdlib.nats.Utils.convertDataIntoByteArray;
+import static io.ballerina.stdlib.nats.Utils.getElementTypeDescFromArrayTypeDesc;
+import static io.ballerina.stdlib.nats.Utils.validateConstraints;
 
 /**
  * Extern function to publish message to a given subject.
@@ -89,19 +92,21 @@ public class Request {
                     Utils.getValueWithIntendedType(contentType, reply.getData()),
                     StringUtils.fromString(reply.getSubject()),
                     StringUtils.fromString(reply.getReplyTo()));
+            boolean constraintValidation = (boolean) clientObj.getNativeData(CONSTRAINT_VALIDATION);
+            validateConstraints(populatedRecord, getElementTypeDescFromArrayTypeDesc(bTypedesc), constraintValidation);
             natsMetricsReporter.reportResponse(subject);
             return populatedRecord;
         } catch (TimeoutException ex) {
-            natsMetricsReporter.reportProducerError(subject,
-                                                    NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Request to subject " + subject +
                                                  " timed out while waiting for a reply");
-        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException
-                | BError ex) {
-            natsMetricsReporter.reportProducerError(subject,
-                                                    NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException ex) {
+            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Error while requesting message to " +
                                                  "subject " + subject + ". " + ex.getMessage());
+        } catch (BError bError) {
+            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+            return bError;
         }
     }
 }

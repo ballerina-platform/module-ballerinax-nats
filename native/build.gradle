@@ -32,6 +32,7 @@ dependencies {
     implementation group: 'org.ballerinalang', name: 'value', version: "${ballerinaLangVersion}"
     implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: "${slf4jVersion}"
     implementation group: 'io.ballerina.stdlib', name: 'crypto-native', version: "${stdlibCryptoVersion}"
+    implementation group: 'io.ballerina.stdlib', name: 'constraint-native', version: "${stdlibConstraintVersion}"
 }
 
 checkstyle {

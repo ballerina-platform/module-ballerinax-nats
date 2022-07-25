@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.nats.basic.client;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -26,6 +27,8 @@ import io.ballerina.stdlib.nats.Utils;
 import io.ballerina.stdlib.nats.connection.ConnectionUtils;
 import io.ballerina.stdlib.nats.observability.NatsMetricsReporter;
 import io.nats.client.Connection;
+
+import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 
 /**
  * Initialize NATS producer using the connection.
@@ -45,6 +48,8 @@ public class Init {
         }
         clientObj.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
         clientObj.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+        clientObj.addNativeData(CONSTRAINT_VALIDATION,
+                connectionConfig.getBooleanValue(StringUtils.fromString(CONSTRAINT_VALIDATION)));
         ((NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL)).reportNewClient();
         return null;
     }
