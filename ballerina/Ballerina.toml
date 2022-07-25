@@ -13,6 +13,9 @@ distribution = "2201.2.0"
 path = "./lib/jnats-2.8.0.jar"
 
 [[platform.java11.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "nats-native"
+version = "2.4.0"
 path = "../native/build/libs/nats-native-2.4.0-SNAPSHOT.jar"
 
 [[platform.java11.dependency]]
