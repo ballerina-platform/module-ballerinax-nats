@@ -135,7 +135,7 @@ function testMinValueFloatConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: 1.99.toString(), subject: minValueFloatSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedFloatMinValueConstraintError, "Validation failed for 'minValue' constraint(s).");
+    test:assertEquals(receivedFloatMinValueConstraintError, "Validation failed for '$:minValue' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
