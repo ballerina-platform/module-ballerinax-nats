@@ -109,7 +109,7 @@ function testMaxLengthStringConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: maxLengthStringSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedStringMaxLengthConstraintError, "Validation failed for 'maxLength' constraint(s).");
+    test:assertEquals(receivedStringMaxLengthConstraintError, "Validation failed for '$.content:maxLength' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -122,7 +122,7 @@ function testMaxValueIntConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: 1099.toString(), subject: maxValueIntSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedIntMaxValueConstraintError, "Validation failed for 'maxValue' constraint(s).");
+    test:assertEquals(receivedIntMaxValueConstraintError, "Validation failed for '$.content:maxValue' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -148,7 +148,7 @@ function testMaxValueNumberConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: 1123.595.toString(), subject: maxValueNumberSubject});
     runtime:sleep(3);
-    test:assertEquals(receivedNumberMaxValueConstraintError, "Validation failed for 'maxValue' constraint(s).");
+    test:assertEquals(receivedNumberMaxValueConstraintError, "Validation failed for '$:maxValue' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
@@ -161,7 +161,7 @@ function testMaxLengthArrayConstraint() returns error? {
     check sub.'start();
     check reqClient->publishMessage({content: [1, 2, 3, 4, 5, 6, 7].toString(), subject: maxLengthArraySubject});
     runtime:sleep(3);
-    test:assertEquals(receivedArrayMaxLengthConstraintError, "Validation failed for 'maxLength' constraint(s).");
+    test:assertEquals(receivedArrayMaxLengthConstraintError, "Validation failed for '$:maxLength' constraint(s).");
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
