@@ -20,7 +20,9 @@ import ballerina/log;
 import ballerina/test;
 
 Client? clientObj = ();
+Client? reqClientObj = ();
 Listener? listenerObj = ();
+Listener? reqlistenerObj = ();
 const SUBJECT_NAME = "nats-basic";
 const PENDING_LIMITS_SUBJECT = "nats-pending";
 const QUEUE_GROUP_SUBJECT = "queue.subject";
@@ -129,9 +131,13 @@ isolated function isRequestReceived() returns boolean {
 @test:BeforeSuite
 function setup() {
     Client newClient = checkpanic new(DEFAULT_URL);
+    Client reqClient = checkpanic new(DEFAULT_URL);
     clientObj = newClient;
+    reqClientObj = reqClient;
     Listener newListener = checkpanic new(DEFAULT_URL);
+    Listener reqListener = checkpanic new(DEFAULT_URL);
     listenerObj = newListener;
+    reqlistenerObj = reqListener;
 }
 
 @test:Config {
