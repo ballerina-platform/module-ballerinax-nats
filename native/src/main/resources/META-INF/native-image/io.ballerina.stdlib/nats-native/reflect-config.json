@@ -1,0 +1,6 @@
+[
+  {
+    "name":"io.nats.client.impl.SocketDataPort",
+    "methods":[{"name":"<init>","parameterTypes":[] }]
+  }
+]
