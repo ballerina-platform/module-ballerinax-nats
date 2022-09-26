@@ -1,11 +1,12 @@
 # Change Log
 This file contains all the notable changes done to the Ballerina NATS package through the releases.
 
-## [Unreleased]
+## [2.4.0] - 2022-09-08
 
 ### Added
 - [Add data binding support for NATS client and services.](https://github.com/ballerina-platform/ballerina-standard-library/issues/2781)
 - [Add code-actions to generate nats:Service template.](https://github.com/ballerina-platform/ballerina-standard-library/issues/2687)
+- [Add constraint validation support.](https://github.com/ballerina-platform/ballerina-standard-library/issues/3056)
 
 ## [2.2.1] - 2022-03-01
 
