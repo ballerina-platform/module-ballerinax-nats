@@ -9,7 +9,7 @@ dependencies-toml-version = "2"
 [[package]]
 org = "ballerina"
 name = "constraint"
-version = "1.0.0"
+version = "1.0.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
@@ -21,7 +21,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "crypto"
-version = "2.2.3"
+version = "2.3.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"}
@@ -33,7 +33,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "io"
-version = "1.3.0"
+version = "1.3.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
@@ -46,6 +46,15 @@ name = "jballerina.java"
 version = "0.0.0"
 modules = [
 	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
+name = "lang.regexp"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
 ]
 
 [[package]]
@@ -66,7 +75,8 @@ name = "lang.string"
 version = "0.0.0"
 scope = "testOnly"
 dependencies = [
-	{org = "ballerina", name = "jballerina.java"}
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.regexp"}
 ]
 modules = [
 	{org = "ballerina", packageName = "lang.string", moduleName = "lang.string"}
@@ -84,7 +94,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "log"
-version = "2.4.1"
+version = "2.5.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "io"},
@@ -119,7 +129,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "time"
-version = "2.2.2"
+version = "2.2.3"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -139,7 +149,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "2.4.1"
+version = "2.5.0"
 dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "crypto"},
