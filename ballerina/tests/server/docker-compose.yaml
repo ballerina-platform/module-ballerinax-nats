@@ -32,3 +32,9 @@ services:
         ports:
             - "4224:4222"
             - "8224:8222"
+    nats-data:
+        image: nats:latest
+        hostname: nats-data
+        ports:
+            - "4228:4222"
+            - "8228:8222"

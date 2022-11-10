@@ -59,9 +59,9 @@ public type RandomPayload record {|
 }
 public function testDataBindingStringPublish() returns error? {
     string messageToSend = "Testing Consumer Service With String Data Binding.";
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceStringPublish);
             check sub.'start();
@@ -106,9 +106,9 @@ service object {
 }
 public function testDataBindingBytesPublish() returns error? {
     string messageToSend = "Testing Consumer Service With Bytes Data Binding.";
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceBytesPublish);
             check sub.'start();
@@ -157,9 +157,9 @@ service object {
 }
 public function testDataBindingXmlPublish() returns error? {
     xml messageToSend = xml `<start><Person><name>wso2</name><location>col-03</location></Person><Person><name>wso2</name><location>col-03</location></Person></start>`;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceXmlPublish);
             check sub.'start();
@@ -207,9 +207,9 @@ service object {
 }
 public function testDataBindingJsonPublish() returns error? {
     json messageToSend = jsonData;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceJsonPublish);
             check sub.'start();
@@ -254,9 +254,9 @@ service object {
 }
 public function testDataBindingIntPublish() returns error? {
     int messageToSend = 521;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceIntPublish);
             check sub.'start();
@@ -301,9 +301,9 @@ service object {
 }
 public function testDataBindingFloatPublish() returns error? {
     float messageToSend = 1995.52;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceFloatPublish);
             check sub.'start();
@@ -348,9 +348,9 @@ service object {
 }
 public function testDataBindingDecimalPublish() returns error? {
     decimal messageToSend = 1995.52d;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceDecimalPublish);
             check sub.'start();
@@ -395,9 +395,9 @@ service object {
 }
 public function testDataBindingBooleanPublish() returns error? {
     boolean messageToSend = true;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceBooleanPublish);
             check sub.'start();
@@ -442,9 +442,9 @@ service object {
 }
 public function testDataBindingPersonPublish() returns error? {
     Person messageToSend = personRecord1;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServicePersonPublish);
             check sub.'start();
@@ -489,9 +489,9 @@ service object {
 }
 public function testDataBindingMapPublish() returns error? {
     map<Person> messageToSend = personMap;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceMapPublish);
             check sub.'start();
@@ -539,9 +539,9 @@ public function testDataBindingTablePublish() returns error? {
     messageToSend.add(personRecord1);
     messageToSend.add(personRecord2);
     messageToSend.add(personRecord3);
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceTablePublish);
             check sub.'start();
@@ -586,9 +586,9 @@ service object {
 }
 public function testDataBindingPublishError() returns error? {
     json messageToSend = jsonData;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServicePublishError);
             check sub.'start();
@@ -638,9 +638,9 @@ service object {
 }
 public function testDataBindingStringPayloadPublish() returns error? {
     string messageToSend = "Testing Consumer Service With String Data Binding.";
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceStringPayloadPublish);
             check sub.'start();
@@ -685,9 +685,9 @@ service object {
 }
 public function testDataBindingBytesPayloadPublish() returns error? {
     string messageToSend = "Testing Consumer Service With Bytes Data Binding.";
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceBytesPayloadPublish);
             check sub.'start();
@@ -736,9 +736,9 @@ service object {
 }
 public function testDataBindingXmlPayloadPublish() returns error? {
     xml messageToSend = xml `<start><Person><name>wso2</name><location>col-03</location></Person><Person><name>wso2</name><location>col-03</location></Person></start>`;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceXmlPayloadPublish);
             check sub.'start();
@@ -786,9 +786,9 @@ service object {
 }
 public function testDataBindingJsonPayloadPublish() returns error? {
     json messageToSend = jsonData;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceJsonPayloadPublish);
             check sub.'start();
@@ -833,9 +833,9 @@ service object {
 }
 public function testDataBindingIntPayloadPublish() returns error? {
     int messageToSend = 521;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceIntPayloadPublish);
             check sub.'start();
@@ -880,9 +880,9 @@ service object {
 }
 public function testDataBindingFloatPayloadPublish() returns error? {
     float messageToSend = 1995.52;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceFloatPayloadPublish);
             check sub.'start();
@@ -927,9 +927,9 @@ service object {
 }
 public function testDataBindingDecimalPayloadPublish() returns error? {
     decimal messageToSend = 1995.52d;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceDecimalPayloadPublish);
             check sub.'start();
@@ -974,9 +974,9 @@ service object {
 }
 public function testDataBindingBooleanPayloadPublish() returns error? {
     boolean messageToSend = true;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceBooleanPayloadPublish);
             check sub.'start();
@@ -1021,9 +1021,9 @@ service object {
 }
 public function testDataBindingPersonPayloadPublish() returns error? {
     Person messageToSend = personRecord1;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServicePersonPayloadPublish);
             check sub.'start();
@@ -1068,9 +1068,9 @@ service object {
 }
 public function testDataBindingMapPayloadPublish() returns error? {
     map<Person> messageToSend = personMap;
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceMapPayloadPublish);
             check sub.'start();
@@ -1118,9 +1118,9 @@ public function testDataBindingTablePayloadPublish() returns error? {
     messageToSend.add(personRecord1);
     messageToSend.add(personRecord2);
     messageToSend.add(personRecord3);
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceTablePayloadPublish);
             check sub.'start();
@@ -1164,9 +1164,9 @@ service object {
     groups: ["nats-basic"]
 }
 public function testDataBindinUnionPayloadPublish() returns error? {
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceUnionPayloadPublish);
             check sub.'start();
@@ -1215,9 +1215,9 @@ public function testDataBindinRandomPayloadPublish() returns error? {
         replyTo: "test",
         subject: "test-subject"
     };
-    Client? newClient = clientObj;
+    Client? newClient = dataClientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = dataListenerObj;
         if sub is Listener {
             check sub.attach(consumerServiceRandomPayloadPublish);
             check sub.'start();
