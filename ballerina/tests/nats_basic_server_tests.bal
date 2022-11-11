@@ -19,10 +19,13 @@ import ballerina/lang.runtime as runtime;
 import ballerina/log;
 import ballerina/test;
 
+const string DATA_BINDING_URL = "nats://localhost:4228";
 Client? clientObj = ();
+Client? dataClientObj = ();
 Client? reqClientObj = ();
 Listener? listenerObj = ();
 Listener? reqlistenerObj = ();
+Listener? dataListenerObj = ();
 const SUBJECT_NAME = "nats-basic";
 const PENDING_LIMITS_SUBJECT = "nats-pending";
 const QUEUE_GROUP_SUBJECT = "queue.subject";
@@ -132,10 +135,14 @@ isolated function isRequestReceived() returns boolean {
 function setup() {
     Client newClient = checkpanic new(DEFAULT_URL);
     Client reqClient = checkpanic new(DEFAULT_URL);
+    Client newDataBindingClient = checkpanic new(DATA_BINDING_URL);
     clientObj = newClient;
+    dataClientObj = newDataBindingClient;
     reqClientObj = reqClient;
     Listener newListener = checkpanic new(DEFAULT_URL);
     Listener reqListener = checkpanic new(DEFAULT_URL);
+    Listener dataListener = checkpanic new(DATA_BINDING_URL);
+    dataListenerObj = dataListener;
     listenerObj = newListener;
     reqlistenerObj = reqListener;
 }
