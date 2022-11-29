@@ -18,7 +18,9 @@
 
 package io.ballerina.stdlib.nats.basic.consumer;
 
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -49,8 +51,9 @@ public class Detach {
                 (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listener.getNativeData(Constants.NATS_METRIC_UTIL);
+        ObjectType serviceType = (ObjectType) TypeUtils.getReferredType(service.getType());
         BMap<BString, Object> subscriptionConfig = Utils
-                .getSubscriptionConfig(service.getType().getAnnotation(
+                .getSubscriptionConfig(serviceType.getAnnotation(
                         StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                                 Utils.getModule().getName() + VERSION_SEPARATOR +
                                 Utils.getModule().getVersion() + ":" +
