@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
@@ -179,7 +180,8 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private static MethodType getAttachedFunctionType(BObject serviceObject, String functionName) {
         MethodType function = null;
-        MethodType[] remoteFunctions = serviceObject.getType().getMethods();
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(serviceObject.getType());
+        MethodType[] remoteFunctions = objectType.getMethods();
         for (MethodType remoteFunction : remoteFunctions) {
             if (functionName.equals(remoteFunction.getName())) {
                 function = remoteFunction;
@@ -228,13 +230,14 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private void executeResource(String function, Callback callback,
                                  StrandMetadata metadata, Type returnType, String subject, Object... args) {
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(serviceObject.getType());
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
             NatsObserverContext observerContext = new NatsObserverContext(
                     NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl, subject);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            if (serviceObject.getType().isIsolated() &&
-                    serviceObject.getType().isIsolated(function)) {
+            if (objectType.isIsolated() &&
+                    objectType.isIsolated(function)) {
                 runtime.invokeMethodAsyncConcurrently(serviceObject, function, null, metadata,
                         callback, properties, returnType, args);
             } else {
@@ -242,8 +245,8 @@ public class DefaultMessageHandler implements MessageHandler {
                         callback, properties, returnType, args);
             }
         } else {
-            if (serviceObject.getType().isIsolated() &&
-                    serviceObject.getType().isIsolated(function)) {
+            if (objectType.isIsolated() &&
+                    objectType.isIsolated(function)) {
                 runtime.invokeMethodAsyncConcurrently(serviceObject, function, null, metadata,
                         callback, null, returnType, args);
             } else {

@@ -7,7 +7,7 @@ keywords = ["service", "client", "messaging", "network", "pubsub"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-nats"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.3.0"
+distribution = "2201.4.0"
 
 [[platform.java11.dependency]]
 path = "./lib/jnats-@nats.client.version@.jar"
