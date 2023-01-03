@@ -17,13 +17,13 @@
  */
 
 module io.ballerina.stdlib.nats.runtime {
-    requires jnats;
     requires io.ballerina.runtime;
     requires org.slf4j;
     requires io.ballerina.lang;
     requires io.ballerina.lang.value;
     requires io.ballerina.stdlib.crypto;
     requires io.ballerina.stdlib.constraint;
+    requires io.nats.jnats;
     exports io.ballerina.stdlib.nats.basic.consumer;
     exports io.ballerina.stdlib.nats.basic.client;
     exports io.ballerina.stdlib.nats.connection;

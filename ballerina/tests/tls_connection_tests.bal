@@ -33,6 +33,8 @@ public isolated function testTlsConnection1() {
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
     if newClient is error {
         test:assertFail("NATS Connection initialization with TLS failed.");
+    } else {
+        checkpanic newClient.close();
     }
 }
 
@@ -69,6 +71,8 @@ public isolated function testTlsConnection3() {
     Client|Error newClient = new("nats://localhost:4225", secureSocket = secured);
     if newClient is error {
         test:assertFail("NATS Connection initialization with TLS failed.");
+    } else {
+        checkpanic newClient.close();
     }
 }
 

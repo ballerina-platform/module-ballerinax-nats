@@ -28,12 +28,39 @@ import static io.ballerina.stdlib.nats.Utils.getModule;
  */
 public class Constants {
 
-    // RabbitMQ package name constant fields
+    // NATS package name constant fields
     public static final String ORG_NAME = "ballerinax";
     public static final String NATS = "nats";
 
     // Represents the NATS objects.
     public static final String NATS_CONNECTION = "nats_connection";
+
+    // JetStream constants.
+    public static final String JET_STREAM = "jet_stream";
+    public static final String JET_STREAM_MESSAGE = "jet_stream_message";
+    public static final String JET_STREAM_AUTO_ACK = "jet_stream_auto";
+    public static final String JET_STREAM_MANAGEMENT = "jet_stream_management";
+    public static final String STREAM_CONFIG_SUBJECTS = "subjects";
+    public static final String STREAM_CONFIG_NAME = "name";
+    public static final String STREAM_CONFIG_STORAGE = "storageType";
+    public static final String STREAM_CONFIG_RETENTION = "retentionPolicy";
+    public static final String STREAM_CONFIG_MAX_CONSUMERS = "maxConsumers";
+    public static final String STREAM_CONFIG_MAX_MSGS = "maxMsgs";
+    public static final String STREAM_CONFIG_MAX_PER_SUBJECT = "maxMsgsPerSubject";
+    public static final String STREAM_CONFIG_MAX_BYTES = "maxBytes";
+    public static final String STREAM_CONFIG_MAX_AGE = "maxAge";
+    public static final String STREAM_CONFIG_MAX_MSG_SIZE = "maxMsgSize";
+    public static final String STREAM_CONFIG_REPLICAS = "replicas";
+    public static final String STREAM_CONFIG_DISCARD_POLICY = "discardPolicy";
+    public static final String STREAM_CONFIG_DESC = "description";
+    public static final String STREAM_MESSAGE = "JetStreamMessage";
+    public static final String STREAM_CALLER = "JetStreamCaller";
+    public static final String FILE_STORAGE = "FILE";
+    public static final String INTEREST_RETENTION = "INTEREST";
+    public static final String WORKQUEUE_RETENTION = "WORKQUEUE";
+    public static final String DISCARD_NEW = "NEW";
+    public static final String STREAM_SUBSCRIPTION_CONFIG = "StreamServiceConfig";
+
 
     public static final String CONSTRAINT_VALIDATION = "validation";
 
@@ -82,6 +109,7 @@ public class Constants {
     public static final String SUBSCRIPTION_CONFIG = "ServiceConfig";
     public static final BString QUEUE_NAME = StringUtils.fromString("queueName");
     public static final BString SUBJECT = StringUtils.fromString("subject");
+    public static final BString AUTO_ACK = StringUtils.fromString("autoAck");
     public static final BString PENDING_LIMITS = StringUtils.fromString("pendingLimits");
     public static final BString MAX_MESSAGES = StringUtils.fromString("maxMessages");
     public static final BString MAX_BYTES = StringUtils.fromString("maxBytes");
