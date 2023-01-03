@@ -10,7 +10,7 @@ license = ["Apache-2.0"]
 distribution = "2201.4.0"
 
 [[platform.java11.dependency]]
-path = "./lib/jnats-2.8.0.jar"
+path = "./lib/jnats-2.16.0.jar"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
