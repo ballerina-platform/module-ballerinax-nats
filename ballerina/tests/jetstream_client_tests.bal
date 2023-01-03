@@ -555,6 +555,12 @@ service object {
     }
 };
 
+JetStreamService onStreamServiceNegativeSubject =
+service object {
+    remote function onMessage(JetStreamMessage msg, JetStreamCaller caller) {
+    }
+};
+
 JetStreamService onNakService =
 @StreamServiceConfig {
     subject: "js.acks1",

@@ -138,10 +138,10 @@ public class ListenerUtils {
         List<BObject> serviceList =
                 (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
-                        .getAnnotation(StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
-                                        Utils.getModule().getName() + VERSION_SEPARATOR +
-                                        Utils.getModule().getVersion() + ":" +
-                                        Constants.STREAM_SUBSCRIPTION_CONFIG)));
+                .getAnnotation(StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
+                        Utils.getModule().getName() + VERSION_SEPARATOR +
+                        Utils.getModule().getVersion() + ":" +
+                        Constants.STREAM_SUBSCRIPTION_CONFIG)));
         String serviceName = (String) service.getNativeData(Constants.SERVICE_NAME);
         String subject;
         if (subscriptionConfig == null) {
