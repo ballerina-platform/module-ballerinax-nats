@@ -1,6 +1,11 @@
 # Change Log
 This file contains all the notable changes done to the Ballerina NATS package through the releases.
 
+## [2.5.0] - 2022-11-29
+
+### Changed
+- [API docs updated](https://github.com/ballerina-platform/ballerina-standard-library/issues/3463)
+
 ## [2.4.0] - 2022-09-08
 
 ### Added

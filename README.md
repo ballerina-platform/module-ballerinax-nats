@@ -2,9 +2,10 @@ Ballerina NATS Library
 ===================
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-timestamped-master.yml)
+[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats)
 [![Trivy](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/trivy-scan.yml)
+[![GraalVM Check](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-with-bal-test-native.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-with-bal-test-native.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-nats.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/commits/master)
-[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats) 
 
 This library provides the capability to send and receive messages by connecting to the NATS server.
 
@@ -215,5 +216,5 @@ All contributors are encouraged to read the [Ballerina Code of Conduct](https://
 
 * For more information go to the [`nats` library](https://lib.ballerina.io/ballerinax/nats/latest).
 * For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/learn/by-example/).
-* Chat live with us via our [Slack channel](https://ballerina.io/community/slack/).
+* Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
 * Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
