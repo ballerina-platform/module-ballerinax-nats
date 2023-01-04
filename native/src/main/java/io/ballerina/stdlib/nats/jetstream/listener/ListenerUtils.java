@@ -115,7 +115,6 @@ public class ListenerUtils {
             StreamMessageHandler streamMessageHandler =
                     new StreamMessageHandler(service, runtime, natsConnection.getConnectedUrl(), autoAck);
             if (queueName != null) {
-                // todo: autoAck to user, keep this in a map?
                 streamSubscription = jetStream.subscribe(subject, queueName, dispatcher, streamMessageHandler, false,
                         null);
             } else {

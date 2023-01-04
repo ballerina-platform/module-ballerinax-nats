@@ -26,7 +26,6 @@ import io.nats.client.Message;
  * Extern functions of the APIs provided by the JetStreamMessage client.
  */
 public class MessageUtils {
-    // todo: check java for runtime errors
     public static void ack(BObject messageObj) {
         Message streamMessage = (Message) messageObj.getNativeData(Constants.JET_STREAM_MESSAGE);
         streamMessage.ack();
