@@ -40,4 +40,6 @@ public class MessageUtils {
         Message streamMessage = (Message) messageObj.getNativeData(Constants.JET_STREAM_MESSAGE);
         streamMessage.inProgress();
     }
+
+    private MessageUtils() {}
 }

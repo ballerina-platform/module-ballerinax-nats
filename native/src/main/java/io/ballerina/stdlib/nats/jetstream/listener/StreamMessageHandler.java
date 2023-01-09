@@ -67,8 +67,7 @@ public class StreamMessageHandler implements MessageHandler {
      */
     @Override
     public void onMessage(Message msg) {
-        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(
-                Utils.getModule(), Constants.STREAM_MESSAGE);
+        BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(Utils.getModule(), Constants.STREAM_MESSAGE);
         Object[] msgRecordValues = new Object[2];
 
         msgRecordValues[0] = StringUtils.fromString(msg.getSubject());
@@ -104,7 +103,7 @@ public class StreamMessageHandler implements MessageHandler {
             args2[3] = true;
             dispatch(args2, msg.getSubject(), returnType);
         } else {
-            throw Utils.createNatsError("Invalid remote function signature");
+            throw Utils.createNatsError("Invalid remote function signature.");
         }
     }
 
@@ -124,35 +123,25 @@ public class StreamMessageHandler implements MessageHandler {
         ObjectType objectType = (ObjectType) TypeUtils.getReferredType(service.getType());
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                 Utils.getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
+        Map<String, Object> properties;
         if (ObserveUtils.isTracingEnabled()) {
-            Map<String, Object> properties = new HashMap<>();
+            properties = new HashMap<>();
             NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_CONSUMER,
                     connectedUrl, subject);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            if (objectType.isIsolated() &&
-                    objectType.isIsolated(Constants.ON_MESSAGE_RESOURCE)) {
-                runtime.invokeMethodAsyncConcurrently(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                        new DispatcherCallback(connectedUrl, subject, countDownLatch), properties, returnType, args);
-            } else {
-                runtime.invokeMethodAsyncSequentially(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                        new DispatcherCallback(connectedUrl, subject, countDownLatch), properties, returnType, args);
-            }
+        }
+        if (objectType.isIsolated() && objectType.isIsolated(Constants.ON_MESSAGE_RESOURCE)) {
+            runtime.invokeMethodAsyncConcurrently(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
+                    new DispatcherCallback(connectedUrl, subject, countDownLatch), null, returnType, args);
         } else {
-            if (objectType.isIsolated() &&
-                    objectType.isIsolated(Constants.ON_MESSAGE_RESOURCE)) {
-                runtime.invokeMethodAsyncConcurrently(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                        new DispatcherCallback(connectedUrl, subject, countDownLatch), null, returnType, args);
-            } else {
-                runtime.invokeMethodAsyncSequentially(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                        new DispatcherCallback(connectedUrl, subject, countDownLatch), null, returnType, args);
-            }
+            runtime.invokeMethodAsyncSequentially(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
+                    new DispatcherCallback(connectedUrl, subject, countDownLatch), null, returnType, args);
         }
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw Utils.createNatsError("Error occurred in STAN service. " +
-                    "The current thread got interrupted" + e.getCause().getMessage());
+            throw Utils.createNatsError("The current thread got interrupted.", e);
         }
     }
 

@@ -167,7 +167,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testValidService17() {
+    public void testValidJetStreamService() {
         Package currentPackage = loadPackage("valid_service_17");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -175,7 +175,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testValidService18() {
+    public void testMultipleValidJetStreamServices() {
         Package currentPackage = loadPackage("valid_service_18");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -183,7 +183,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testValidService19() {
+    public void testImportingModuleWithAlias() {
         Package currentPackage = loadPackage("valid_service_19");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -191,7 +191,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testValidService20() {
+    public void testDeclaringStreamMessageInside() {
         Package currentPackage = loadPackage("valid_service_20");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -199,7 +199,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testValidService21() {
+    public void testCreatingNewClientInsideService() {
         Package currentPackage = loadPackage("valid_service_21");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -207,7 +207,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testValidService22() {
+    public void testValidJetStreamServiceWithReadOnlyMessage() {
         Package currentPackage = loadPackage("valid_service_22");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -464,7 +464,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testInvalidService24() {
+    public void testJetStreamServiceWithNoRemoteMethods() {
         Package currentPackage = loadPackage("invalid_service_24");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -474,7 +474,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testInvalidService25() {
+    public void testJetStreamServiceWithInvalidRemoteMethod() {
         Package currentPackage = loadPackage("invalid_service_25");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -484,7 +484,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testInvalidService26() {
+    public void testJetStreamServiceWithNonRemoteOnMessageMethod() {
         Package currentPackage = loadPackage("invalid_service_26");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -494,7 +494,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testInvalidService27() {
+    public void testJetStreamServiceWithNoArgsOnMessageMethod() {
         Package currentPackage = loadPackage("invalid_service_27");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -504,7 +504,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testInvalidService28() {
+    public void testJetStreamServiceWithInvalidArgsOnMessageMethod() {
         Package currentPackage = loadPackage("invalid_service_28");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -514,7 +514,7 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
-    public void testInvalidService29() {
+    public void testJetStreamServiceWithInvalidReturnOnMessageMethod() {
         Package currentPackage = loadPackage("invalid_service_29");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();

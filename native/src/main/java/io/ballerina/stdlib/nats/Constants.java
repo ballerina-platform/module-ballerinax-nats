@@ -40,7 +40,7 @@ public class Constants {
     public static final String JET_STREAM_MESSAGE = "jet_stream_message";
     public static final String JET_STREAM_AUTO_ACK = "jet_stream_auto";
     public static final String JET_STREAM_MANAGEMENT = "jet_stream_management";
-    public static final String STREAM_CONFIG_SUBJECTS = "subjects";
+    public static final BString STREAM_CONFIG_SUBJECTS = StringUtils.fromString("subjects");
     public static final String STREAM_CONFIG_NAME = "name";
     public static final String STREAM_CONFIG_STORAGE = "storageType";
     public static final String STREAM_CONFIG_RETENTION = "retentionPolicy";

@@ -87,7 +87,7 @@ public isolated class JetStreamListener {
 
 isolated function streamListenerInit(JetStreamListener jetStreamLis, Client natsConnection) returns Error? =
 @java:Method {
-    'class: "io.ballerina.stdlib.nats.jetstream.listener.Init"
+    'class: "io.ballerina.stdlib.nats.jetstream.listener.ListenerUtils"
 } external;
 
 isolated function basicStreamStart(JetStreamListener lis) =

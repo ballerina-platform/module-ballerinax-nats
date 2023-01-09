@@ -39,6 +39,9 @@ import java.time.Duration;
  * Extern functions of the APIs provided by the JetStreamManagement client.
  */
 public class ManagementUtils {
+
+    private ManagementUtils() {}
+
     public static Object addStream(BObject clientObject, BMap<BString, Object> streamConfig) {
         try {
             JetStreamManagement jetStreamManagement =
@@ -47,9 +50,8 @@ public class ManagementUtils {
             jetStreamManagement.addStream(streamConfiguration);
             return null;
         } catch (IOException | JetStreamApiException | IllegalStateException e) {
-            String errorMsg =
-                    "Error occurred while adding the stream. " + (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while adding the stream.";
+            return Utils.createNatsError(errorMsg, e);
         }
     }
 
@@ -61,9 +63,8 @@ public class ManagementUtils {
             jetStreamManagement.updateStream(streamConfiguration);
             return null;
         } catch (IOException | JetStreamApiException | IllegalStateException e) {
-            String errorMsg =
-                    "Error occurred while updating the stream. " + (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while updating the stream.";
+            return Utils.createNatsError(errorMsg, e);
         }
     }
 
@@ -74,9 +75,8 @@ public class ManagementUtils {
             jetStreamManagement.deleteStream(streamName.getValue());
             return null;
         } catch (IOException | JetStreamApiException | IllegalStateException e) {
-            String errorMsg =
-                    "Error occurred while deleting the stream. " + (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while deleting the stream.";
+            return Utils.createNatsError(errorMsg, e);
         }
     }
 
@@ -87,18 +87,16 @@ public class ManagementUtils {
             jetStreamManagement.purgeStream(streamName.getValue());
             return null;
         } catch (IOException | JetStreamApiException | IllegalStateException e) {
-            String errorMsg =
-                    "Error occurred while purging the stream. " + (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while purging the stream.";
+            return Utils.createNatsError(errorMsg, e);
         }
     }
 
     public static StreamConfiguration getStreamConfig(BMap<BString, Object> streamConfig) {
         StreamConfiguration.Builder streamConfiguration = StreamConfiguration.builder();
-        if (streamConfig.containsKey(StringUtils.fromString(Constants.STREAM_CONFIG_SUBJECTS))) {
-            streamConfiguration
-                    .subjects((streamConfig.getArrayValue(StringUtils.fromString(Constants.STREAM_CONFIG_SUBJECTS)))
-                            .getStringArray());
+        if (streamConfig.containsKey(Constants.STREAM_CONFIG_SUBJECTS)) {
+            streamConfiguration.subjects((streamConfig.getArrayValue(Constants.STREAM_CONFIG_SUBJECTS))
+                    .getStringArray());
         }
 
         if (streamConfig.containsKey(StringUtils.fromString(Constants.STREAM_CONFIG_NAME))) {

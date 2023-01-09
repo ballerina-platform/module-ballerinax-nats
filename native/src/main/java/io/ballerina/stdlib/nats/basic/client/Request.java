@@ -99,8 +99,7 @@ public class Request {
         } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException |
                 TimeoutException ex) {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError("Error while requesting message to " +
-                                                 "subject " + subject + ". " + ex.getMessage());
+            return Utils.createNatsError("Error while requesting message to subject " + subject, ex);
         } catch (BError bError) {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return bError;

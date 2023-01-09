@@ -37,7 +37,7 @@ public class CloseConnection {
         try {
             connection.close();
         } catch (InterruptedException e) {
-            return Utils.createNatsError("Error while closing the connection: " + e.getMessage());
+            return Utils.createNatsError("Error while closing the connection", e);
         }
         ((NatsMetricsReporter) clientObject.getNativeData(Constants.NATS_METRIC_UTIL)).reportClientClose();
         return null;

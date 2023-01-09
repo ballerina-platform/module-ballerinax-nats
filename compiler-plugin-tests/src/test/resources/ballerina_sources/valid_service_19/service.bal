@@ -16,7 +16,7 @@
 
 import ballerinax/nats as foo;
 
-foo:Client natsClient = checkpanic new(foo:DEFAULT_URL);
+foo:Client natsClient = check new(foo:DEFAULT_URL);
 listener foo:JetStreamListener subscription = new(natsClient);
 
 @foo:StreamServiceConfig {

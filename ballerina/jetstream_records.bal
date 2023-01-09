@@ -18,23 +18,18 @@
 #
 # + name - A name for the stream
 # + description - A short description of the purpose of this stream 
-# + subjects - Which NATS subjects to populate this stream with. 
-#              Supports wildcards. Defaults to just the configured stream name  
-# + retentionPolicy - How message retention is considered, Limits (default), 
-#                       Interest or WorkQueue  
-# + maxConsumers - How many consumers can be defined for the stream, 
-#                    -1 for unlimited
-# + maxMsgs - How large the stream may become in total messages 
-#                 before the configured discard policy takes action
+# + subjects - Which NATS subjects to populate this stream with. Supports wildcards. Defaults to just the configured
+#              stream name
+# + retentionPolicy - How message retention is considered, Limits (default), Interest or WorkQueue
+# + maxConsumers - How many consumers can be defined for the stream, -1 for unlimited
+# + maxMsgs - How large the stream may become in total messages before the configured discard policy takes action
 # + maxMsgsPerSubject - Maximum amount of messages to retain per subject 
-# + maxBytes - How large the stream may become in total bytes 
-#                 before the configured discard policy takes action  
+# + maxBytes - How large the stream may become in total bytes before the configured discard policy takes action
 # + maxAge - Maximum age of any message in the stream, expressed in seconds  
 # + maxMsgSize - The largest message that will be accepted by the Stream  
 # + storageType - The type of storage backend, File and Memory
 # + replicas - The number of replicas to store this message on
-# + discardPolicy - When a stream has reached its configured maxBytes or maxMsgs, 
-#                    this policy takes action
+# + discardPolicy - When a stream has reached its configured maxBytes or maxMsgs, this policy takes action
 public type StreamConfiguration record {|
    string name?;
    string description?;

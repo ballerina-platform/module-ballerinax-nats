@@ -20,7 +20,6 @@ package io.ballerina.stdlib.nats.jetstream.client;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -30,6 +29,7 @@ import io.ballerina.stdlib.nats.Utils;
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
+import io.nats.client.JetStreamManagement;
 import io.nats.client.JetStreamSubscription;
 import io.nats.client.Message;
 
@@ -40,7 +40,23 @@ import java.time.Duration;
  * Extern functions of the APIs provided by the JetStreamManagementClient.
  */
 public class ClientUtils {
-    public static Object publishStreamMessage(BObject clientObject, BString subject, BArray data) {
+
+    private ClientUtils() {}
+
+    public static Object streamClientInit(BObject selfObj, BObject natsClientObj) {
+        Connection natsConnection = (Connection) natsClientObj.getNativeData(Constants.NATS_CONNECTION);
+        try {
+            JetStreamManagement jetStreamManagement = natsConnection.jetStreamManagement();
+            selfObj.addNativeData(Constants.JET_STREAM_MANAGEMENT, jetStreamManagement);
+            selfObj.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+        } catch (IOException e) {
+            String errorMsg = "Error occurred while initializing the JetStreamClient.";
+            return Utils.createNatsError(errorMsg, e);
+        }
+        return null;
+    }
+
+    public static Object publishMessage(BObject clientObject, BMap<BString, Object> message) {
         try {
             Connection natsConnection = (Connection) clientObject.getNativeData(Constants.NATS_CONNECTION);
             JetStream jetStream;
@@ -50,13 +66,14 @@ public class ClientUtils {
                 jetStream = natsConnection.jetStream();
                 clientObject.addNativeData(Constants.JET_STREAM, jetStream);
             }
-            byte[] byteContent = data.getBytes();
-            String subjectValue = subject.getValue();
+            byte[] byteContent =
+                    (message.getArrayValue(StringUtils.fromString(Constants.MESSAGE_CONTENT))).getByteArray();
+            String subjectValue =
+                    (message.getStringValue(StringUtils.fromString(Constants.MESSAGE_SUBJECT))).getValue();
             jetStream.publish(subjectValue, byteContent);
         } catch (IOException | JetStreamApiException e) {
-            String errorMsg = "Error occurred while publishing message. " +
-                    (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while publishing message.";
+            return Utils.createNatsError(errorMsg, e);
         }
         return null;
     }
@@ -84,9 +101,8 @@ public class ClientUtils {
             populatedMsgRecord.addNativeData(Constants.JET_STREAM_MESSAGE, message);
             return populatedMsgRecord;
         } catch (IOException | JetStreamApiException | InterruptedException e) {
-            String errorMsg = "Error occurred while consuming message. " +
-                    (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while consuming message.";
+            return Utils.createNatsError(errorMsg, e);
         }
     }
 

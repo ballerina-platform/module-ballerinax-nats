@@ -77,7 +77,7 @@ public class Detach {
         try {
             dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return Utils.createNatsError("Error occurred while un-subscribing " + ex.getMessage());
+            return Utils.createNatsError("Error occurred while un-subscribing.", ex);
         }
         serviceList.remove(service);
         dispatcherList.remove(service.getType().getName());

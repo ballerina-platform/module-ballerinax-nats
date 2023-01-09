@@ -35,9 +35,10 @@ public isolated client class JetStreamClient {
     # 
     # + message - The JetStream message to send to
     # + return - `()` or else a `nats:Error` if an error is occurred
-    isolated remote function publishMessage(JetStreamMessage message) returns Error? {
-        return publishStreamMessage(self, message.subject, message.content);
-    }
+    isolated remote function publishMessage(JetStreamMessage message) returns Error? =
+    @java:Method {
+        'class: "io.ballerina.stdlib.nats.jetstream.client.ClientUtils"
+    } external;
 
     # Retrieves a message synchronously from the given subject.
     # ```ballerina
@@ -141,12 +142,7 @@ public isolated client class JetStreamClient {
     } external;
 }
 
-isolated function publishStreamMessage(JetStreamClient clientObj, string subject, byte[] body) returns Error? =
-@java:Method {
-    'class: "io.ballerina.stdlib.nats.jetstream.client.ClientUtils"
-} external;
-
 isolated function streamClientInit(JetStreamClient jetStreamClient, Client natsConnection) returns Error? =
 @java:Method {
-    'class: "io.ballerina.stdlib.nats.jetstream.client.Init"
+    'class: "io.ballerina.stdlib.nats.jetstream.client.ClientUtils"
 } external;

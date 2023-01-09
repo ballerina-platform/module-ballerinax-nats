@@ -19,7 +19,7 @@ import ballerina/test;
 @test:Config {
     groups: ["nats-basic"]
 }
-public isolated function testTlsConnection1() {
+public isolated function testTlsConnection1() returns error? {
     SecureSocket secured = {
         cert: {
             path: "tests/certs/truststore.jks",
@@ -34,7 +34,7 @@ public isolated function testTlsConnection1() {
     if newClient is error {
         test:assertFail("NATS Connection initialization with TLS failed.");
     } else {
-        checkpanic newClient.close();
+        check newClient.close();
     }
 }
 
@@ -60,7 +60,7 @@ public isolated function testTlsConnection2() {
 @test:Config {
     groups: ["nats-basic"]
 }
-public isolated function testTlsConnection3() {
+public isolated function testTlsConnection3() returns error? {
     SecureSocket secured = {
         cert: "tests/certs/server.crt",
         key: {
@@ -72,7 +72,7 @@ public isolated function testTlsConnection3() {
     if newClient is error {
         test:assertFail("NATS Connection initialization with TLS failed.");
     } else {
-        checkpanic newClient.close();
+        check newClient.close();
     }
 }
 

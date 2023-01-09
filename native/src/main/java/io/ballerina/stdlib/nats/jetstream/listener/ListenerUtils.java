@@ -38,6 +38,7 @@ import io.nats.client.JetStreamSubscription;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,27 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
 public class ListenerUtils {
     private static final CountDownLatch countDownLatch = new CountDownLatch(1);
 
+    private ListenerUtils() {}
+
+    public static Object streamListenerInit(BObject selfObj, BObject natsClientObj) {
+        Connection natsConnection = (Connection) natsClientObj.getNativeData(Constants.NATS_CONNECTION);
+        try {
+            JetStream jetStream = natsConnection.jetStream();
+            selfObj.addNativeData(Constants.JET_STREAM, jetStream);
+            selfObj.addNativeData(Constants.NATS_CONNECTION, natsConnection);
+            ConcurrentHashMap<String, Dispatcher> dispatcherList = new ConcurrentHashMap<>();
+            selfObj.addNativeData(Constants.DISPATCHER_LIST, dispatcherList);
+            ArrayList<JetStreamSubscription> subscriptionsList = new ArrayList<>();
+            selfObj.addNativeData(Constants.BASIC_SUBSCRIPTION_LIST, subscriptionsList);
+            List<BObject> serviceList = Collections.synchronizedList(new ArrayList<>());
+            selfObj.addNativeData(Constants.SERVICE_LIST, serviceList);
+        } catch (IOException e) {
+            String errorMsg = "Error occurred while initializing the JetStreamListener.";
+            return Utils.createNatsError(errorMsg, e);
+        }
+        return null;
+    }
+
     public static void basicStreamStart(BObject listenerObject) {
         listenerObject.addNativeData(Constants.COUNTDOWN_LATCH, countDownLatch);
         // It is essential to keep a non-daemon thread running in order to avoid the java program or the
@@ -69,12 +91,10 @@ public class ListenerUtils {
 
     public static Object attach(Environment env, BObject listenerObject, BObject service,
                                 Object annotationData) {
-        Connection natsConnection =
-                (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
+        Connection natsConnection = (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         JetStream jetStream = (JetStream) listenerObject.getNativeData(Constants.JET_STREAM);
         @SuppressWarnings("unchecked")
-        List<BObject> serviceList =
-                (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
+        List<BObject> serviceList = (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
                         .getAnnotation(StringUtils.fromString(
@@ -121,7 +141,7 @@ public class ListenerUtils {
                 streamSubscription = jetStream.subscribe(subject, dispatcher, streamMessageHandler, false);
             }
         } catch (IOException | JetStreamApiException e) {
-            throw Utils.createNatsError("Error occurred while creating the JetStream subscription.");
+            throw Utils.createNatsError("Error occurred while creating the JetStream subscription.", e);
         }
         serviceList.add(service);
         @SuppressWarnings("unchecked")
@@ -134,8 +154,7 @@ public class ListenerUtils {
 
     public static Object detach(BObject listener, BObject service) {
         @SuppressWarnings("unchecked")
-        List<BObject> serviceList =
-                (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
+        List<BObject> serviceList = (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
                 .getAnnotation(StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                         Utils.getModule().getName() + VERSION_SEPARATOR +
@@ -160,7 +179,7 @@ public class ListenerUtils {
         try {
             dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return Utils.createNatsError("Error occurred while un-subscribing " + ex.getMessage());
+            return Utils.createNatsError("Error occurred while un-subscribing.", ex);
         }
         serviceList.remove(service);
         dispatcherList.remove(service.getType().getName());
@@ -168,8 +187,7 @@ public class ListenerUtils {
     }
 
     public static Object immediateStop(BObject listenerObject) {
-        Connection natsConnection =
-                (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
+        Connection natsConnection = (Connection) listenerObject.getNativeData(Constants.NATS_CONNECTION);
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(Constants.DISPATCHER_LIST);
@@ -185,7 +203,7 @@ public class ListenerUtils {
             natsConnection.close();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return Utils.createNatsError("Listener interrupted while closing NATS connection");
+            return Utils.createNatsError("Listener interrupted while closing NATS connection.", e);
         }
         return null;
     }
@@ -208,7 +226,7 @@ public class ListenerUtils {
             natsConnection.drain(Duration.ZERO);
         } catch (InterruptedException | TimeoutException | IllegalStateException e) {
             Thread.currentThread().interrupt();
-            return Utils.createNatsError("Error occurred while stopping the listener.");
+            return Utils.createNatsError("Error occurred while stopping the listener.", e);
         }
         return null;
     }

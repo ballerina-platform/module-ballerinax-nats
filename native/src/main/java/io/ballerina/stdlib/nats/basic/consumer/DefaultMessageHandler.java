@@ -114,7 +114,7 @@ public class DefaultMessageHandler implements MessageHandler {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
-            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
+            throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR, e);
         }
     }
 

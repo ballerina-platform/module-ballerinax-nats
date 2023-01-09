@@ -71,7 +71,7 @@ public class ListenerUtils {
             Thread.currentThread().interrupt();
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            return Utils.createNatsError("Listener interrupted while closing NATS connection");
+            return Utils.createNatsError("Listener interrupted while closing NATS connection", e);
         }
         return null;
     }
@@ -104,15 +104,15 @@ public class ListenerUtils {
             Thread.currentThread().interrupt();
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            return Utils.createNatsError("Listener interrupted on graceful stop.");
+            return Utils.createNatsError("Listener interrupted on graceful stop.", e);
         } catch (TimeoutException e) {
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            return Utils.createNatsError("Timeout error occurred, on graceful stop.");
+            return Utils.createNatsError("Timeout error occurred, on graceful stop.", e);
         } catch (IllegalStateException e) {
             natsMetricsReporter.reportConsumerError(NatsObservabilityConstants.UNKNOWN,
                     NatsObservabilityConstants.ERROR_TYPE_CLOSE);
-            return Utils.createNatsError("Connection is already closed.");
+            return Utils.createNatsError("Connection is already closed.", e);
         }
         return null;
     }
@@ -122,9 +122,8 @@ public class ListenerUtils {
         try {
             natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
         } catch (Exception e) {
-            String errorMsg = "Error occurred while setting up the connection. " +
-                    (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "Error occurred while setting up the connection.";
+            return Utils.createNatsError(errorMsg, e);
         }
         listenerObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
         listenerObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);

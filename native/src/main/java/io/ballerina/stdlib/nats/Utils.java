@@ -79,6 +79,12 @@ public class Utils {
                 null, null);
     }
 
+    public static BError createNatsError(String detailedErrorMessage, Exception ex) {
+        String errorMsg = detailedErrorMessage + (ex.getMessage() != null ? ex.getMessage() : "");
+        return ErrorCreator.createError(getModule(), NATS_ERROR, StringUtils.fromString(errorMsg),
+                null, null);
+    }
+
     public static BError createPayloadValidationError(String message, Object results) {
         return ErrorCreator.createError(getModule(), PAYLOAD_VALIDATION_ERROR, StringUtils.fromString(message),
                 ErrorCreator.createError(StringUtils.fromString(results.toString())), null);
@@ -158,7 +164,7 @@ public class Utils {
                     return getValueFromJson(type, strValue);
             }
         } catch (BError bError) {
-            throw createNatsError(String.format("Data binding failed: %s", bError.getMessage()));
+            throw createNatsError(String.format("Data binding failed: %s", bError.getMessage()), bError);
         }
     }
 
