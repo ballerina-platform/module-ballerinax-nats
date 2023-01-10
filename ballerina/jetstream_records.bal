@@ -18,8 +18,8 @@
 #
 # + name - A name for the stream
 # + description - A short description of the purpose of this stream 
-# + subjects - Which NATS subjects to populate this stream with. Supports wildcards. Defaults to just the configured
-#              stream name
+# + subjects - Which NATS subject/subjects to populate this stream with. Supports wildcards. Defaults to just the
+#              configured stream name
 # + retentionPolicy - How message retention is considered, Limits (default), Interest or WorkQueue
 # + maxConsumers - How many consumers can be defined for the stream, -1 for unlimited
 # + maxMsgs - How large the stream may become in total messages before the configured discard policy takes action
@@ -33,7 +33,7 @@
 public type StreamConfiguration record {|
    string name?;
    string description?;
-   string[] subjects?;
+   string|string[] subjects?;
    RetentionPolicy retentionPolicy?;
    float maxConsumers?;
    float maxMsgs?;

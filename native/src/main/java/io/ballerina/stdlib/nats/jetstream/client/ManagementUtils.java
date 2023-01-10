@@ -18,7 +18,10 @@
 
 package io.ballerina.stdlib.nats.jetstream.client;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -95,8 +98,14 @@ public class ManagementUtils {
     public static StreamConfiguration getStreamConfig(BMap<BString, Object> streamConfig) {
         StreamConfiguration.Builder streamConfiguration = StreamConfiguration.builder();
         if (streamConfig.containsKey(Constants.STREAM_CONFIG_SUBJECTS)) {
-            streamConfiguration.subjects((streamConfig.getArrayValue(Constants.STREAM_CONFIG_SUBJECTS))
-                    .getStringArray());
+            Object subjects = streamConfig.get(Constants.STREAM_CONFIG_SUBJECTS);
+            if (TypeUtils.getType(subjects).getTag() == TypeTags.ARRAY_TAG) {
+                String[] subjectArray = ((BArray) subjects).getStringArray();
+                streamConfiguration.subjects(subjectArray);
+            } else {
+                String[] subjectArray = {((BString) subjects).getValue()};
+                streamConfiguration.subjects(subjectArray);
+            }
         }
 
         if (streamConfig.containsKey(StringUtils.fromString(Constants.STREAM_CONFIG_NAME))) {
