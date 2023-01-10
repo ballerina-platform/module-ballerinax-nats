@@ -677,7 +677,7 @@ public isolated function testRequestMessage1() {
     Message|Error replyMessage =
              reqClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_TIMEOUT_SUBJECT}, 2);
     if replyMessage is error {
-        string errorMessage = "Error while requesting message to subject nats-on-req-timeout. null";
+        string errorMessage = "Error while requesting message to subject nats-on-req-timeout. ";
         test:assertEquals(replyMessage.message(), errorMessage, msg = "Error message mismatch.");
     } else {
         test:assertFail("Expected request timeout.");

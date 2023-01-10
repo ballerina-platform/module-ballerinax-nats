@@ -80,7 +80,7 @@ public class Utils {
     }
 
     public static BError createNatsError(String detailedErrorMessage, Exception ex) {
-        String errorMsg = detailedErrorMessage + (ex.getMessage() != null ? ex.getMessage() : "");
+        String errorMsg = detailedErrorMessage + " " + (ex.getMessage() != null ? ex.getMessage() : "");
         return ErrorCreator.createError(getModule(), NATS_ERROR, StringUtils.fromString(errorMsg),
                 null, null);
     }
