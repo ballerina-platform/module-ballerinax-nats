@@ -1,6 +1,11 @@
 # Change Log
 This file contains all the notable changes done to the Ballerina NATS package through the releases.
 
+## [Unreleased]
+
+### Added
+- [Introduce JetStream support to Ballerina NATS module.](https://github.com/ballerina-platform/ballerina-standard-library/issues/3550)
+
 ## [2.5.0] - 2022-11-29
 
 ### Changed

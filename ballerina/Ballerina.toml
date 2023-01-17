@@ -10,7 +10,7 @@ license = ["Apache-2.0"]
 distribution = "2201.4.0"
 
 [[platform.java11.dependency]]
-path = "./lib/jnats-2.8.0.jar"
+path = "./lib/jnats-2.16.0.jar"
 
 [[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
@@ -22,7 +22,7 @@ path = "../native/build/libs/nats-native-2.6.0-SNAPSHOT.jar"
 groupId = "io.ballerina.stdlib"
 artifactId = "constraint-native"
 version = "1.1.0"
-path = "./lib/constraint-native-1.1.0-20221122-134300-fc2d3aa.jar"
+path = "./lib/constraint-native-1.1.0-20230103-174400-ecce026.jar"
 
 [build-options]
 observabilityIncluded=true

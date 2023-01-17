@@ -42,9 +42,8 @@ public class Init {
         try {
             natsConnection = ConnectionUtils.getNatsConnection(url, connectionConfig);
         } catch (Exception e) {
-            String errorMsg = "error occurred while setting up the connection. " +
-                    (e.getMessage() != null ? e.getMessage() : "");
-            return Utils.createNatsError(errorMsg);
+            String errorMsg = "error occurred while setting up the connection.";
+            return Utils.createNatsError(errorMsg, e);
         }
         clientObj.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
         clientObj.addNativeData(Constants.NATS_CONNECTION, natsConnection);

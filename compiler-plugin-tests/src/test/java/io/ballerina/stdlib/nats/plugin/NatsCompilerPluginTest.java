@@ -167,6 +167,54 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
+    public void testValidJetStreamService() {
+        Package currentPackage = loadPackage("valid_service_17");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
+    public void testMultipleValidJetStreamServices() {
+        Package currentPackage = loadPackage("valid_service_18");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
+    public void testImportingModuleWithAlias() {
+        Package currentPackage = loadPackage("valid_service_19");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
+    public void testDeclaringStreamMessageInside() {
+        Package currentPackage = loadPackage("valid_service_20");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
+    public void testCreatingNewClientInsideService() {
+        Package currentPackage = loadPackage("valid_service_21");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
+    public void testValidJetStreamServiceWithReadOnlyMessage() {
+        Package currentPackage = loadPackage("valid_service_22");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
     public void testInvalidService1() {
         Package currentPackage = loadPackage("invalid_service_1");
         PackageCompilation compilation = currentPackage.getCompilation();
@@ -413,6 +461,66 @@ public class NatsCompilerPluginTest {
             Diagnostic diagnostic = (Diagnostic) obj;
             assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE_OR_ANYDATA);
         }
+    }
+
+    @Test
+    public void testJetStreamServiceWithNoRemoteMethods() {
+        Package currentPackage = loadPackage("invalid_service_24");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.NO_ON_MESSAGE_OR_ON_REQUEST);
+    }
+
+    @Test
+    public void testJetStreamServiceWithInvalidRemoteMethod() {
+        Package currentPackage = loadPackage("invalid_service_25");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_RESOURCE_FUNCTION);
+    }
+
+    @Test
+    public void testJetStreamServiceWithNonRemoteOnMessageMethod() {
+        Package currentPackage = loadPackage("invalid_service_26");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.FUNCTION_SHOULD_BE_REMOTE);
+    }
+
+    @Test
+    public void testJetStreamServiceWithNoArgsOnMessageMethod() {
+        Package currentPackage = loadPackage("invalid_service_27");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.MUST_HAVE_MESSAGE_OR_ANYDATA);
+    }
+
+    @Test
+    public void testJetStreamServiceWithInvalidArgsOnMessageMethod() {
+        Package currentPackage = loadPackage("invalid_service_28");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_FUNCTION_PARAM_MESSAGE);
+    }
+
+    @Test
+    public void testJetStreamServiceWithInvalidReturnOnMessageMethod() {
+        Package currentPackage = loadPackage("invalid_service_29");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL);
     }
 
     private Package loadPackage(String path) {

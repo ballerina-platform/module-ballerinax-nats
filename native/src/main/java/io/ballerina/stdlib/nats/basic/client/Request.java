@@ -96,14 +96,10 @@ public class Request {
             validateConstraints(populatedRecord, getElementTypeDescFromArrayTypeDesc(bTypedesc), constraintValidation);
             natsMetricsReporter.reportResponse(subject);
             return populatedRecord;
-        } catch (TimeoutException ex) {
+        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException |
+                TimeoutException ex) {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError("Request to subject " + subject +
-                                                 " timed out while waiting for a reply");
-        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException ex) {
-            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
-            return Utils.createNatsError("Error while requesting message to " +
-                                                 "subject " + subject + ". " + ex.getMessage());
+            return Utils.createNatsError("Error while requesting message to subject " + subject + ".", ex);
         } catch (BError bError) {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return bError;

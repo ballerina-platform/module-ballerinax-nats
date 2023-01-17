@@ -59,10 +59,8 @@ public class Publish {
             }
             natsMetricsReporter.reportPublish(subject, byteContent.length);
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            natsMetricsReporter.reportProducerError(subject,
-                                                    NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
-            return Utils.createNatsError(Constants.PRODUCER_ERROR +
-                                                 subject + ". " + ex.getMessage());
+            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+            return Utils.createNatsError(Constants.PRODUCER_ERROR + subject, ex);
         }
         return null;
     }

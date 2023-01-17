@@ -1,17 +1,5 @@
 version: "3"
 services:
-    nats-tls:
-        image: nats:latest
-        hostname: nats-tls
-        command: "-c /server.conf"
-        volumes:
-            - "./server.conf:/server.conf"
-            - "../certs/server.crt:/certs/server.crt"
-            - "../certs/server.key:/certs/server.key"
-            - "../certs/ca.crt:/certs/ca.crt"
-        ports:
-            - "4225:4222"
-            - "8225:8222"
     nats-1:
         image: nats:latest
         hostname: nats-1
@@ -32,6 +20,25 @@ services:
         ports:
             - "4224:4222"
             - "8224:8222"
+    nats-tls:
+        image: nats:latest
+        hostname: nats-tls
+        command: "-c /server.conf"
+        volumes:
+            - "./server.conf:/server.conf"
+            - "../certs/server.crt:/certs/server.crt"
+            - "../certs/server.key:/certs/server.key"
+            - "../certs/ca.crt:/certs/ca.crt"
+        ports:
+            - "4225:4222"
+            - "8225:8222"
+    nats-js:
+        image: nats:latest
+        hostname: nats-js-1
+        command: "-js"
+        ports:
+            - "4226:4222"
+            - "8226:8222"
     nats-data:
         image: nats:latest
         hostname: nats-data
