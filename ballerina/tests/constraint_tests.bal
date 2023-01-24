@@ -86,18 +86,27 @@ string disabledValidationSubject = "disabled.validation.subject";
 
 @test:Config {}
 function testValidStringConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(validStringService);
             check sub.'start();
             Message|error result = reqClient->requestMessage({content: "Hello".toBytes(), subject: validStringSubject}, 2);
-            if result is error {
-                test:assertFail(result.message());
-            } else {
-                test:assertEquals(strings:fromBytes(result.content), "Hello Back!");
-                test:assertEquals(receivedValidStringValue, "Hello");
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedValidStringValue !is "" && result !is error {
+                    test:assertEquals(receivedValidStringValue, "Hello", msg = "Message received does not match.");
+                    test:assertEquals(strings:fromBytes(result.content), "Hello Back!");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
             }
         } else {
             test:assertFail("NATS Connection creation failed.");
@@ -109,15 +118,28 @@ function testValidStringConstraint() returns error? {
 
 @test:Config {}
 function testMaxLengthStringConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(maxLengthStringService);
             check sub.'start();
             check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: maxLengthStringSubject});
-            runtime:sleep(3);
-            test:assertEquals(receivedStringMaxLengthConstraintError, "Validation failed for '$.content:maxLength' constraint(s).");
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedStringMaxLengthConstraintError !is "" {
+                    test:assertEquals(receivedStringMaxLengthConstraintError, 
+                        "Validation failed for '$.content:maxLength' constraint(s).", msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
         } else {
             test:assertFail("NATS Connection creation failed.");
         }
@@ -128,15 +150,28 @@ function testMaxLengthStringConstraint() returns error? {
 
 @test:Config {}
 function testMaxValueIntConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(maxValueIntService);
             check sub.'start();
             check reqClient->publishMessage({content: 1099.toString(), subject: maxValueIntSubject});
-            runtime:sleep(3);
-            test:assertEquals(receivedIntMaxValueConstraintError, "Validation failed for '$.content:maxValue' constraint(s).");
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedIntMaxValueConstraintError !is "" {
+                    test:assertEquals(receivedIntMaxValueConstraintError, 
+                        "Validation failed for '$.content:maxValue' constraint(s).", msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
         } else {
             test:assertFail("NATS Connection creation failed.");
         }
@@ -147,15 +182,27 @@ function testMaxValueIntConstraint() returns error? {
 
 @test:Config {}
 function testMinValueFloatConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(minValueFloatService);
             check sub.'start();
             check reqClient->publishMessage({content: 1.99.toString(), subject: minValueFloatSubject});
-            runtime:sleep(3);
-            test:assertEquals(receivedFloatMinValueConstraintError, "Validation failed for '$:minValue' constraint(s).");
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedFloatMinValueConstraintError !is "" {
+                    test:assertEquals(receivedFloatMinValueConstraintError, "Validation failed for '$:minValue' constraint(s).");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
         } else {
             test:assertFail("NATS Connection creation failed.");
         }
@@ -166,15 +213,28 @@ function testMinValueFloatConstraint() returns error? {
 
 @test:Config {}
 function testMaxValueNumberConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(maxValueNumberService);
             check sub.'start();
             check reqClient->publishMessage({content: 1123.595.toString(), subject: maxValueNumberSubject});
-            runtime:sleep(3);
-            test:assertEquals(receivedNumberMaxValueConstraintError, "Validation failed for '$:maxValue' constraint(s).");
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedNumberMaxValueConstraintError !is "" {
+                    test:assertEquals(receivedNumberMaxValueConstraintError, 
+                        "Validation failed for '$:maxValue' constraint(s).", msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
         } else {
             test:assertFail("NATS Connection creation failed.");
         }
@@ -185,15 +245,28 @@ function testMaxValueNumberConstraint() returns error? {
 
 @test:Config {}
 function testMaxLengthArrayConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(maxLengthArrayService);
             check sub.'start();
             check reqClient->publishMessage({content: [1, 2, 3, 4, 5, 6, 7].toString(), subject: maxLengthArraySubject});
-            runtime:sleep(3);
-            test:assertEquals(receivedArrayMaxLengthConstraintError, "Validation failed for '$:maxLength' constraint(s).");
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedArrayMaxLengthConstraintError !is "" {
+                    test:assertEquals(receivedArrayMaxLengthConstraintError, 
+                        "Validation failed for '$:maxLength' constraint(s).", msg = "Message received does not match.");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
+            }
         } else {
             test:assertFail("NATS Connection creation failed.");
         }
@@ -204,18 +277,27 @@ function testMaxLengthArrayConstraint() returns error? {
 
 @test:Config {}
 function testValidRecordConstraint() returns error? {
-    Client? reqClient = reqClientObj;
+    Client? reqClient = constraintClientObj;
     if reqClient is Client {
-        Listener? sub = reqlistenerObj;
+        Listener? sub = constraintListenerObj;
         if sub is Listener {
             check sub.attach(validRecordService);
             check sub.'start();
             Message|error result = reqClient->requestMessage({content: {name: "PhilDunphy", age: 12}.toString(), subject: validRecordSubject}, 2);
-            if result is error {
-                test:assertFail(result.message());
-            } else {
-                test:assertEquals(strings:fromBytes(result.content), "Hello Back!");
-                test:assertEquals(receivedValidRecordValue, {name: "PhilDunphy", age: 12});
+            int timeoutInSeconds = 120;
+            // Test fails in 2 minutes if it is failed to receive the message
+            while timeoutInSeconds > 0 {
+                if receivedValidRecordValue !is () && result !is error {
+                    test:assertEquals(receivedValidRecordValue, {name: "PhilDunphy", age: 12}, msg = "Message received does not match.");
+                    test:assertEquals(strings:fromBytes(result.content), "Hello Back!");
+                    break;
+                } else {
+                    runtime:sleep(1);
+                    timeoutInSeconds = timeoutInSeconds - 1;
+                }
+            }
+            if timeoutInSeconds == 0 {
+                test:assertFail("Failed to receive the message for 2 minutes.");
             }
         } else {
             test:assertFail("NATS Connection creation failed.");
@@ -227,14 +309,26 @@ function testValidRecordConstraint() returns error? {
 
 @test:Config {}
 function testMaxLengthStringConstraintWithValidationDisabled() returns error? {
-    Client reqClient = check new(DEFAULT_URL, {validation: false});
-    Listener sub = check new(DEFAULT_URL, {validation: false});
+    Client reqClient = check new("nats://localhost:4229", {validation: false});
+    Listener sub = check new("nats://localhost:4229", {validation: false});
     check sub.attach(disabledValidationService);
     check sub.'start();
     check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: disabledValidationSubject});
-    runtime:sleep(3);
-    test:assertEquals(receivedDisabledValidationValue, "Hello World!!!");
-    test:assertEquals(receivedDisabledValidationConstraintError, "");
+    int timeoutInSeconds = 120;
+    // Test fails in 2 minutes if it is failed to receive the message
+    while timeoutInSeconds > 0 {
+        if receivedDisabledValidationValue !is "" {
+            test:assertEquals(receivedDisabledValidationValue, "Hello World!!!", msg = "Message received does not match.");
+            test:assertEquals(receivedDisabledValidationConstraintError, "");
+            break;
+        } else {
+            runtime:sleep(1);
+            timeoutInSeconds = timeoutInSeconds - 1;
+        }
+    }
+    if timeoutInSeconds == 0 {
+        test:assertFail("Failed to receive the message for 2 minutes.");
+    }
     checkpanic reqClient.close();
     check sub.gracefulStop();
 }
