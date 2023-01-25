@@ -21,12 +21,18 @@ import ballerina/test;
 
 const string JS_URL = "nats://localhost:4226";
 const string DATA_BINDING_URL = "nats://localhost:4228";
+const string CONSTRAINT_URL = "nats://localhost:4229";
+const string ADDITIONAL_SERVER_URL = "nats://localhost:4230";
 Client? clientObj = ();
+Client? clientObj2 = ();
+Client? constraintClientObj = ();
 Client? dataClientObj = ();
 Client? reqClientObj = ();
 Client? jsClient = ();
 Listener? listenerObj = ();
+Listener? listenerObj2 = ();
 Listener? reqlistenerObj = ();
+Listener? constraintListenerObj = ();
 Listener? dataListenerObj = ();
 const SUBJECT_NAME = "nats-basic";
 const PENDING_LIMITS_SUBJECT = "nats-pending";
@@ -136,18 +142,26 @@ isolated function isRequestReceived() returns boolean {
 @test:BeforeSuite
 function setup() {
     Client newClient = checkpanic new(DEFAULT_URL);
+    Client newClient2 = checkpanic new(ADDITIONAL_SERVER_URL);
     Client reqClient = checkpanic new(DEFAULT_URL);
     Client newJsClient = checkpanic new(JS_URL);
+    Client newConstraintClient = checkpanic new(CONSTRAINT_URL);
     Client newDataBindingClient = checkpanic new(DATA_BINDING_URL);
+    constraintClientObj = newConstraintClient;
     clientObj = newClient;
+    clientObj2 = newClient2;
     dataClientObj = newDataBindingClient;
     reqClientObj = reqClient;
     jsClient = newJsClient;
     Listener newListener = checkpanic new(DEFAULT_URL);
+    Listener newListener2 = checkpanic new(ADDITIONAL_SERVER_URL);
     Listener reqListener = checkpanic new(DEFAULT_URL);
     Listener dataListener = checkpanic new(DATA_BINDING_URL);
+    Listener newConstraintListener = checkpanic new(CONSTRAINT_URL);
+    constraintListenerObj = newConstraintListener;
     dataListenerObj = dataListener;
     listenerObj = newListener;
+    listenerObj2 = newListener2;
     reqlistenerObj = reqListener;
 }
 
@@ -300,9 +314,9 @@ public function testProducerWithReplyTo() {
 }
 public function testConsumerService() {
     string message = "Testing Consumer Service";
-    Client? newClient = clientObj;
+    Client? newClient = clientObj2;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = listenerObj2;
         if sub is Listener {
             checkpanic sub.attach(consumerService);
             checkpanic sub.'start();
@@ -337,9 +351,9 @@ public function testConsumerService() {
 }
 public function testConsumerService1() {
     string message = "Testing Consumer Service without Annotation";
-    Client? newClient = clientObj;
+    Client? newClient = clientObj2;
     if newClient is Client {
-        Listener? sub = listenerObj;
+        Listener? sub = listenerObj2;
         if sub is Listener {
             checkpanic sub.attach(serviceWithoutAnnotation, SERVICE_SUBJECT_NAME_ANNOT);
             checkpanic sub.'start();
@@ -374,8 +388,8 @@ public function testConsumerService1() {
 }
 function testIsolatedConsumerService() returns error? {
     string message = "Testing Isolated Consumer Service";
-    Listener? sub = listenerObj;
-    Client? newClient = clientObj;
+    Listener? sub = listenerObj2;
+    Client? newClient = clientObj2;
     if sub is Listener {
         check sub.attach(isolatedService);
         check sub.'start();
@@ -409,8 +423,8 @@ function testIsolatedConsumerService() returns error? {
     groups: ["nats-basic"]
 }
 public function testIsolatedConsumerService2() returns error? {
-    Client? newClient = clientObj;
-    Listener? sub = listenerObj;
+    Client? newClient = clientObj2;
+    Listener? sub = listenerObj2;
     if sub is Listener {
         checkpanic sub.attach(isolatedRequestService);
         checkpanic sub.'start();
@@ -462,9 +476,9 @@ public function testConsumerService2() {
     groups: ["nats-basic"]
 }
 public function testConsumerServiceWithQueue() {
-    Client? newClient = clientObj;
+    Client? newClient = clientObj2;
     string message = "Testing Consumer Service with Queues";
-    Listener? sub = listenerObj;
+    Listener? sub = listenerObj2;
     if sub is Listener {
         checkpanic sub.attach(queueService);
         checkpanic sub.'start();
@@ -501,7 +515,7 @@ public function testConsumerServiceWithQueue() {
     groups: ["nats-basic"]
 }
 public function testServiceWithoutConfig() {
-    Listener? sub = listenerObj;
+    Listener? sub = listenerObj2;
     if sub is Listener {
         error? result = trap sub.attach(noConfigService);
         if result !is error {

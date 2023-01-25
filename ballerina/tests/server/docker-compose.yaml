@@ -3,6 +3,9 @@ services:
     nats-1:
         image: nats:latest
         hostname: nats-1
+        command: "-c /default-server.conf"
+        volumes:
+            - "./default-server.conf:/default-server.conf"
         ports:
             - "4222:4222"
             - "8222:8222"
@@ -20,6 +23,15 @@ services:
         ports:
             - "4224:4222"
             - "8224:8222"
+    nats-4:
+        image: nats:latest
+        hostname: nats-4
+        command: "-c /default-server.conf"
+        volumes:
+            - "./default-server.conf:/default-server.conf"
+        ports:
+            - "4230:4222"
+            - "8230:8222"
     nats-tls:
         image: nats:latest
         hostname: nats-tls
@@ -42,6 +54,18 @@ services:
     nats-data:
         image: nats:latest
         hostname: nats-data
+        command: "-c /default-server.conf"
+        volumes:
+            - "./default-server.conf:/default-server.conf"
         ports:
             - "4228:4222"
             - "8228:8222"
+    nats-constraint:
+        image: nats:latest
+        hostname: nats-constraint
+        command: "-c /default-server.conf"
+        volumes:
+            - "./default-server.conf:/default-server.conf"
+        ports:
+            - "4229:4222"
+            - "8229:8222"
