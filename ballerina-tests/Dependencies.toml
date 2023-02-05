@@ -8,26 +8,12 @@ dependencies-toml-version = "2"
 
 [[package]]
 org = "ballerina"
-name = "constraint"
-version = "1.1.0"
-scope = "testOnly"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"}
-]
-modules = [
-	{org = "ballerina", packageName = "constraint", moduleName = "constraint"}
-]
-
-[[package]]
-org = "ballerina"
 name = "crypto"
 version = "2.3.0"
+scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"}
-]
-modules = [
-	{org = "ballerina", packageName = "crypto", moduleName = "crypto"}
 ]
 
 [[package]]
@@ -44,9 +30,7 @@ dependencies = [
 org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
-modules = [
-	{org = "ballerina", packageName = "jballerina.java", moduleName = "jballerina.java"}
-]
+scope = "testOnly"
 
 [[package]]
 org = "ballerina"
@@ -110,6 +94,7 @@ modules = [
 org = "ballerina"
 name = "observe"
 version = "1.0.6"
+scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -130,6 +115,7 @@ modules = [
 org = "ballerina"
 name = "time"
 version = "2.2.3"
+scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -138,29 +124,38 @@ dependencies = [
 org = "ballerinai"
 name = "observe"
 version = "0.0.0"
+scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "observe"}
-]
-modules = [
-	{org = "ballerinai", packageName = "observe", moduleName = "observe"}
 ]
 
 [[package]]
 org = "ballerinax"
 name = "nats"
 version = "2.6.0"
+scope = "testOnly"
 dependencies = [
-	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.runtime"},
-	{org = "ballerina", name = "lang.string"},
-	{org = "ballerina", name = "log"},
-	{org = "ballerina", name = "test"},
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
 	{org = "ballerinax", packageName = "nats", moduleName = "nats"}
+]
+
+[[package]]
+org = "ballerinax"
+name = "nats_tests"
+version = "1.6.0"
+dependencies = [
+	{org = "ballerina", name = "lang.runtime"},
+	{org = "ballerina", name = "lang.string"},
+	{org = "ballerina", name = "log"},
+	{org = "ballerina", name = "test"},
+	{org = "ballerinax", name = "nats"}
+]
+modules = [
+	{org = "ballerinax", packageName = "nats_tests", moduleName = "nats_tests"}
 ]
 
