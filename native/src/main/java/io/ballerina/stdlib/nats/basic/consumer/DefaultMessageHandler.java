@@ -49,8 +49,6 @@ import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -77,7 +75,6 @@ import static io.ballerina.stdlib.nats.Utils.validateConstraints;
  * @since 1.0.0
  */
 public class DefaultMessageHandler implements MessageHandler {
-    private static final PrintStream console;
 
     // Resource which the message should be dispatched.
     private final BObject serviceObject;
@@ -102,7 +99,6 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     @Override
     public void onMessage(Message message) {
-        console.println("Message received: " + new String(message.getData(), StandardCharsets.UTF_8));
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         String replyTo = message.getReplyTo();
         String subject = message.getSubject();
@@ -144,7 +140,6 @@ public class DefaultMessageHandler implements MessageHandler {
      * Dispatch only the message to the onMessage resource.
      */
     private void dispatchOnMessage(String subject, String replyTo, byte[] data) throws InterruptedException {
-        console.println("dispatchOnMessage for: " + subject + " messga: " + new String(data, StandardCharsets.UTF_8));
         MethodType methodType = getAttachedFunctionType(this.serviceObject, Constants.ON_MESSAGE_RESOURCE);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
@@ -228,7 +223,6 @@ public class DefaultMessageHandler implements MessageHandler {
                                           String replyTo, Object... args) {
         StrandMetadata metadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
                 getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
-        console.println("dispatchOnMessage for: " + subject);
         executeResource(Constants.ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch, subject,
                 natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL,
                 replyTo, args);
@@ -414,9 +408,5 @@ public class DefaultMessageHandler implements MessageHandler {
         public boolean getIsMessageType() {
             return isMessageType;
         }
-    }
-
-    static {
-        console = System.out;
     }
 }
