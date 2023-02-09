@@ -115,4 +115,5 @@ release {
 
 task build {
     dependsOn('nats-ballerina:build')
+    dependsOn('nats-ballerina-tests:test')
 }
