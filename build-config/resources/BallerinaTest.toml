@@ -1,0 +1,4 @@
+[package]
+org = "ballerinax"
+name = "nats_tests"
+version = "@toml.version@"

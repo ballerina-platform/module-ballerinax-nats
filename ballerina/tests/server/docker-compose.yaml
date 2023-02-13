@@ -51,15 +51,6 @@ services:
         ports:
             - "4226:4222"
             - "8226:8222"
-    nats-data:
-        image: nats:latest
-        hostname: nats-data
-        command: "-c /default-server.conf"
-        volumes:
-            - "./default-server.conf:/default-server.conf"
-        ports:
-            - "4228:4222"
-            - "8228:8222"
     nats-constraint:
         image: nats:latest
         hostname: nats-constraint
