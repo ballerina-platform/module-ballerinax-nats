@@ -144,7 +144,7 @@ task startNatsServers() {
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
-                sleep(5 * 1000)
+                sleep(10 * 1000)
             } else {
                 println "NATS Basic server is already started."
             }
@@ -176,11 +176,13 @@ task stopNatsServers() {
 }
 
 build.dependsOn startNatsServers
+test.dependsOn startNatsServers
 build.dependsOn ":${packageName}-ballerina:build"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 test.dependsOn ":${packageName}-ballerina:build"
 test.dependsOn ":${packageName}-compiler-plugin:build"
 build.finalizedBy stopNatsServers
+test.finalizedBy stopNatsServers
 
 publishToMavenLocal.dependsOn build
 publish.dependsOn build
