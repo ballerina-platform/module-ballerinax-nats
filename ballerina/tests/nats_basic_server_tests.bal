@@ -20,8 +20,6 @@ import ballerina/log;
 import ballerina/test;
 
 const string JS_URL = "nats://localhost:4226";
-const string CONSTRAINT_URL = "nats://localhost:4229";
-const string ADDITIONAL_SERVER_URL = "nats://localhost:4230";
 Client? clientObj = ();
 Client? clientObj2 = ();
 Client? constraintClientObj = ();
@@ -139,19 +137,19 @@ isolated function isRequestReceived() returns boolean {
 @test:BeforeSuite
 function setup() {
     Client newClient = checkpanic new(DEFAULT_URL);
-    Client newClient2 = checkpanic new(ADDITIONAL_SERVER_URL);
+    Client newClient2 = checkpanic new(DEFAULT_URL);
     Client reqClient = checkpanic new(DEFAULT_URL);
     Client newJsClient = checkpanic new(JS_URL);
-    Client newConstraintClient = checkpanic new(CONSTRAINT_URL);
+    Client newConstraintClient = checkpanic new(DEFAULT_URL);
     constraintClientObj = newConstraintClient;
     clientObj = newClient;
     clientObj2 = newClient2;
     reqClientObj = reqClient;
     jsClient = newJsClient;
     Listener newListener = checkpanic new(DEFAULT_URL);
-    Listener newListener2 = checkpanic new(ADDITIONAL_SERVER_URL);
+    Listener newListener2 = checkpanic new(DEFAULT_URL);
     Listener reqListener = checkpanic new(DEFAULT_URL);
-    Listener newConstraintListener = checkpanic new(CONSTRAINT_URL);
+    Listener newConstraintListener = checkpanic new(DEFAULT_URL);
     constraintListenerObj = newConstraintListener;
     listenerObj = newListener;
     listenerObj2 = newListener2;

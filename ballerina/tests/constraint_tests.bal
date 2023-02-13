@@ -86,7 +86,7 @@ string disabledValidationSubject = "disabled.validation.subject";
 
 @test:Config {}
 function testValidStringConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     Message|error result = reqClient->requestMessage({content: "Hello".toBytes(), subject: validStringSubject}, 2);
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -108,7 +108,7 @@ function testValidStringConstraint() returns error? {
 
 @test:Config {}
 function testMaxLengthStringConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: maxLengthStringSubject});
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -130,7 +130,7 @@ function testMaxLengthStringConstraint() returns error? {
 
 @test:Config {}
 function testMaxValueIntConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     check reqClient->publishMessage({content: 1099.toString(), subject: maxValueIntSubject});
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -152,7 +152,7 @@ function testMaxValueIntConstraint() returns error? {
 
 @test:Config {}
 function testMinValueFloatConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     check reqClient->publishMessage({content: 1.99.toString(), subject: minValueFloatSubject});
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -173,7 +173,7 @@ function testMinValueFloatConstraint() returns error? {
 
 @test:Config {}
 function testMaxValueNumberConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     check reqClient->publishMessage({content: 1123.595.toString(), subject: maxValueNumberSubject});
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -195,7 +195,7 @@ function testMaxValueNumberConstraint() returns error? {
 
 @test:Config {}
 function testMaxLengthArrayConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     check reqClient->publishMessage({content: [1, 2, 3, 4, 5, 6, 7].toString(), subject: maxLengthArraySubject});
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -217,7 +217,7 @@ function testMaxLengthArrayConstraint() returns error? {
 
 @test:Config {}
 function testValidRecordConstraint() returns error? {
-    Client reqClient = check new(CONSTRAINT_URL);
+    Client reqClient = check new(DEFAULT_URL);
     Message|error result = reqClient->requestMessage({content: {name: "PhilDunphy", age: 12}.toString(), subject: validRecordSubject}, 2);
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -240,7 +240,7 @@ function testValidRecordConstraint() returns error? {
 @ServiceConfig {
     subject: validStringSubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onRequest(StringConstraintMessage msg) returns string {
         log:printInfo("Message Received: " + msg.toString());
         receivedValidStringValue = msg.content;
@@ -251,7 +251,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 @ServiceConfig {
     subject: maxLengthStringSubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(StringConstraintMessage msg) {
         log:printInfo("Message Received: " + msg.toString());
     }
@@ -267,7 +267,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 @ServiceConfig {
     subject: maxValueIntSubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(IntConstraintMessage msg) {
         log:printInfo("Message Received: " + msg.toString());
     }
@@ -283,7 +283,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 @ServiceConfig {
     subject: minValueFloatSubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(Price msg) {
         log:printInfo("Message Received: " + msg.toString());
     }
@@ -299,7 +299,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 @ServiceConfig {
     subject: maxValueNumberSubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(Weight msg) {
         log:printInfo("Message Received: " + msg.toString());
     }
@@ -315,7 +315,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 @ServiceConfig {
     subject: maxLengthArraySubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(NameList msg) {
         log:printInfo("Message Received: " + msg.toString());
     }
@@ -331,7 +331,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 @ServiceConfig {
     subject: validRecordSubject
 }
-service Service on new Listener(CONSTRAINT_URL) {
+service Service on new Listener(DEFAULT_URL) {
     remote function onRequest(Child msg) returns string {
         log:printInfo("Message Received: " + msg.toString());
         receivedValidRecordValue = msg;
@@ -341,10 +341,7 @@ service Service on new Listener(CONSTRAINT_URL) {
 
 @test:Config {}
 function testMaxLengthStringConstraintWithValidationDisabled() returns error? {
-    Client reqClient = check new("nats://localhost:4229", {validation: false});
-    Listener sub = check new("nats://localhost:4229", {validation: false});
-    check sub.attach(disabledValidationService);
-    check sub.'start();
+    Client reqClient = check new("nats://localhost:4222", {validation: false});
     check reqClient->publishMessage({content: "Hello World!!!".toBytes(), subject: disabledValidationSubject});
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
@@ -362,14 +359,12 @@ function testMaxLengthStringConstraintWithValidationDisabled() returns error? {
         test:assertFail("Failed to receive the message for 2 minutes.");
     }
     checkpanic reqClient.close();
-    check sub.gracefulStop();
 }
 
-Service disabledValidationService =
 @ServiceConfig {
     subject: disabledValidationSubject
 }
-service object {
+service Service on new Listener("nats://localhost:4222", {validation: false}) {
     remote function onMessage(StringConstraintMessage msg) {
         log:printInfo("Message Received: " + msg.toString());
         receivedDisabledValidationValue = msg.content;
@@ -379,4 +374,4 @@ service object {
         log:printInfo("Error Received: " + err.message());
         receivedDisabledValidationConstraintError = err.message();
     }
-};
+}
