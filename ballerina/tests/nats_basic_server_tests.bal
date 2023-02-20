@@ -20,8 +20,6 @@ import ballerina/log;
 import ballerina/test;
 
 const string JS_URL = "nats://localhost:4226";
-const string CONSTRAINT_URL = "nats://localhost:4229";
-const string ADDITIONAL_SERVER_URL = "nats://localhost:4230";
 Client? clientObj = ();
 Client? clientObj2 = ();
 Client? constraintClientObj = ();
@@ -139,19 +137,19 @@ isolated function isRequestReceived() returns boolean {
 @test:BeforeSuite
 function setup() {
     Client newClient = checkpanic new(DEFAULT_URL);
-    Client newClient2 = checkpanic new(ADDITIONAL_SERVER_URL);
+    Client newClient2 = checkpanic new(DEFAULT_URL);
     Client reqClient = checkpanic new(DEFAULT_URL);
     Client newJsClient = checkpanic new(JS_URL);
-    Client newConstraintClient = checkpanic new(CONSTRAINT_URL);
+    Client newConstraintClient = checkpanic new(DEFAULT_URL);
     constraintClientObj = newConstraintClient;
     clientObj = newClient;
     clientObj2 = newClient2;
     reqClientObj = reqClient;
     jsClient = newJsClient;
     Listener newListener = checkpanic new(DEFAULT_URL);
-    Listener newListener2 = checkpanic new(ADDITIONAL_SERVER_URL);
+    Listener newListener2 = checkpanic new(DEFAULT_URL);
     Listener reqListener = checkpanic new(DEFAULT_URL);
-    Listener newConstraintListener = checkpanic new(CONSTRAINT_URL);
+    Listener newConstraintListener = checkpanic new(DEFAULT_URL);
     constraintListenerObj = newConstraintListener;
     listenerObj = newListener;
     listenerObj2 = newListener2;
@@ -309,29 +307,21 @@ public function testConsumerService() {
     string message = "Testing Consumer Service";
     Client? newClient = clientObj2;
     if newClient is Client {
-        Listener? sub = listenerObj2;
-        if sub is Listener {
-            checkpanic sub.attach(consumerService);
-            checkpanic sub.'start();
-            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
-            int timeoutInSeconds = 120;
-            // Test fails in 2 minutes if it is failed to receive the message
-            while timeoutInSeconds > 0 {
-                if getReceivedConsumerMessage() !is "" {
-                    string receivedMessage = getReceivedConsumerMessage();
-                    test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
-                    break;
-                } else {
-                    runtime:sleep(1);
-                    timeoutInSeconds = timeoutInSeconds - 1;
-                }
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: SERVICE_SUBJECT_NAME });
+        int timeoutInSeconds = 120;
+        // Test fails in 2 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedConsumerMessage() !is "" {
+                string receivedMessage = getReceivedConsumerMessage();
+                test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
             }
-            checkpanic sub.detach(consumerService);
-            if timeoutInSeconds == 0 {
-                test:assertFail("Failed to receive the message for 2 minutes.");
-            }
-        } else {
-            test:assertFail("NATS Connection creation failed.");
+        }
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 2 minutes.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -417,31 +407,24 @@ function testIsolatedConsumerService() returns error? {
 }
 public function testIsolatedConsumerService2() returns error? {
     Client? newClient = clientObj2;
-    Listener? sub = listenerObj2;
-    if sub is Listener {
-        checkpanic sub.attach(isolatedRequestService);
-        checkpanic sub.'start();
-        string message = "Testing Isolated Consumer Service Second";
-        if newClient is Client {
-            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
-                                                        replyTo: REPLY_TO_DUMMY });
-            int timeoutInSeconds = 1000;
-            // Test fails in 5 minutes if it is failed to receive the message
-            while timeoutInSeconds > 0 {
-               if isRequestReceived() {
-                   log:printInfo("Message " + message);
-                   log:printInfo("Message received at " + timeoutInSeconds.toString());
-                   break;
-               } else {
-                   runtime:sleep(1);
-                   timeoutInSeconds = timeoutInSeconds - 1;
-               }
-            }
-            if timeoutInSeconds == 0 {
-                test:assertFail("Failed to receive the message for 5 minutes.");
-            }
-        } else {
-            test:assertFail("NATS Connection creation failed.");
+    string message = "Testing Isolated Consumer Service Second";
+    if newClient is Client {
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ISOLATED_SUBJECT_NAME,
+                                                    replyTo: REPLY_TO_DUMMY });
+        int timeoutInSeconds = 1000;
+        // Test fails in 5 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+           if isRequestReceived() {
+               log:printInfo("Message " + message);
+               log:printInfo("Message received at " + timeoutInSeconds.toString());
+               break;
+           } else {
+               runtime:sleep(1);
+               timeoutInSeconds = timeoutInSeconds - 1;
+           }
+        }
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 5 minutes.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -471,32 +454,24 @@ public function testConsumerService2() {
 public function testConsumerServiceWithQueue() {
     Client? newClient = clientObj2;
     string message = "Testing Consumer Service with Queues";
-    Listener? sub = listenerObj2;
-    if sub is Listener {
-        checkpanic sub.attach(queueService);
-        checkpanic sub.'start();
-        if newClient is Client {
-            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
-            int timeoutInSeconds = 1000;
-            // Test fails in 5 minutes if it is failed to receive the message
-            while timeoutInSeconds > 0 {
-                if getReceivedQueueMessage() !is "" {
-                    log:printInfo("Message received at " + timeoutInSeconds.toString());
-                    log:printInfo("Message " + message);
-                    string receivedMessage = getReceivedQueueMessage();
-                    //test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
-                    break;
-                } else {
-                    runtime:sleep(1);
-                    timeoutInSeconds = timeoutInSeconds - 1;
-                }
+    if newClient is Client {
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: QUEUE_GROUP_SUBJECT });
+        int timeoutInSeconds = 1000;
+        // Test fails in 5 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedQueueMessage() !is "" {
+                log:printInfo("Message received at " + timeoutInSeconds.toString());
+                log:printInfo("Message " + message);
+                string receivedMessage = getReceivedQueueMessage();
+                //test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
             }
-            checkpanic sub.detach(queueService);
-            if timeoutInSeconds == 0 {
-                test:assertFail("Failed to receive the message for 5 minutes.");
-            }
-        } else {
-            test:assertFail("NATS Connection creation failed.");
+        }
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 5 minutes.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -603,32 +578,24 @@ public function testOnRequest1() {
     string message = "Hello from the other side!";
     Client? newClient = clientObj;
     if newClient is Client {
-        Listener? sub = listenerObj;
-        if sub is Listener {
-            checkpanic sub.attach(onRequestService);
-            checkpanic sub.attach(onReplyService);
-            checkpanic sub.'start();
-            checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
-                                                        replyTo: REPLY_TO_SUBJECT });
-            int timeoutInSeconds = 300;
-            // Test fails in 5 minutes if it is failed to receive the message
-            while timeoutInSeconds > 0 {
-                if getReceivedOnRequestMessage() !is "" && getReceivedReplyMessage() !is "" {
-                    string receivedRequestMessage = getReceivedOnRequestMessage();
-                    string receivedReplyMessage = getReceivedReplyMessage();
-                    test:assertEquals(receivedRequestMessage, message, msg = "Message received does not match.");
-                    test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
-                    break;
-                } else {
-                    runtime:sleep(1);
-                    timeoutInSeconds = timeoutInSeconds - 1;
-                }
+        checkpanic newClient->publishMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT,
+                                                    replyTo: REPLY_TO_SUBJECT });
+        int timeoutInSeconds = 300;
+        // Test fails in 5 minutes if it is failed to receive the message
+        while timeoutInSeconds > 0 {
+            if getReceivedOnRequestMessage() !is "" && getReceivedReplyMessage() !is "" {
+                string receivedRequestMessage = getReceivedOnRequestMessage();
+                string receivedReplyMessage = getReceivedReplyMessage();
+                test:assertEquals(receivedRequestMessage, message, msg = "Message received does not match.");
+                test:assertEquals(receivedReplyMessage, "Hello Back!", msg = "Message received does not match.");
+                break;
+            } else {
+                runtime:sleep(1);
+                timeoutInSeconds = timeoutInSeconds - 1;
             }
-            if timeoutInSeconds == 0 {
-                test:assertFail("Failed to receive the message for 5 minutes.");
-            }
-        } else {
-            test:assertFail("NATS Connection creation failed.");
+        }
+        if timeoutInSeconds == 0 {
+            test:assertFail("Failed to receive the message for 5 minutes.");
         }
     } else {
         test:assertFail("NATS Connection creation failed.");
@@ -643,9 +610,6 @@ public function testOnRequest2() {
     string message = "Hey There Delilah!";
     Client? newClient = clientObj;
     if newClient is Client {
-        Listener sub = checkpanic new(DEFAULT_URL);
-        checkpanic sub.attach(onRequestService);
-        checkpanic sub.'start();
         Message replyMessage =
             checkpanic newClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT});
         int timeoutInSeconds = 120;
@@ -710,11 +674,10 @@ public isolated function testRequestMessage2() {
     }
 }
 
-Service consumerService =
 @ServiceConfig {
     subject: SERVICE_SUBJECT_NAME
 }
-service object {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(Message msg) {
         byte[] messageContent = <@untainted> msg.content;
 
@@ -724,7 +687,7 @@ service object {
             log:printInfo("Message Received: " + message);
         }
     }
-};
+}
 
 Service serviceWithoutAnnotation =
 service object {
@@ -739,11 +702,10 @@ service object {
     }
 };
 
-Service onRequestService =
 @ServiceConfig {
     subject: ON_REQUEST_SUBJECT
 }
-service object {
+service Service on new Listener(DEFAULT_URL) {
     isolated remote function onMessage(Message msg) {
        // ignored
     }
@@ -758,13 +720,12 @@ service object {
         }
         return "Hello Back!";
     }
-};
+}
 
-Service onReplyService =
 @ServiceConfig {
     subject: REPLY_TO_SUBJECT
 }
-service object {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(Message msg) {
         byte[] messageContent = <@untainted> msg.content;
 
@@ -774,7 +735,7 @@ service object {
             log:printInfo("Message Received: " + message);
         }
     }
-};
+}
 
 Service stopService =
 @ServiceConfig {
@@ -816,12 +777,11 @@ service object {
     }
 };
 
-Service queueService =
 @ServiceConfig {
     subject: QUEUE_GROUP_SUBJECT,
     queueName: "queue-group-1"
 }
-service object {
+service Service on new Listener(DEFAULT_URL) {
     remote function onMessage(Message msg) {
         byte[] messageContent = <@untainted> msg.content;
 
@@ -831,7 +791,7 @@ service object {
             log:printInfo("Message Received for queue group: " + message);
         }
     }
-};
+}
 
 Service noConfigService =
 service object {
@@ -853,11 +813,10 @@ service object {
     }
 };
 
-Service isolatedRequestService =
 @ServiceConfig {
     subject: ISOLATED_SUBJECT_NAME
 }
-service object {
+service Service on new Listener(DEFAULT_URL) {
     isolated remote function onMessage(Message msg) {
        // ignored
     }
@@ -871,4 +830,4 @@ service object {
         }
         return "Hello Back!";
     }
-};
+}

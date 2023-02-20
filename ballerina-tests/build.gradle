@@ -129,7 +129,7 @@ clean {
 }
 
 
-task startNatsServers() {
+task startNatsServersForTests() {
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
@@ -144,7 +144,14 @@ task startNatsServers() {
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
-                sleep(5 * 1000)
+                sleep(20 * 1000)
+                exec {
+                    commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
+                    standardOutput = stdOut
+                }
+                if (!stdOut.toString().contains("server_nats-tls_1")) {
+                    println "tls server didn't start after 20 seconds."
+                }
             } else {
                 println "NATS Basic server is already started."
             }
@@ -152,7 +159,7 @@ task startNatsServers() {
     }
 }
 
-task stopNatsServers() {
+task stopNatsServersForTests() {
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
@@ -175,12 +182,14 @@ task stopNatsServers() {
     }
 }
 
-build.dependsOn startNatsServers
+build.dependsOn startNatsServersForTests
+test.dependsOn startNatsServersForTests
 build.dependsOn ":${packageName}-ballerina:build"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 test.dependsOn ":${packageName}-ballerina:build"
 test.dependsOn ":${packageName}-compiler-plugin:build"
-build.finalizedBy stopNatsServers
+build.finalizedBy stopNatsServersForTests
+test.finalizedBy stopNatsServersForTests
 
 publishToMavenLocal.dependsOn build
 publish.dependsOn build

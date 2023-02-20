@@ -147,7 +147,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats_tests"
-version = "1.6.0"
+version = "2.6.0"
 dependencies = [
 	{org = "ballerina", name = "lang.runtime"},
 	{org = "ballerina", name = "lang.string"},
