@@ -114,6 +114,13 @@ task ballerinaTest {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "${balJavaDebugParam} ${distributionBinPath}/bal.bat test ${nativeFlag} ${testParams} --offline ${groupParams} ${disableGroups} ${debugParams} && exit %%ERRORLEVEL%%"
             } else {
+                println "***** Printing Current Path: "
+                commandLine 'pwd'
+                println "***** Printing Current Items Recursively: "
+                commandLine 'ls -R'
+                println "***** Printing Target Path: ${distributionBinPath}/bal"
+                println "***** Printing Target Path Items Recursively: "
+                commandLine 'ls' '-R' "${distributionBinPath}"
                 commandLine 'sh', '-c', "${balJavaDebugParam} ${distributionBinPath}/bal test ${nativeFlag} ${testParams} --offline ${groupParams} ${disableGroups} ${debugParams}"
             }
         }
