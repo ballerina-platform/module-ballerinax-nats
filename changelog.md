@@ -1,7 +1,13 @@
 # Change Log
 This file contains all the notable changes done to the Ballerina NATS package through the releases.
 
-## [Unreleased]
+[Unreleased]
+
+### Changed
+- [[#4237] Exit the Listener When Panic Occurred](https://github.com/ballerina-platform/ballerina-standard-library/issues/4237)
+
+
+## [2.6.0] - 2023-02-20
 
 ### Added
 - [Introduce JetStream support to Ballerina NATS module.](https://github.com/ballerina-platform/ballerina-standard-library/issues/3550)
