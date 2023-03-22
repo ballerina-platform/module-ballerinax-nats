@@ -373,10 +373,15 @@ public class DefaultMessageHandler implements MessageHandler {
          * {@inheritDoc}
          */
         @Override
-        public void notifyFailure(io.ballerina.runtime.api.values.BError error) {
+        public void notifyFailure(BError error) {
             error.printStackTrace();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
             countDownLatch.countDown();
+            // Service level `panic` is captured in this method.
+            // Since, `panic` is due to a critical application bug or resource exhaustion
+            // we need to exit the application.
+            // Please refer: https://github.com/ballerina-platform/ballerina-standard-library/issues/2714
+            System.exit(1);
         }
     }
 
@@ -403,6 +408,11 @@ public class DefaultMessageHandler implements MessageHandler {
         public void notifyFailure(BError error) {
             semaphore.release();
             error.printStackTrace();
+            // Service level `panic` is captured in this method.
+            // Since, `panic` is due to a critical application bug or resource exhaustion we need
+            // to exit the application.
+            // Please refer: https://github.com/ballerina-platform/ballerina-standard-library/issues/2714
+            System.exit(1);
         }
 
         public boolean getIsMessageType() {

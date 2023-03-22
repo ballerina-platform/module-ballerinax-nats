@@ -44,4 +44,12 @@
         <Class name="io.ballerina.stdlib.nats.jetstream.listener.ListenerUtils" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler" />
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.basic.consumer.DefaultMessageHandler" />
+        <Bug pattern="DM_EXIT"/>
+    </Match>
 </FindBugsFilter>
