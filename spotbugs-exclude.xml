@@ -45,11 +45,15 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler" />
+        <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler$DispatcherCallback" />
         <Bug pattern="DM_EXIT"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.stdlib.nats.basic.consumer.DefaultMessageHandler" />
+        <Class name="io.ballerina.stdlib.nats.basic.consumer.DefaultMessageHandler$NatsTypeCheckCallback" />
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.basic.consumer.DefaultMessageHandler$ResponseCallback" />
         <Bug pattern="DM_EXIT"/>
     </Match>
 </FindBugsFilter>
