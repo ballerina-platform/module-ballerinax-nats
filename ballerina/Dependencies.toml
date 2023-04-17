@@ -150,7 +150,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "crypto"},
