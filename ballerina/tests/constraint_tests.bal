@@ -87,7 +87,7 @@ string disabledValidationSubject = "disabled.validation.subject";
 @test:Config {}
 function testValidStringConstraint() returns error? {
     Client reqClient = check new(DEFAULT_URL);
-    Message|error result = reqClient->requestMessage({content: "Hello".toBytes(), subject: validStringSubject}, 2);
+    BytesMessage|error result = reqClient->requestMessage({content: "Hello".toBytes(), subject: validStringSubject}, 2);
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
     while timeoutInSeconds > 0 {
@@ -218,7 +218,7 @@ function testMaxLengthArrayConstraint() returns error? {
 @test:Config {}
 function testValidRecordConstraint() returns error? {
     Client reqClient = check new(DEFAULT_URL);
-    Message|error result = reqClient->requestMessage({content: {name: "PhilDunphy", age: 12}.toString(), subject: validRecordSubject}, 2);
+    BytesMessage|error result = reqClient->requestMessage({content: {name: "PhilDunphy", age: 12}.toString(), subject: validRecordSubject}, 2);
     int timeoutInSeconds = 120;
     // Test fails in 2 minutes if it is failed to receive the message
     while timeoutInSeconds > 0 {
@@ -256,7 +256,7 @@ service Service on new Listener(DEFAULT_URL) {
         log:printInfo("Message Received: " + msg.toString());
     }
 
-    remote function onError(Message message, Error err) {
+    remote function onError(BytesMessage message, Error err) {
         log:printInfo("Error Received: " + err.message());
         if err is PayloadValidationError {
             receivedStringMaxLengthConstraintError = err.message();
@@ -272,7 +272,7 @@ service Service on new Listener(DEFAULT_URL) {
         log:printInfo("Message Received: " + msg.toString());
     }
 
-    remote function onError(Message message, Error err) {
+    remote function onError(BytesMessage message, Error err) {
         log:printInfo("Error Received: " + err.message());
         if err is PayloadValidationError {
             receivedIntMaxValueConstraintError = err.message();
@@ -288,7 +288,7 @@ service Service on new Listener(DEFAULT_URL) {
         log:printInfo("Message Received: " + msg.toString());
     }
 
-    remote function onError(Message message, Error err) {
+    remote function onError(BytesMessage message, Error err) {
         log:printInfo("Error Received: " + err.message());
         if err is PayloadValidationError {
             receivedFloatMinValueConstraintError = err.message();
@@ -304,7 +304,7 @@ service Service on new Listener(DEFAULT_URL) {
         log:printInfo("Message Received: " + msg.toString());
     }
 
-    remote function onError(Message message, Error err) {
+    remote function onError(BytesMessage message, Error err) {
         log:printInfo("Error Received: " + err.message());
         if err is PayloadValidationError {
             receivedNumberMaxValueConstraintError = err.message();
@@ -320,7 +320,7 @@ service Service on new Listener(DEFAULT_URL) {
         log:printInfo("Message Received: " + msg.toString());
     }
 
-    remote function onError(Message message, Error err) {
+    remote function onError(BytesMessage message, Error err) {
         log:printInfo("Error Received: " + err.message());
         if err is PayloadValidationError {
             receivedArrayMaxLengthConstraintError = err.message();
@@ -370,7 +370,7 @@ service Service on new Listener("nats://localhost:4222", {validation: false}) {
         receivedDisabledValidationValue = msg.content;
     }
 
-    remote function onError(Message message, Error err) {
+    remote function onError(BytesMessage message, Error err) {
         log:printInfo("Error Received: " + err.message());
         receivedDisabledValidationConstraintError = err.message();
     }

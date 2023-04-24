@@ -273,9 +273,9 @@ public function testProducer() {
     dependsOn: [testConnection],
     groups: ["nats-basic"]
 }
-public isolated function testProducerNegative() {
+public isolated function testProducerNegative() returns error? {
     Client closeClient = checkpanic new(DEFAULT_URL);
-    Error? closeResult = closeClient.close();
+    check closeClient.close();
     string message = "Hello World";
     Error? result = closeClient->publishMessage({ content: message.toBytes(), subject: SUBJECT_NAME });
     if result is () {
@@ -463,7 +463,7 @@ public function testConsumerServiceWithQueue() {
                 log:printInfo("Message received at " + timeoutInSeconds.toString());
                 log:printInfo("Message " + message);
                 string receivedMessage = getReceivedQueueMessage();
-                //test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
+                test:assertEquals(receivedMessage, message, msg = "Message received does not match.");
                 break;
             } else {
                 runtime:sleep(1);
@@ -610,7 +610,7 @@ public function testOnRequest2() {
     string message = "Hey There Delilah!";
     Client? newClient = clientObj;
     if newClient is Client {
-        Message replyMessage =
+        BytesMessage replyMessage =
             checkpanic newClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_SUBJECT});
         int timeoutInSeconds = 120;
         // Test fails in 2 minutes if it is failed to receive the message
@@ -645,7 +645,7 @@ public function testOnRequest2() {
 public isolated function testRequestMessage1() {
     string message = "Hello, you won't here me!";
     Client reqClient = checkpanic new(DEFAULT_URL);
-    Message|Error replyMessage =
+    BytesMessage|Error replyMessage =
              reqClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_TIMEOUT_SUBJECT}, 2);
     if replyMessage is error {
         string errorMessage = "Error while requesting message to subject nats-on-req-timeout. ";
@@ -664,7 +664,7 @@ public isolated function testRequestMessage2() {
     string message = "Hello, you won't here me!";
     Client reqClient = checkpanic new(DEFAULT_URL);
     checkpanic reqClient.close();
-    Message|Error replyMessage =
+    BytesMessage|Error replyMessage =
              reqClient->requestMessage({ content: message.toBytes(), subject: ON_REQUEST_TIMEOUT_SUBJECT}, 5);
     if replyMessage is error {
         string errorMessage = "Error while requesting message to subject nats-on-req-timeout. Connection is Closed";
@@ -678,7 +678,7 @@ public isolated function testRequestMessage2() {
     subject: SERVICE_SUBJECT_NAME
 }
 service Service on new Listener(DEFAULT_URL) {
-    remote function onMessage(Message msg) {
+    remote function onMessage(BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -691,7 +691,7 @@ service Service on new Listener(DEFAULT_URL) {
 
 Service serviceWithoutAnnotation =
 service object {
-    remote function onMessage(Message msg) {
+    remote function onMessage(BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -706,11 +706,11 @@ service object {
     subject: ON_REQUEST_SUBJECT
 }
 service Service on new Listener(DEFAULT_URL) {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
        // ignored
     }
 
-    remote function onRequest(Message msg) returns string {
+    remote function onRequest(BytesMessage msg) returns string {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -726,7 +726,7 @@ service Service on new Listener(DEFAULT_URL) {
     subject: REPLY_TO_SUBJECT
 }
 service Service on new Listener(DEFAULT_URL) {
-    remote function onMessage(Message msg) {
+    remote function onMessage(BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -742,7 +742,7 @@ Service stopService =
     subject: STOP_SUBJECT_NAME
 }
 service object {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
     }
 };
 
@@ -751,7 +751,7 @@ Service dummyService1 =
     subject: STOP_SUBJECT_NAME
 }
 service object {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
     }
 };
 
@@ -760,7 +760,7 @@ Service dummyService2 =
     subject: STOP_SUBJECT_NAME
 }
 service object {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
     }
 };
 
@@ -773,7 +773,7 @@ Service pendingLimitsService =
     }
 }
 service object {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
     }
 };
 
@@ -782,7 +782,7 @@ service object {
     queueName: "queue-group-1"
 }
 service Service on new Listener(DEFAULT_URL) {
-    remote function onMessage(Message msg) {
+    remote function onMessage(BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -795,7 +795,7 @@ service Service on new Listener(DEFAULT_URL) {
 
 Service noConfigService =
 service object {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
     }
 };
 
@@ -804,7 +804,7 @@ Service isolatedService =
     subject: ISOLATED_SUBJECT_NAME
 }
 service object {
-    remote function onMessage(Message msg) {
+    remote function onMessage(BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
         string|error message = 'string:fromBytes(messageContent);
         if message is string {
@@ -817,11 +817,11 @@ service object {
     subject: ISOLATED_SUBJECT_NAME
 }
 service Service on new Listener(DEFAULT_URL) {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
        // ignored
     }
 
-    remote function onRequest(Message msg) returns string {
+    remote function onRequest(BytesMessage msg) returns string {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
