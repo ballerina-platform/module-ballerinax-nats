@@ -25,7 +25,6 @@ public isolated client class JetStreamCaller {
     # check jetStreamCaller->ack();
     # ```
     #
-    # + return -  `()` or else a `nats:Error` if an error is occurred
     isolated remote function ack() =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.jetstream.message.MessageUtils"
@@ -37,7 +36,6 @@ public isolated client class JetStreamCaller {
     # check jetStreamCaller->nak();
     # ```
     #
-    # + return -  `()` or else a `nats:Error` if an error is occurred
     isolated remote function nak() =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.jetstream.message.MessageUtils"
@@ -49,7 +47,6 @@ public isolated client class JetStreamCaller {
     # check jetStreamCaller->inProgress();
     # ```
     #
-    # + return -  `()` or else a `nats:Error` if an error is occurred
     isolated remote function inProgress() =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.jetstream.message.MessageUtils"

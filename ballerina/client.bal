@@ -89,7 +89,7 @@ isolated function clientInit(Client clientObj, string|string[] url, *ConnectionC
     'class: "io.ballerina.stdlib.nats.basic.client.Init"
 } external;
 
-isolated function publish(Client clientObj, Message message) returns Error? =
+isolated function publish(Client clientObj, BytesMessage message) returns Error? =
 @java:Method {
     'class: "io.ballerina.stdlib.nats.basic.client.Publish"
 } external;

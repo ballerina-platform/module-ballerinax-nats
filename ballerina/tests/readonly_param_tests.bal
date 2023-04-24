@@ -113,7 +113,7 @@ public function testOnRequestWithReadOnlyParams() {
     subject: READONLY_PARAM_SUBJECT_NAME
 }
 service Service on new Listener(DEFAULT_URL) {
-    remote function onMessage(readonly & Message msg) {
+    remote function onMessage(readonly & BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);
@@ -128,11 +128,11 @@ service Service on new Listener(DEFAULT_URL) {
     subject: READONLY_PARAM_ON_REQUEST
 }
 service Service on new Listener(DEFAULT_URL) {
-    isolated remote function onMessage(Message msg) {
+    isolated remote function onMessage(BytesMessage msg) {
         // ignored
     }
 
-    remote function onRequest(readonly & Message msg) returns string {
+    remote function onRequest(readonly & BytesMessage msg) returns string {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = strings:fromBytes(messageContent);

@@ -331,11 +331,7 @@ public function testJetStreamClientPubSub6() returns error? {
     groups: ["nats-js"]
 }
 public function testJetStreamClientInit() returns error? {
-    string SUBJECT_NAME = "js.init";
     Client natsClient = check new(JS_URL);
-    StreamConfiguration config = { name: "jsinit",
-                                   subjects: [SUBJECT_NAME],
-                                   storageType:  MEMORY};
     check natsClient.close();
     JetStreamClient|Error jetStreamClient = new(natsClient);
     if jetStreamClient is JetStreamClient {
@@ -465,7 +461,6 @@ public function testJetStreamClientManagement() returns error? {
 }
 public function testJetStreamClientManagement2() returns error? {
     string SUBJECT_NAME = "js.manage.test3";
-    string messageToSend = "Hello World, from Ballerina";
     Client jsClient = check new("nats://localhost:4226");
     StreamConfiguration config = { name: "jsmanagetest3",
                                    subjects: [SUBJECT_NAME],
@@ -487,7 +482,6 @@ public function testJetStreamClientManagement2() returns error? {
 }
 public function testJetStreamClientManagement3() returns error? {
     string SUBJECT_NAME = "js.manage.test4";
-    string messageToSend = "Hello World, from Ballerina";
     Client jsClient = check new("nats://localhost:4226");
     StreamConfiguration config = { name: "jsmanagetest4",
                                    subjects: [SUBJECT_NAME],

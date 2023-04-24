@@ -61,7 +61,6 @@ public isolated client class JetStreamClient {
     # ```
     #
     # + message - The message to be acknowledged
-    # + return -  `()` or else a `nats:Error` if an error is occurred
     isolated remote function ack(JetStreamMessage message) =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.jetstream.client.ClientUtils"
@@ -74,7 +73,6 @@ public isolated client class JetStreamClient {
     # ```
     #
     # + message - The message to be acknowledged
-    # + return -  `()` or else a `nats:Error` if an error is occurred
     isolated remote function nak(JetStreamMessage message) =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.jetstream.client.ClientUtils"
@@ -87,7 +85,6 @@ public isolated client class JetStreamClient {
     # ```
     #
     # + message - The message to be acknowledged
-    # + return -  `()` or else a `nats:Error` if an error is occurred
     isolated remote function inProgress(JetStreamMessage message) =
     @java:Method {
         'class: "io.ballerina.stdlib.nats.jetstream.client.ClientUtils"
