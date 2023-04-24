@@ -29,6 +29,7 @@
 # + maxMsgSize - The largest message that will be accepted by the Stream  
 # + storageType - The type of storage backend, File and Memory
 # + replicas - The number of replicas to store this message on
+# + noAck - If set, then acknowledgements are not sent back to the client
 # + discardPolicy - When a stream has reached its configured maxBytes or maxMsgs, this policy takes action
 public type StreamConfiguration record {|
    string name?;
@@ -71,6 +72,7 @@ public enum DiscardPolicy {
 #
 # + subject - Name of the subject
 # + queueName - Name of the queue group
+# + autoAck - Acknowledges the message automatically
 public type JetStreamServiceConfigData record {|
     string subject;
     string queueName?;
