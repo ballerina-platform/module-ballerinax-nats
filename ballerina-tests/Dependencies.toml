@@ -133,7 +133,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "2.6.0"
+version = "2.6.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
@@ -147,7 +147,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats_tests"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
 	{org = "ballerina", name = "lang.runtime"},
 	{org = "ballerina", name = "lang.string"},
