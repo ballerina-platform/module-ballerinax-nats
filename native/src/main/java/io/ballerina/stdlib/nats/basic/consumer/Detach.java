@@ -51,7 +51,7 @@ public class Detach {
                 (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) listener.getNativeData(Constants.NATS_METRIC_UTIL);
-        ObjectType serviceType = (ObjectType) TypeUtils.getReferredType(service.getType());
+        ObjectType serviceType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(service));
         BMap<BString, Object> subscriptionConfig = Utils
                 .getSubscriptionConfig(serviceType.getAnnotation(
                         StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
@@ -73,14 +73,14 @@ public class Detach {
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listener.getNativeData(Constants.DISPATCHER_LIST);
-        Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
+        Dispatcher dispatcher = dispatcherList.get(TypeUtils.getType(service).getName());
         try {
             dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return Utils.createNatsError("Error occurred while un-subscribing.", ex);
         }
         serviceList.remove(service);
-        dispatcherList.remove(service.getType().getName());
+        dispatcherList.remove(TypeUtils.getType(service).getName());
         Connection natsConnection = (Connection) listener.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection != null) {
             natsMetricsReporter.reportUnsubscription(subject);

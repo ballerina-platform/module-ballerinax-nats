@@ -120,7 +120,7 @@ public class StreamMessageHandler implements MessageHandler {
 
     private void executeResource(String subject, Object[] args, Type returnType) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(service.getType());
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(service));
         StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
                 Utils.getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
         Map<String, Object> properties;
@@ -174,7 +174,7 @@ public class StreamMessageHandler implements MessageHandler {
 
     private static MethodType getAttachedFunctionType(BObject serviceObject, String functionName) {
         MethodType function = null;
-        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(serviceObject.getType());
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(serviceObject));
         MethodType[] remoteFunctions = objectType.getMethods();
         for (MethodType resourceFunction : remoteFunctions) {
             if (functionName.equals(resourceFunction.getName())) {

@@ -57,7 +57,7 @@ public class Register {
         List<BObject> serviceList =
                 (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
-                Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
+                Utils.getSubscriptionConfig(((AnnotatableType) TypeUtils.getType(service))
                         .getAnnotation(StringUtils.fromString(
                                 Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                                         Utils.getModule().getName() + VERSION_SEPARATOR +
@@ -76,7 +76,7 @@ public class Register {
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(Constants.DISPATCHER_LIST);
-        dispatcherList.put(service.getType().getName(), dispatcher);
+        dispatcherList.put(TypeUtils.getType(service).getName(), dispatcher);
         if (subscriptionConfig != null) {
             if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
                 queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();

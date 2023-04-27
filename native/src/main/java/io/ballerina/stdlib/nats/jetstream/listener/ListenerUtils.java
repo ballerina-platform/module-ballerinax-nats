@@ -96,7 +96,7 @@ public class ListenerUtils {
         @SuppressWarnings("unchecked")
         List<BObject> serviceList = (List<BObject>) listenerObject.getNativeData(Constants.SERVICE_LIST);
         BMap<BString, Object> subscriptionConfig =
-                Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
+                Utils.getSubscriptionConfig(((AnnotatableType) TypeUtils.getType(service))
                         .getAnnotation(StringUtils.fromString(
                                 Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                                         Utils.getModule().getName() + VERSION_SEPARATOR +
@@ -114,7 +114,7 @@ public class ListenerUtils {
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(Constants.DISPATCHER_LIST);
-        dispatcherList.put(service.getType().getName(), dispatcher);
+        dispatcherList.put(TypeUtils.getType(service).getName(), dispatcher);
         if (subscriptionConfig != null) {
             autoAck = subscriptionConfig.getBooleanValue(Constants.AUTO_ACK);
             if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
@@ -155,11 +155,10 @@ public class ListenerUtils {
     public static Object detach(BObject listener, BObject service) {
         @SuppressWarnings("unchecked")
         List<BObject> serviceList = (List<BObject>) listener.getNativeData(Constants.SERVICE_LIST);
-        BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(((AnnotatableType) service.getType())
-                .getAnnotation(StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
-                        Utils.getModule().getName() + VERSION_SEPARATOR +
-                        Utils.getModule().getVersion() + ":" +
-                        Constants.STREAM_SUBSCRIPTION_CONFIG)));
+        BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(((AnnotatableType)
+                TypeUtils.getType(service)).getAnnotation(StringUtils.fromString(Utils.getModule().getOrg()
+                + ORG_NAME_SEPARATOR + Utils.getModule().getName() + VERSION_SEPARATOR +
+                Utils.getModule().getVersion() + ":" + Constants.STREAM_SUBSCRIPTION_CONFIG)));
         String serviceName = (String) service.getNativeData(Constants.SERVICE_NAME);
         String subject;
         if (subscriptionConfig == null) {
@@ -175,14 +174,14 @@ public class ListenerUtils {
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listener.getNativeData(Constants.DISPATCHER_LIST);
-        Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
+        Dispatcher dispatcher = dispatcherList.get(TypeUtils.getType(service).getName());
         try {
             dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return Utils.createNatsError("Error occurred while un-subscribing.", ex);
         }
         serviceList.remove(service);
-        dispatcherList.remove(service.getType().getName());
+        dispatcherList.remove(TypeUtils.getType(service).getName());
         return null;
     }
 
