@@ -134,7 +134,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "2.7.0"
+version = "2.7.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
