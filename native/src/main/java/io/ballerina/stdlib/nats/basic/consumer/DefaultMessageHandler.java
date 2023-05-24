@@ -180,7 +180,7 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private static MethodType getAttachedFunctionType(BObject serviceObject, String functionName) {
         MethodType function = null;
-        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(serviceObject.getType());
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(serviceObject));
         MethodType[] remoteFunctions = objectType.getMethods();
         for (MethodType remoteFunction : remoteFunctions) {
             if (functionName.equals(remoteFunction.getName())) {
@@ -230,7 +230,7 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private void executeResource(String function, Callback callback,
                                  StrandMetadata metadata, Type returnType, String subject, Object... args) {
-        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(serviceObject.getType());
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(serviceObject));
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = new HashMap<>();
             NatsObserverContext observerContext = new NatsObserverContext(
