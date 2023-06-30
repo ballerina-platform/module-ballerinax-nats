@@ -3,4 +3,4 @@ id = "nats-compiler-plugin"
 class = "io.ballerina.stdlib.nats.plugin.NatsCompilerPlugin"
 
 [[dependency]]
-path = "../compiler-plugin/build/libs/nats-compiler-plugin-2.9.0-SNAPSHOT.jar"
+path = "../compiler-plugin/build/libs/nats-compiler-plugin-2.9.0.jar"
