@@ -19,13 +19,13 @@ path = "./lib/jnats-2.16.0.jar"
 groupId = "io.ballerina.stdlib"
 artifactId = "nats-native"
 version = "2.9.0"
-path = "../native/build/libs/nats-native-2.9.0-SNAPSHOT.jar"
+path = "../native/build/libs/nats-native-2.9.0.jar"
 
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "constraint-native"
 version = "1.3.0"
-path = "./lib/constraint-native-1.3.0-20230620-195700-ca941bc.jar"
+path = "./lib/constraint-native-1.3.0.jar"
 
 [build-options]
 observabilityIncluded=true
