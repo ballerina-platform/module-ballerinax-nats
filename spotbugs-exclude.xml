@@ -56,4 +56,12 @@
         <Class name="io.ballerina.stdlib.nats.basic.consumer.DefaultMessageHandler$ResponseCallback" />
         <Bug pattern="DM_EXIT"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.plugin.NatsFunctionValidator" />
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler" />
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>
