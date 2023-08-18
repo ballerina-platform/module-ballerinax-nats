@@ -215,6 +215,14 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
+    public void testValidServicesWithDisplayAnnotation() {
+        Package currentPackage = loadPackage("valid_service_23");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
     public void testInvalidService1() {
         Package currentPackage = loadPackage("invalid_service_1");
         PackageCompilation compilation = currentPackage.getCompilation();

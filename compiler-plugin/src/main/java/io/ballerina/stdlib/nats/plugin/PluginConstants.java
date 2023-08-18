@@ -74,11 +74,10 @@ public class PluginConstants {
                 "NATS_115"),
         INVALID_MULTIPLE_LISTENERS("Multiple listener attachments. Only one nats:Listener is allowed.",
                 "NATS_116"),
-        NO_ANNOTATION("No @nats:ServiceConfig{} annotation is found.",
-                "NATS_118"),
+        NO_ANNOTATION("No @nats:ServiceConfig{} annotation is found.", "NATS_117"),
         INVALID_SERVICE_ATTACH_POINT("Invalid service attach point. Only string literals are allowed.",
-                "NATS_120"),
-        TEMPLATE_CODE_GENERATION_HINT("Template generation for empty service", "NATS_121");
+                "NATS_118"),
+        TEMPLATE_CODE_GENERATION_HINT("Template generation for empty service", "NATS_119");
 
         private final String error;
         private final String errorCode;

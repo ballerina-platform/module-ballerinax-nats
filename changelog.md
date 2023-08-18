@@ -7,7 +7,7 @@ This file contains all the notable changes done to the Ballerina NATS package th
 
 - [[#4733] Changed disallowing service level annotations in the compiler plugin](https://github.com/ballerina-platform/ballerina-standard-library/issues/4733) 
 
-## [2.7.0] - 2023-06-30
+## [2.7.0] - 2023-04-10
 
 ### Changed
 - [[#4237] Exit the Listener When Panic Occurred](https://github.com/ballerina-platform/ballerina-standard-library/issues/4237)
