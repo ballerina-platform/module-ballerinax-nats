@@ -97,9 +97,17 @@ public class NatsServiceValidator {
             Optional<ServiceAttachPoint> serviceNameAttachPoint = serviceDeclarationSymbol.attachPoint();
             List<AnnotationSymbol> annotations = serviceDeclarationSymbol.annotations();
 
-            // nats gets the subject name from either the service name or the
+            // Nats gets the subject name from either the service name or the
             // service config, so either one of them should be present.
-            if (annotations.isEmpty() || !hasServiceConfig(annotations)) {
+            if (annotations.isEmpty()) {
+                if (serviceNameAttachPoint.isEmpty()) {
+                    // Case 1: No service name and no annotation
+                    reportError(context, CompilationErrors.NO_ANNOTATION, serviceDeclarationNode);
+                } else if (serviceNameAttachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL) {
+                    // Case 2: Service name is not a string and no annotation
+                    reportError(context, CompilationErrors.INVALID_SERVICE_ATTACH_POINT, serviceDeclarationNode);
+                }
+            } else if (!hasServiceConfig(annotations)) {
                 if (serviceNameAttachPoint.isEmpty()) {
                     // Case 1: No service name and no annotation
                     reportError(context, CompilationErrors.NO_ANNOTATION, serviceDeclarationNode);
