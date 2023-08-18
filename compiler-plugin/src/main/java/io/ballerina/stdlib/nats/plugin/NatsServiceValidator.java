@@ -21,7 +21,6 @@ package io.ballerina.stdlib.nats.plugin;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
@@ -34,7 +33,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
 
 import java.util.List;
 import java.util.Optional;
@@ -103,7 +101,8 @@ public class NatsServiceValidator {
             if (serviceNameAttachPoint.isEmpty() && annotations.isEmpty()) {
                 // Case 1: No service name and no annotation
                 reportError(context, CompilationErrors.NO_ANNOTATION, serviceDeclarationNode);
-            } else if ((serviceNameAttachPoint.isPresent() && serviceNameAttachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL)
+            } else if ((serviceNameAttachPoint.isPresent()
+                    && serviceNameAttachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL)
                     && annotations.isEmpty()) {
                 // Case 2: Service name is not a string and no annotation
                 reportError(context, CompilationErrors.INVALID_SERVICE_ATTACH_POINT, serviceDeclarationNode);
