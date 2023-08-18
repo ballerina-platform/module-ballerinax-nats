@@ -21,6 +21,7 @@ package io.ballerina.stdlib.nats.plugin;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
@@ -96,18 +97,34 @@ public class NatsServiceValidator {
             Optional<ServiceAttachPoint> serviceNameAttachPoint = serviceDeclarationSymbol.attachPoint();
             List<AnnotationSymbol> annotations = serviceDeclarationSymbol.annotations();
 
-            // NATS gets the subject name from either the service name or the
+            // nats gets the subject name from either the service name or the
             // service config, so either one of them should be present.
-            if (serviceNameAttachPoint.isEmpty() && annotations.isEmpty()) {
-                // Case 1: No service name and no annotation
-                reportError(context, CompilationErrors.NO_ANNOTATION, serviceDeclarationNode);
-            } else if ((serviceNameAttachPoint.isPresent()
-                    && serviceNameAttachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL)
-                    && annotations.isEmpty()) {
-                // Case 2: Service name is not a string and no annotation
-                reportError(context, CompilationErrors.INVALID_SERVICE_ATTACH_POINT, serviceDeclarationNode);
+            if (annotations.isEmpty() || !hasServiceConfig(annotations)) {
+                if (serviceNameAttachPoint.isEmpty()) {
+                    // Case 1: No service name and no annotation
+                    reportError(context, CompilationErrors.NO_ANNOTATION, serviceDeclarationNode);
+                } else if (serviceNameAttachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL) {
+                    // Case 2: Service name is not a string and no annotation
+                    reportError(context, CompilationErrors.INVALID_SERVICE_ATTACH_POINT, serviceDeclarationNode);
+                }
             }
         }
+    }
+
+    private boolean hasServiceConfig(List<AnnotationSymbol> annotationSymbols) {
+        boolean flag = false;
+        for (AnnotationSymbol annotationSymbol : annotationSymbols) {
+            Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
+            if (moduleSymbolOptional.isPresent()) {
+                ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
+                if (moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
+                        moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
+                    // not checking name as nats has only two annotations and only one is allowed on services.
+                    flag = true;
+                }
+            }
+        }
+        return flag;
     }
 
     private void reportError(SyntaxNodeAnalysisContext context, CompilationErrors error, Node locationNode) {
