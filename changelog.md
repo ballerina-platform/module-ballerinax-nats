@@ -1,7 +1,7 @@
 # Change Log
 This file contains all the notable changes done to the Ballerina NATS package through the releases.
 
-## [2.9.1] - 2023-08-21
+## [Unreleased]
 
 ### Changed
 
