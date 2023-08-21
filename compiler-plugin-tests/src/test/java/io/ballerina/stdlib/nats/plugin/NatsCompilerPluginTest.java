@@ -542,13 +542,13 @@ public class NatsCompilerPluginTest {
     }
 
     @Test(description = "NATS service with no service config or service name")
-    public void testInvalidService30() {
+    public void testInvalidService31() {
         Package currentPackage = loadPackage("invalid_service_31");
         PackageCompilation compilation = currentPackage.getCompilation();
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.errors().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
-        assertDiagnostic(diagnostic, CompilationErrors.INVALID_SERVICE_ATTACH_POINT);
+        assertDiagnostic(diagnostic, CompilationErrors.NO_ANNOTATION);
     }
 
     private Package loadPackage(String path) {
