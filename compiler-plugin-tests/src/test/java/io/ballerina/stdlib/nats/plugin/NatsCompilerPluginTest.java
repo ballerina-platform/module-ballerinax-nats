@@ -541,6 +541,16 @@ public class NatsCompilerPluginTest {
         assertDiagnostic(diagnostic, CompilationErrors.NO_ANNOTATION);
     }
 
+    @Test(description = "NATS service with no service config or service name")
+    public void testInvalidService30() {
+        Package currentPackage = loadPackage("invalid_service_31");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.INVALID_SERVICE_ATTACH_POINT);
+    }
+
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(BALLERINA_SOURCES).resolve(path);
         BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
