@@ -215,6 +215,14 @@ public class NatsCompilerPluginTest {
     }
 
     @Test
+    public void testValidServicesWithDisplayAnnotation() {
+        Package currentPackage = loadPackage("valid_service_23");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 0);
+    }
+
+    @Test
     public void testInvalidService1() {
         Package currentPackage = loadPackage("invalid_service_1");
         PackageCompilation compilation = currentPackage.getCompilation();
@@ -521,6 +529,26 @@ public class NatsCompilerPluginTest {
         Assert.assertEquals(diagnosticResult.errors().size(), 1);
         Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
         assertDiagnostic(diagnostic, CompilationErrors.INVALID_RETURN_TYPE_ERROR_OR_NIL);
+    }
+
+    @Test(description = "NATS service with no service config or service name")
+    public void testInvalidService30() {
+        Package currentPackage = loadPackage("invalid_service_30");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.NO_ANNOTATION);
+    }
+
+    @Test(description = "NATS service with no service config or service name")
+    public void testInvalidService31() {
+        Package currentPackage = loadPackage("invalid_service_31");
+        PackageCompilation compilation = currentPackage.getCompilation();
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.errors().size(), 1);
+        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[0];
+        assertDiagnostic(diagnostic, CompilationErrors.NO_ANNOTATION);
     }
 
     private Package loadPackage(String path) {

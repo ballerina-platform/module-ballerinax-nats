@@ -34,7 +34,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.nats.plugin.PluginConstants.CompilationErrors;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class NatsServiceValidator {
 
         if (serviceDeclarationNode.members().isEmpty() || !hasRemoteFunction) {
             context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.TEMPLATE_CODE_GENERATION_HINT,
-                   DiagnosticSeverity.INTERNAL, serviceDeclarationNode.location()));
+                    DiagnosticSeverity.INTERNAL, serviceDeclarationNode.location()));
         }
 
         validateAttachPoint(context);
@@ -93,44 +92,41 @@ public class NatsServiceValidator {
         SemanticModel semanticModel = context.semanticModel();
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) context.node();
         Optional<Symbol> symbol = semanticModel.symbol(serviceDeclarationNode);
+
         if (symbol.isPresent()) {
             ServiceDeclarationSymbol serviceDeclarationSymbol = (ServiceDeclarationSymbol) symbol.get();
-            Optional<ServiceAttachPoint> attachPoint = serviceDeclarationSymbol.attachPoint();
-            List<AnnotationSymbol> symbolList = serviceDeclarationSymbol.annotations();
-            if (attachPoint.isEmpty()) {
-                if (symbolList.isEmpty()) {
-                    context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.NO_ANNOTATION,
-                            DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
-                } else if (symbolList.size() > 1) {
-                    context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION_NUMBER,
-                            DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
-                } else {
-                    validateAnnotation(symbolList.get(0), serviceDeclarationNode.location(),
-                            context);
-                }
-            } else {
-                if (attachPoint.get().kind() != ServiceAttachPointKind.STRING_LITERAL) {
-                    if (serviceDeclarationSymbol.annotations().isEmpty()) {
-                        context.reportDiagnostic(PluginUtils.getDiagnostic(
-                                CompilationErrors.INVALID_SERVICE_ATTACH_POINT,
-                                DiagnosticSeverity.ERROR, serviceDeclarationNode.location()));
-                    } else {
-                        validateAnnotation(symbolList.get(0), serviceDeclarationNode.location(),
-                                context);
-                    }
-                }
+            Optional<ServiceAttachPoint> serviceNameAttachPoint = serviceDeclarationSymbol.attachPoint();
+            List<AnnotationSymbol> annotations = serviceDeclarationSymbol.annotations();
+
+            boolean serviceNameIsStringLiteral = serviceNameAttachPoint.isPresent() &&
+                    serviceNameAttachPoint.get().kind() == ServiceAttachPointKind.STRING_LITERAL;
+
+            if (annotations.isEmpty() && !serviceNameIsStringLiteral) {
+                // Case 1: No service name and no annotation
+                reportError(context, CompilationErrors.INVALID_SERVICE_ATTACH_POINT, serviceDeclarationNode);
+            } else if (!hasServiceConfig(annotations) && !serviceNameIsStringLiteral) {
+                // Case 2: Service name is not a string and no annotation
+                reportError(context, CompilationErrors.NO_ANNOTATION, serviceDeclarationNode);
             }
         }
     }
 
-    private void validateAnnotation(AnnotationSymbol annotationSymbol, Location location,
-                                    SyntaxNodeAnalysisContext context) {
-        Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
-        ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
-        if (!moduleSymbol.id().orgName().equals(PluginConstants.PACKAGE_ORG) ||
-                !moduleSymbol.id().moduleName().equals(PluginConstants.PACKAGE_PREFIX)) {
-            context.reportDiagnostic(PluginUtils.getDiagnostic(CompilationErrors.INVALID_ANNOTATION,
-                    DiagnosticSeverity.ERROR, location));
+    private void reportError(SyntaxNodeAnalysisContext context, CompilationErrors error, Node locationNode) {
+        context.reportDiagnostic(PluginUtils.getDiagnostic(error, DiagnosticSeverity.ERROR, locationNode.location()));
+    }
+
+    private boolean hasServiceConfig(List<AnnotationSymbol> annotationSymbols) {
+        for (AnnotationSymbol annotationSymbol : annotationSymbols) {
+            Optional<ModuleSymbol> moduleSymbolOptional = annotationSymbol.getModule();
+            if (moduleSymbolOptional.isPresent()) {
+                ModuleSymbol moduleSymbol = moduleSymbolOptional.get();
+                if (PluginConstants.PACKAGE_ORG.equals(moduleSymbol.id().orgName()) &&
+                        PluginConstants.PACKAGE_PREFIX.equals(moduleSymbol.id().moduleName())) {
+                    // not checking name as rabbitmq has only two annotations and only one is allowed on services.
+                    return true;
+                }
+            }
         }
+        return false;
     }
 }
