@@ -25,7 +25,7 @@ path = "../native/build/libs/nats-native-2.10.0-SNAPSHOT.jar"
 groupId = "io.ballerina.stdlib"
 artifactId = "constraint-native"
 version = "1.4.0"
-path = "./lib/constraint-native-1.4.0-20230810-133100-e09cfc1.jar"
+path = "./lib/constraint-native-1.4.0-20230831-142400-50e4023.jar"
 
 [build-options]
 observabilityIncluded=true
