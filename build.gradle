@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     id "com.github.spotbugs" version "5.0.14"
@@ -117,3 +118,52 @@ task build {
     dependsOn('nats-ballerina:build')
     dependsOn('nats-ballerina-tests:test')
 }
+
+task startNatsServers() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
+                standardOutput = stdOut
+            }
+            if (!stdOut.toString().contains("server_nats-tls_1")) {
+                println "Starting NATS Basic server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f nats-server/server/docker-compose.yaml up -d"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(10 * 1000)
+            } else {
+                println "NATS Basic server is already started."
+            }
+        }
+    }
+}
+
+task stopNatsServers() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
+                standardOutput = stdOut
+            }
+            if (stdOut.toString().contains("server_nats-tls_1")) {
+                println "Stopping NATS server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f nats-server/server/docker-compose.yaml rm -svf"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                sleep(5 * 1000)
+            } else {
+                println "NATS server is not started."
+            }
+        }
+    }
+}
+
+build.dependsOn(startNatsServers)
+build.finalizedBy(stopNatsServers)

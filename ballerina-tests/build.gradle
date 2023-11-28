@@ -128,68 +128,10 @@ clean {
     delete("${projectDir}/target")
 }
 
-
-task startNatsServersForTests() {
-    doLast {
-        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            def stdOut = new ByteArrayOutputStream()
-            exec {
-                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
-                standardOutput = stdOut
-            }
-            if (!stdOut.toString().contains("server_nats-tls_1")) {
-                println "Starting NATS Basic server."
-                exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml up -d"
-                    standardOutput = stdOut
-                }
-                println stdOut.toString()
-                sleep(20 * 1000)
-                exec {
-                    commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
-                    standardOutput = stdOut
-                }
-                if (!stdOut.toString().contains("server_nats-tls_1")) {
-                    println "tls server didn't start after 20 seconds."
-                }
-            } else {
-                println "NATS Basic server is already started."
-            }
-        }
-    }
-}
-
-task stopNatsServersForTests() {
-    doLast {
-        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            def stdOut = new ByteArrayOutputStream()
-            exec {
-                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
-                standardOutput = stdOut
-            }
-            if (stdOut.toString().contains("server_nats-tls_1")) {
-                println "Stopping NATS server."
-                exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml rm -svf"
-                    standardOutput = stdOut
-                }
-                println stdOut.toString()
-                sleep(5 * 1000)
-            } else {
-                println "NATS server is not started."
-            }
-        }
-    }
-}
-
-build.dependsOn startNatsServersForTests
-test.dependsOn startNatsServersForTests
 build.dependsOn ":${packageName}-ballerina:build"
 build.dependsOn ":${packageName}-compiler-plugin:build"
 test.dependsOn ":${packageName}-ballerina:build"
 test.dependsOn ":${packageName}-compiler-plugin:build"
-build.finalizedBy stopNatsServersForTests
-test.finalizedBy stopNatsServersForTests
 
 publishToMavenLocal.dependsOn build
 publish.dependsOn build
