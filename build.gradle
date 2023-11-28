@@ -138,14 +138,6 @@ task startNatsServers() {
             } else {
                 println "NATS Basic server is already started."
             }
-            // Get the IP address of the container
-            stdOut.reset()
-            exec {
-                commandLine 'sh', '-c', "docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $containerId"
-                standardOutput = stdOut
-            }
-            def ipAddress = stdOut.toString().trim()
-            println "NATS Basic server IP address: $ipAddress"
         }
     }
 }
