@@ -1,34 +1,34 @@
 name: Trigger Load Tests
 
 on:
-  workflow_dispatch:
-    inputs:
-      tests:
-        description: >
-          List of test names. This needs to be filled only if you want to run a specific set of tests. Example: foo,bar
-        required: false
-      clusterName:
-        description: 'Cluster name'
-        default: 'nats-perf-cluster-test'
-        required: false
-      branch:
-        description: 'Branch of the given repository'
-        default: ''
-        required: false
-  schedule:
-    - cron: '30 19 * * *'
+    workflow_dispatch:
+        inputs:
+            tests:
+                description: >
+                  List of test names. This needs to be filled only if you want to run a specific set of tests. Example: foo,bar
+                required: false
+            clusterName:
+                description: 'Cluster name'
+                default: 'nats-perf-cluster-test'
+                required: false
+            branch:
+                description: 'Branch of the given repository'
+                default: ''
+                required: false
+    schedule:
+        -   cron: '0 20 * * *'
 
 jobs:
-  call_stdlib_trigger_load_test_workflow:
-    name: Run StdLib Load Test Workflow
-    if: ${{ github.event_name != 'schedule' || (github.event_name == 'schedule' && github.repository_owner == 'ballerina-platform') }}
-    uses: ballerina-platform/ballerina-standard-library/.github/workflows/trigger-load-tests-template.yml@main
-    with:
-      repo_name: 'module-ballerinax-nats'
-      runtime_artifacts_url: 'https://api.github.com/repos/ballerina-platform/module-ballerinax-nats/actions/artifacts'
-      dispatch_type: 'nats-load-test'
-      cluster_name: ${{ inputs.clusterName }}
-      tests: ${{ inputs.tests }}
-      branch: ${{ inputs.branch }}
-    secrets:
-      ballerina_bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+    call_stdlib_trigger_load_test_workflow:
+        name: Run StdLib Load Test Workflow
+        if: ${{ github.event_name != 'schedule' || (github.event_name == 'schedule' && github.repository_owner == 'ballerina-platform') }}
+        uses: ballerina-platform/ballerina-standard-library/.github/workflows/trigger-load-tests-template.yml@main
+        with:
+            repo_name: 'module-ballerinax-nats'
+            runtime_artifacts_url: 'https://api.github.com/repos/ballerina-platform/module-ballerinax-nats/actions/artifacts'
+            dispatch_type: 'nats-load-test'
+            cluster_name: ${{ inputs.clusterName }}
+            tests: ${{ inputs.tests }}
+            branch: ${{ inputs.branch }}
+        secrets:
+            ballerina_bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}

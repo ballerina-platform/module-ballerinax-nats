@@ -17,12 +17,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17.0.7
-
+      
       - name: Set environment variable
         if: github.event.action == 'check_connector_for_breaking_changes'
         run: |
           echo "BUILD_USING_DOCKER=-PbuildUsingDocker=nightly" >> $GITHUB_ENV
-          echo "GRADLE_SKIP_TASKS=-x :nats-compiler-plugin-tests:test -x :nats-ballerina-tests:build -x :nats-ballerina-tests:test" >> $GITHUB_ENV
+          echo "GRADLE_SKIP_TASKS=-x :nats-compiler-plugin-tests:test"  >> $GITHUB_ENV
 
       # Build the project with Gradle
       - name: Build with Gradle
@@ -32,6 +32,7 @@ jobs:
         run: |
           ./gradlew clean build $GRADLE_SKIP_TASKS $BUILD_USING_DOCKER
 
+      # Send notification when build fails
       - name: Notify failure
         if: ${{ failure() }}
         run: |
