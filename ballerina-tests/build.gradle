@@ -100,41 +100,12 @@ task initializeVariables {
         }
     }
 }
-
-task ballerinaTest {
-    dependsOn(":${packageName}-ballerina:build")
-    dependsOn(updateTomlFiles)
-    dependsOn(initializeVariables)
-    finalizedBy(commitTomlFiles)
-
-    doLast {
-        exec {
-            workingDir project.projectDir
-            environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "${balJavaDebugParam} ${distributionBinPath}/bal.bat test ${graalvmFlag} ${testParams} --offline ${groupParams} ${disableGroups} ${debugParams} && exit %%ERRORLEVEL%%"
-            } else {
-                commandLine 'sh', '-c', "${balJavaDebugParam} ${distributionBinPath}/bal test ${graalvmFlag} ${testParams} --offline ${groupParams} ${disableGroups} ${debugParams}"
-            }
-        }
-    }
-}
-
-test {
-    dependsOn(ballerinaTest)
-}
-
-clean {
-    delete("${projectDir}/target")
-}
-
-
 task startNatsServersForTests() {
     doLast {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=server_nats-tls_1"
+                commandLine 'sh', '-c', "docker ps"
                 standardOutput = stdOut
             }
             if (!stdOut.toString().contains("server_nats-tls_1")) {
@@ -180,6 +151,36 @@ task stopNatsServersForTests() {
             }
         }
     }
+}
+
+task ballerinaTest {
+    dependsOn(":${packageName}-ballerina:build")
+    dependsOn(updateTomlFiles)
+    dependsOn(startNatsServersForTests)
+    dependsOn(initializeVariables)
+    finalizedBy(commitTomlFiles)
+
+    doLast {
+        exec {
+            workingDir project.projectDir
+            environment "JAVA_OPTS", "-DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true"
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "${balJavaDebugParam} ${distributionBinPath}/bal.bat test ${graalvmFlag} ${testParams} --offline ${groupParams} ${disableGroups} ${debugParams} && exit %%ERRORLEVEL%%"
+            } else {
+                commandLine 'sh', '-c', "${balJavaDebugParam} ${distributionBinPath}/bal test ${graalvmFlag} ${testParams} --offline ${groupParams} ${disableGroups} ${debugParams}"
+            }
+        }
+    }
+}
+
+test {
+    dependsOn(ballerinaTest)
+}
+
+test.mustRunAfter startNatsServersForTests
+
+clean {
+    delete("${projectDir}/target")
 }
 
 build.dependsOn startNatsServersForTests
