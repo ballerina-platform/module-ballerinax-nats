@@ -156,7 +156,6 @@ task stopNatsServersForTests() {
 task ballerinaTest {
     dependsOn(":${packageName}-ballerina:build")
     dependsOn(updateTomlFiles)
-    dependsOn(startNatsServersForTests)
     dependsOn(initializeVariables)
     finalizedBy(commitTomlFiles)
 

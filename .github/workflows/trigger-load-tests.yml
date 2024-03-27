@@ -16,7 +16,7 @@ on:
                 default: ''
                 required: false
     schedule:
-        -   cron: '0 20 * * *'
+        -   cron: '30 19 * * *'
 
 jobs:
     call_stdlib_trigger_load_test_workflow:
