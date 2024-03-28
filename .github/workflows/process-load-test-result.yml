@@ -4,11 +4,11 @@ on:
     types: [nats-load-test]
 
 jobs:
-  call_stdlib_process_load_test_results_workflow:
-    name: Run StdLib Process Load Test Results Workflow
-    uses: ballerina-platform/ballerina-standard-library/.github/workflows/process-load-test-results-template.yml@main
-    with:
-      results: ${{ toJson(github.event.client_payload.results) }}
-    secrets:
-      ballerina_bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-      ballerina_reviewer_bot_token: ${{ secrets.BALLERINA_REVIEWER_BOT_TOKEN }}
+    call_stdlib_process_load_test_results_workflow:
+        name: Run StdLib Process Load Test Results Workflow
+        uses: ballerina-platform/ballerina-standard-library/.github/workflows/process-load-test-results-template.yml@main
+        with:
+            results: ${{ toJson(github.event.client_payload.results) }}
+        secrets:
+            ballerina_bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+            ballerina_reviewer_bot_token: ${{ secrets.BALLERINA_REVIEWER_BOT_TOKEN }}
