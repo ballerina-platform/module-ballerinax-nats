@@ -23,7 +23,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message message) returns error? {
+    remote function onMessage(nats:AnydataMessage message) returns error? {
     }
 }
 
@@ -32,7 +32,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message message) returns ()|error {
+    remote function onMessage(nats:AnydataMessage message) returns ()|error {
     }
 }
 
@@ -41,7 +41,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message message) returns nats:Error? {
+    remote function onMessage(nats:AnydataMessage message) returns nats:Error? {
     }
 }
 
@@ -50,6 +50,6 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message message) returns ()|nats:Error {
+    remote function onMessage(nats:AnydataMessage message) returns ()|nats:Error {
     }
 }

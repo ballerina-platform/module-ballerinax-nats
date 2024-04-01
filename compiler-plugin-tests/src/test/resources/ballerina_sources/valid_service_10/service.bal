@@ -26,7 +26,7 @@ service nats:Service on subscription {
     remote function onMessage(string data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 
     function testFunction() {
@@ -41,7 +41,7 @@ service nats:Service on subscription {
     remote function onMessage(xml data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -53,7 +53,7 @@ service nats:Service on subscription {
     remote function onMessage(decimal[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -65,7 +65,7 @@ service nats:Service on subscription {
     remote function onMessage(byte[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -77,7 +77,7 @@ service nats:Service on subscription {
     remote function onMessage(anydata data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -89,7 +89,7 @@ service nats:Service on subscription {
     remote function onMessage(string[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -101,7 +101,7 @@ service nats:Service on subscription {
     remote function onMessage(boolean data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -118,7 +118,7 @@ service nats:Service on subscription {
     remote function onMessage(Employee employee) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -130,7 +130,7 @@ service nats:Service on subscription {
     remote function onMessage(readonly & table<Employee>[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -142,7 +142,7 @@ service nats:Service on subscription {
     remote function onMessage(json data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -154,7 +154,7 @@ service nats:Service on subscription {
     remote function onMessage(int[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -166,7 +166,7 @@ service nats:Service on subscription {
     remote function onMessage(Employee[] employees) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -178,7 +178,7 @@ service nats:Service on subscription {
     remote function onMessage(json[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns nats:Error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns nats:Error? {
     }
 }
 
@@ -190,7 +190,7 @@ service nats:Service on subscription {
     remote function onMessage(readonly & xml[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -204,6 +204,6 @@ service nats:Service on subscription {
     remote function onMessage(readonly & anydata[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }

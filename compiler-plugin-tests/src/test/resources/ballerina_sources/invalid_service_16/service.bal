@@ -23,7 +23,7 @@ listener nats:Listener subscription1 = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription1 {
 
-    remote function onMessage(nats:Message message) {
+    remote function onMessage(nats:AnydataMessage message) {
     }
 
     resource function get greeting() returns string {

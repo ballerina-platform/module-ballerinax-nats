@@ -27,7 +27,7 @@ service nats:Service on subscription {
     remote function onRequest(string data, xml message) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -39,7 +39,7 @@ service nats:Service on subscription {
     remote function onRequest(json[] data, int message) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -51,6 +51,6 @@ service nats:Service on subscription {
     remote function onRequest(readonly & byte[] data, int message) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }

@@ -24,7 +24,7 @@ listener nats:Listener subscription2 = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription1, subscription2 {
 
-    remote function onMessage(nats:Message message) {
+    remote function onMessage(nats:AnydataMessage message) {
     }
 }
 

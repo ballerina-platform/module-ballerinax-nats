@@ -24,7 +24,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 service nats:Service on subscription {
     nats:Client natsClient = checkpanic new(nats:DEFAULT_URL);
 
-    remote function onMessage(nats:Message message) {
+    remote function onMessage(nats:AnydataMessage message) {
     }
 }
 
@@ -34,6 +34,6 @@ service nats:Service on subscription {
 service nats:Service on subscription {
     string hello = "Hello";
 
-    remote function onRequest(nats:Message message) {
+    remote function onRequest(nats:AnydataMessage message) {
     }
 }

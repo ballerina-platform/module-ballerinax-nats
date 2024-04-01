@@ -23,7 +23,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message msg) returns string {
+    remote function onMessage(nats:AnydataMessage msg) returns string {
         return "Invalid return for onMessage";
     }
 }

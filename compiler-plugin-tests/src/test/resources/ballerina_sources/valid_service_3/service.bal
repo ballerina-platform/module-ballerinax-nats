@@ -23,7 +23,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error? {
+    remote function onRequest(nats:AnydataMessage message) returns error? {
     }
 }
 
@@ -32,7 +32,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns ()|error {
+    remote function onRequest(nats:AnydataMessage message) returns ()|error {
     }
 }
 
@@ -41,7 +41,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns nats:Error? {
+    remote function onRequest(nats:AnydataMessage message) returns nats:Error? {
     }
 }
 
@@ -50,7 +50,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns ()|nats:Error {
+    remote function onRequest(nats:AnydataMessage message) returns ()|nats:Error {
     }
 }
 
@@ -59,7 +59,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns string {
+    remote function onRequest(nats:AnydataMessage message) returns string {
         return "Hello";
     }
 }
@@ -69,7 +69,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns string? {
+    remote function onRequest(nats:AnydataMessage message) returns string? {
     }
 }
 
@@ -78,7 +78,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns int? {
+    remote function onRequest(nats:AnydataMessage message) returns int? {
     }
 }
 
@@ -87,7 +87,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns int {
+    remote function onRequest(nats:AnydataMessage message) returns int {
         return 1;
     }
 }
@@ -97,7 +97,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns anydata? {
+    remote function onRequest(nats:AnydataMessage message) returns anydata? {
     }
 }
 
@@ -106,7 +106,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns anydata {
+    remote function onRequest(nats:AnydataMessage message) returns anydata {
     }
 }
 
@@ -115,7 +115,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns anydata|error {
+    remote function onRequest(nats:AnydataMessage message) returns anydata|error {
     }
 }
 
@@ -124,7 +124,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error|anydata {
+    remote function onRequest(nats:AnydataMessage message) returns error|anydata {
     }
 }
 
@@ -133,7 +133,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns string|error {
+    remote function onRequest(nats:AnydataMessage message) returns string|error {
         return "Hello";
     }
 }
@@ -143,7 +143,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error|string {
+    remote function onRequest(nats:AnydataMessage message) returns error|string {
         return "Hello";
     }
 }

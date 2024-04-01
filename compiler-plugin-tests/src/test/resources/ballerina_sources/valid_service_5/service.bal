@@ -22,5 +22,5 @@ listener foo:Listener subscription = new(foo:DEFAULT_URL);
     subject: "demo.bbe.*"
 }
 service foo:Service on subscription {
-    remote function onMessage(foo:Message data) {}
+    remote function onMessage(foo:AnydataMessage data) {}
 }

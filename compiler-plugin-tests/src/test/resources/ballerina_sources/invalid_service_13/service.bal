@@ -23,10 +23,10 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onMessage(nats:Message message) {
+    remote function onMessage(nats:AnydataMessage message) {
     }
 
-    remote function onError(nats:Message message, nats:Error err, string something) {
+    remote function onError(nats:AnydataMessage message, nats:Error err, string something) {
     }
 }
 

@@ -23,6 +23,6 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onMessage(readonly & nats:Message message) {
+    remote function onMessage(readonly & nats:AnydataMessage message) {
     }
 }

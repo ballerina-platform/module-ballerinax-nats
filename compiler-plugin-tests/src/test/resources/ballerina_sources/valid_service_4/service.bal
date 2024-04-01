@@ -23,22 +23,10 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error? {
+    remote function onRequest(nats:AnydataMessage message) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
-    }
-}
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onRequest(nats:Message message) returns error? {
-    }
-
-    remote function onError(nats:Message message, nats:Error err) returns ()|nats:Error {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -47,10 +35,10 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error? {
+    remote function onRequest(nats:AnydataMessage message) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns nats:Error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns ()|nats:Error {
     }
 }
 
@@ -59,9 +47,21 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error? {
+    remote function onRequest(nats:AnydataMessage message) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns ()|error {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns nats:Error? {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onRequest(nats:AnydataMessage message) returns error? {
+    }
+
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns ()|error {
     }
 }

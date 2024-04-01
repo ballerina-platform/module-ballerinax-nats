@@ -24,7 +24,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, string data) returns string? {
+    remote function onRequest(nats:AnydataMessage message, string data) returns string? {
         return "Hello from the other side";
     }
 
@@ -40,7 +40,7 @@ service nats:Service on subscription {
     remote function onRequest(xml data) returns error? {
     }
 
-    remote function onError(nats:Message message) {
+    remote function onError(nats:AnydataMessage message) {
     }
 }
 
@@ -49,7 +49,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, decimal[] data) returns anydata {
+    remote function onRequest(readonly & nats:AnydataMessage message, decimal[] data) returns anydata {
         return "Received decimal value";
     }
 
