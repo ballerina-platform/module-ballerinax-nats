@@ -73,7 +73,7 @@ public class Constants {
     public static final String SERVICE_LIST = "service_list";
 
     // Represents the message which will be consumed from NATS.
-    public static final String NATS_MESSAGE_OBJ_NAME = "Message";
+    public static final String NATS_MESSAGE_OBJ_NAME = "AnydataMessage";
     public static final String MESSAGE_CONTENT = "content";
     public static final String MESSAGE_SUBJECT = "subject";
     public static final String MESSAGE_REPLY_TO = "replyTo";

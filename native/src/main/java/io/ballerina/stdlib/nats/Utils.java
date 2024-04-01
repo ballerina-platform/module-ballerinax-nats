@@ -130,13 +130,6 @@ public class Utils {
         return recordType;
     }
 
-    public static RecordType getRecordType(Type type) {
-        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            return (RecordType) TypeUtils.getReferredType(((IntersectionType) (type)).getConstituentTypes().get(0));
-        }
-        return (RecordType) type;
-    }
-
     public static Object getValueWithIntendedType(Type type, byte[] value) throws BError {
         String strValue = new String(value, StandardCharsets.UTF_8);
         try {

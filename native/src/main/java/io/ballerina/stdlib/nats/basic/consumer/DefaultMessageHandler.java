@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -48,6 +47,7 @@ import io.ballerina.stdlib.nats.observability.NatsObserverContext;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
+import org.ballerinalang.langlib.value.CloneReadOnly;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,14 +59,15 @@ import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 import static io.ballerina.stdlib.nats.Constants.IS_ANYDATA_MESSAGE;
+import static io.ballerina.stdlib.nats.Constants.MESSAGE_CONTENT;
 import static io.ballerina.stdlib.nats.Constants.NATS;
 import static io.ballerina.stdlib.nats.Constants.ORG_NAME;
 import static io.ballerina.stdlib.nats.Constants.PARAM_ANNOTATION_PREFIX;
 import static io.ballerina.stdlib.nats.Constants.PARAM_PAYLOAD_ANNOTATION_NAME;
 import static io.ballerina.stdlib.nats.Constants.TYPE_CHECKER_OBJECT_NAME;
+import static io.ballerina.stdlib.nats.Utils.createPayloadBindingError;
 import static io.ballerina.stdlib.nats.Utils.getElementTypeDescFromArrayTypeDesc;
 import static io.ballerina.stdlib.nats.Utils.getModule;
-import static io.ballerina.stdlib.nats.Utils.getRecordType;
 import static io.ballerina.stdlib.nats.Utils.validateConstraints;
 
 /**
@@ -153,31 +154,6 @@ public class DefaultMessageHandler implements MessageHandler {
         }
     }
 
-    private static Object createAndPopulateMessageRecord(byte[] message, String replyTo, String subject,
-                                                         Parameter parameter) {
-        BMap<BString, Object> msgObj;
-        BArray msgData = ValueCreator.createArrayValue(message);
-        Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put(Constants.MESSAGE_CONTENT, msgData);
-        valueMap.put(Constants.MESSAGE_SUBJECT, StringUtils.fromString(subject));
-        if (replyTo != null) {
-            valueMap.put(Constants.MESSAGE_REPLY_TO, StringUtils.fromString(replyTo));
-        }
-        Type referredType = getReferredType(parameter.type);
-        if (referredType.getTag() == TypeTags.INTERSECTION_TAG) {
-            msgObj = ValueCreator.createReadonlyRecordValue(getModule(),
-                    Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
-        } else {
-            BMap<BString, Object> msgRecord = ValueCreator.createRecordValue((RecordType) referredType);
-            Map<String, Field> fieldMap = ((RecordType) referredType).getFields();
-            Type contentType = getReferredType(fieldMap.get(Constants.MESSAGE_CONTENT).getFieldType());
-            Object msg = Utils.getValueWithIntendedType(contentType, message);
-            msgObj = ValueCreator.createRecordValue(msgRecord, msg, StringUtils.fromString(subject),
-                    StringUtils.fromString(replyTo));
-        }
-        return msgObj;
-    }
-
     private static MethodType getAttachedFunctionType(BObject serviceObject, String functionName) {
         MethodType function = null;
         ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(serviceObject));
@@ -196,7 +172,7 @@ public class DefaultMessageHandler implements MessageHandler {
         StrandMetadata metadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
                 getModule().getVersion(), Constants.ON_REQUEST_RESOURCE);
         executeResource(Constants.ON_REQUEST_RESOURCE, new ResponseCallback(countDownLatch, subject,
-                natsMetricsReporter, replyTo, this.natsConnection), metadata, PredefinedTypes.TYPE_ANYDATA,
+                        natsMetricsReporter, replyTo, this.natsConnection), metadata, PredefinedTypes.TYPE_ANYDATA,
                 subject, args);
     }
 
@@ -224,7 +200,7 @@ public class DefaultMessageHandler implements MessageHandler {
         StrandMetadata metadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
                 getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
         executeResource(Constants.ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch, subject,
-                natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL,
+                        natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL,
                 replyTo, args);
     }
 
@@ -273,10 +249,10 @@ public class DefaultMessageHandler implements MessageHandler {
                             throw Utils.createNatsError("Invalid remote function signature");
                         }
                         messageExists = true;
-                        Object record = createAndPopulateMessageRecord(message, replyTo, subject, parameter);
-                        arguments[index++] = validateConstraints(record, getElementTypeDescFromArrayTypeDesc(
-                                ValueCreator.createTypedescValue(referredType)), constraintValidation);
-                        arguments[index++] = true;
+                        Object record = createAndPopulateMessageRecord(message, replyTo, subject, referredType);
+                        validateConstraints(record, getElementTypeDescFromArrayTypeDesc(ValueCreator
+                                .createTypedescValue(parameter.type)), constraintValidation);
+                        arguments[index++] = record;
                         break;
                     }
                     /*-fallthrough*/
@@ -285,12 +261,13 @@ public class DefaultMessageHandler implements MessageHandler {
                         throw Utils.createNatsError("Invalid remote function signature");
                     }
                     payloadExists = true;
-                    Object value = Utils.getValueWithIntendedType(getPayloadType(referredType), message);
-                    arguments[index++] = validateConstraints(value, getElementTypeDescFromArrayTypeDesc(
-                            ValueCreator.createTypedescValue(parameter.type)), constraintValidation);
-                    arguments[index++] = true;
+                    Object value = createPayload(message, referredType);
+                    validateConstraints(value, getElementTypeDescFromArrayTypeDesc(ValueCreator
+                            .createTypedescValue(parameter.type)), constraintValidation);
+                    arguments[index++] = value;
                     break;
             }
+            arguments[index++] = true;
         }
         return arguments;
     }
@@ -323,9 +300,49 @@ public class DefaultMessageHandler implements MessageHandler {
         return messageTypeCheckCallback.getIsMessageType();
     }
 
+    private static BMap<BString, Object> createAndPopulateMessageRecord(byte[] message, String replyTo, String subject,
+                                                                        Type messageType) {
+        RecordType recordType = getRecordType(messageType);
+        Type intendedType = TypeUtils.getReferredType(recordType.getFields().get(MESSAGE_CONTENT).getFieldType());
+        BMap<BString, Object> messageRecord = ValueCreator.createRecordValue(recordType);
+        Object messageContent = Utils.getValueWithIntendedType(intendedType, message);
+        if (messageContent instanceof BError) {
+            throw createPayloadBindingError(String.format("Data binding failed: %s", ((BError) messageContent)
+                    .getMessage()), (BError) messageContent);
+        }
+        messageRecord.put(StringUtils.fromString(MESSAGE_CONTENT), messageContent);
+        messageRecord.put(StringUtils.fromString(Constants.MESSAGE_SUBJECT), StringUtils.fromString(subject));
+        if (replyTo != null) {
+            messageRecord.put(StringUtils.fromString(Constants.MESSAGE_REPLY_TO), StringUtils.fromString(replyTo));
+        }
+        if (messageType.getTag() == TypeTags.INTERSECTION_TAG) {
+            messageRecord.freezeDirect();
+        }
+        return messageRecord;
+    }
+
+    private static Object createPayload(byte[] message, Type payloadType) {
+        Object messageContent = Utils.getValueWithIntendedType(getPayloadType(payloadType), message);
+        if (messageContent instanceof BError) {
+            throw createPayloadBindingError(String.format("Data binding failed: %s", ((BError) messageContent)
+                    .getMessage()), (BError) messageContent);
+        }
+        if (payloadType.isReadOnly()) {
+            return CloneReadOnly.cloneReadOnly(messageContent);
+        }
+        return messageContent;
+    }
+
+    private static RecordType getRecordType(Type type) {
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return (RecordType) TypeUtils.getReferredType(((IntersectionType) (type)).getConstituentTypes().get(0));
+        }
+        return (RecordType) type;
+    }
+
     private static Type getPayloadType(Type definedType) {
         if (definedType.getTag() == INTERSECTION_TAG) {
-            return  ((IntersectionType) definedType).getConstituentTypes().get(0);
+            return ((IntersectionType) definedType).getConstituentTypes().get(0);
         }
         return definedType;
     }
