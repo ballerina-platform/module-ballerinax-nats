@@ -5,6 +5,12 @@ This file contains all the notable changes done to the Ballerina NATS package th
 
 ### Changed
 
+- [[#6282] Remove the definition and the usages of the deprecated nats:Message record](https://github.com/ballerina-platform/ballerina-library/issues/6282)
+
+## [2.10.0] - 2023-09-18
+
+### Changed
+
 - [[#4733] Changed disallowing service level annotations in the compiler plugin](https://github.com/ballerina-platform/ballerina-standard-library/issues/4733)
 
 ## [2.7.0] - 2023-04-10
