@@ -34,8 +34,6 @@ public class PluginConstants {
     public static final String MESSAGE_SUBJECT = "subject";
     public static final String MESSAGE_REPLY_TO = "replyTo";
 
-    // parameters
-    public static final String MESSAGE = "Message";
     public static final String ERROR_PARAM = "Error";
 
     // return types error or nil
@@ -54,7 +52,7 @@ public class PluginConstants {
         INVALID_RESOURCE_FUNCTION("Resource functions not allowed", "NATS_103"),
         FUNCTION_SHOULD_BE_REMOTE("Method must have the remote qualifier.", "NATS_104"),
         MUST_HAVE_MESSAGE_OR_ANYDATA("Must have the method parameter nats:AnydataMessage or anydata.", "NATS_105"),
-        MUST_HAVE_MESSAGE_AND_ERROR("Must have the method parameters nats:Message and nats:Error.", "NATS_106"),
+        MUST_HAVE_MESSAGE_AND_ERROR("Must have the method parameters nats:AnydataMessage and nats:Error.", "NATS_106"),
         INVALID_FUNCTION("Resource functions are not allowed.", "NATS_107"),
         INVALID_FUNCTION_PARAM_MESSAGE("Invalid method parameter. Only subtypes of nats:AnydataMessage " +
                 "or anydata is allowed.", "NATS_108"),

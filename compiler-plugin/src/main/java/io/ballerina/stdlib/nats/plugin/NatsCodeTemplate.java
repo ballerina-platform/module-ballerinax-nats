@@ -48,7 +48,7 @@ public class NatsCodeTemplate implements CodeAction {
 
     public static final String NODE_LOCATION = "node.location";
     public static final String LS = System.lineSeparator();
-    public static final String REMOTE_FUNCTION_TEXT = LS + "\tremote function onMessage(nats:Message message)" +
+    public static final String REMOTE_FUNCTION_TEXT = LS + "\tremote function onMessage(nats:AnydataMessage message)" +
             " returns nats:Error? {" + LS + LS + "\t}" + LS;
 
     @Override
