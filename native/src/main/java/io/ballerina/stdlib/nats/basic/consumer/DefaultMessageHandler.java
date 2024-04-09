@@ -342,7 +342,7 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private static Type getPayloadType(Type definedType) {
         if (definedType.getTag() == INTERSECTION_TAG) {
-            return ((IntersectionType) definedType).getConstituentTypes().get(0);
+            return TypeUtils.getReferredType(definedType);
         }
         return definedType;
     }
