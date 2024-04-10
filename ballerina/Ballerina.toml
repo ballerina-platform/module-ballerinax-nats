@@ -1,7 +1,7 @@
 [package]
 org = "ballerinax"
 name = "nats"
-version = "2.11.0"
+version = "3.0.0"
 authors = ["Ballerina"]
 keywords = ["service", "client", "messaging", "network", "pubsub"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-nats"
@@ -18,8 +18,8 @@ path = "./lib/jnats-2.16.0.jar"
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "nats-native"
-version = "2.11.0"
-path = "../native/build/libs/nats-native-2.11.0-SNAPSHOT.jar"
+version = "3.0.0"
+path = "../native/build/libs/nats-native-3.0.0-SNAPSHOT.jar"
 
 [[platform.java17.dependency]]
 groupId = "io.ballerina.stdlib"

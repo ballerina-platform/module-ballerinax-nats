@@ -45,7 +45,7 @@ When receiving the same message,
 ```ballerina
 service "demo" on new nats:Listener(nats:DEFAULT_URL) {
 
-    remote function onMessage(nats:Message message) returns nats:Error? {
+    remote function onMessage(nats:AnydataMessage message) returns nats:Error? {
         string messageContent = check string:fromBytes(message.content);
         Person person = check value:fromJsonStringWithType(messageContent);
     }
@@ -56,7 +56,7 @@ Receiving the message as a request,
 ```ballerina
 service "demo" on new nats:Listener(nats:DEFAULT_URL) {
 
-    remote function onRequest(nats:Message message) returns anydata|nats:Error? {
+    remote function onRequest(nats:AnydataMessage message) returns anydata|nats:Error? {
         string messageContent = check string:fromBytes(message.content);
         Person person = check value:fromJsonStringWithType(messageContent);
         return "New person received";

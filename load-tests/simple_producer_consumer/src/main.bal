@@ -125,7 +125,7 @@ nats:Service natsService =
     subject: SUBJECT
 }
 service object {
-    remote function onMessage(nats:Message message) returns error? {
+    remote function onMessage(nats:BytesMessage message) returns error? {
         string|error messageContent = 'string:fromBytes(message.content);
         if messageContent is error {
             lock {

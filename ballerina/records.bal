@@ -109,20 +109,6 @@ public type RetryConfig record {|
     decimal connectionTimeout = 2;
 |};
 
-# Represents the message, which a NATS server sends to its subscribed services.
-#
-# + content - The message content
-# + replyTo - The `replyTo` subject of the message
-# + subject - The subject to which the message was sent to
-# # Deprecated
-# This record is deprecated. Use `AnydataMessage` record instead.
-@deprecated
-public type Message record {|
-    byte[] content;
-    string subject;
-    string replyTo?;
-|};
-
 # Represents the anydata message, which a NATS server sends to its subscribed services.
 #
 # + content - The message content, which can of type anydata

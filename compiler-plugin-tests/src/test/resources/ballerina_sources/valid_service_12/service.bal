@@ -26,7 +26,7 @@ service nats:Service on subscription {
     remote function onRequest(string data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 
     function testFunction() {
@@ -41,7 +41,7 @@ service nats:Service on subscription {
     remote function onRequest(xml data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -53,7 +53,7 @@ service nats:Service on subscription {
     remote function onRequest(decimal[] data) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -66,7 +66,7 @@ service nats:Service on subscription {
         return "Hello";
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -78,7 +78,7 @@ service nats:Service on subscription {
     remote function onRequest(anydata data) returns nats:Error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -91,7 +91,7 @@ service nats:Service on subscription {
         return "Hello Ballerina";
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -103,7 +103,7 @@ service nats:Service on subscription {
     remote function onRequest(boolean data) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -120,7 +120,7 @@ service nats:Service on subscription {
     remote function onRequest(Employee employee) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -133,7 +133,7 @@ service nats:Service on subscription {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -145,7 +145,7 @@ service nats:Service on subscription {
     remote function onRequest(json data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -158,7 +158,7 @@ service nats:Service on subscription {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -171,7 +171,7 @@ service nats:Service on subscription {
         return 0;
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -183,7 +183,7 @@ service nats:Service on subscription {
     remote function onRequest(json[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns nats:Error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns nats:Error? {
     }
 }
 
@@ -196,7 +196,7 @@ service nats:Service on subscription {
         return false;
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -211,6 +211,6 @@ service nats:Service on subscription {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }

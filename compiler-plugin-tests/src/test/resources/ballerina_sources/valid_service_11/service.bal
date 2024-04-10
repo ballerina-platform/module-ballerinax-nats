@@ -23,7 +23,7 @@ listener nats:Listener subscription = new(nats:DEFAULT_URL);
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message) {
+    remote function onRequest(readonly & nats:AnydataMessage message) {
     }
 }
 
@@ -32,7 +32,7 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message) returns error? {
+    remote function onRequest(nats:AnydataMessage message) returns error? {
     }
 }
 
@@ -41,22 +41,10 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, string data) returns anydata|error? {
+    remote function onRequest(readonly & nats:AnydataMessage message, string data) returns anydata|error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
-    }
-}
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onRequest(nats:Message message, xml data) returns error? {
-    }
-
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -65,11 +53,23 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, decimal[] data) returns string {
+    remote function onRequest(nats:AnydataMessage message, xml data) returns error? {
+    }
+
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onRequest(readonly & nats:AnydataMessage message, decimal[] data) returns string {
         return "Hello back";
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -78,11 +78,11 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, byte[] data) returns string? {
+    remote function onRequest(nats:AnydataMessage message, byte[] data) returns string? {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -91,11 +91,11 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, anydata data) returns xml|error? {
+    remote function onRequest(readonly & nats:AnydataMessage message, anydata data) returns xml|error? {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -104,10 +104,10 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, string[] data) {
+    remote function onRequest(nats:AnydataMessage message, string[] data) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -116,11 +116,11 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, boolean data) returns boolean? {
+    remote function onRequest(readonly & nats:AnydataMessage message, boolean data) returns boolean? {
         return false;
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -134,11 +134,11 @@ public type Employee record {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, Employee employee) returns anydata? {
+    remote function onRequest(nats:AnydataMessage message, Employee employee) returns anydata? {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -147,22 +147,10 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, readonly & table<Employee>[] data)  returns error? {
+    remote function onRequest(readonly & nats:AnydataMessage message, readonly & table<Employee>[] data)  returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
-    }
-}
-
-@nats:ServiceConfig {
-    subject: "demo.bbe.*"
-}
-service nats:Service on subscription {
-
-    remote function onRequest(readonly & nats:Message message, json data) {
-    }
-
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -171,11 +159,23 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, int[] data) returns string|error? {
+    remote function onRequest(readonly & nats:AnydataMessage message, json data) {
+    }
+
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
+    }
+}
+
+@nats:ServiceConfig {
+    subject: "demo.bbe.*"
+}
+service nats:Service on subscription {
+
+    remote function onRequest(nats:AnydataMessage message, int[] data) returns string|error? {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -184,11 +184,11 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(nats:Message message, Employee[] employees) returns int|error? {
+    remote function onRequest(nats:AnydataMessage message, Employee[] employees) returns int|error? {
         return 10;
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns error? {
     }
 }
 
@@ -197,10 +197,10 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, json[] data) returns error? {
+    remote function onRequest(readonly & nats:AnydataMessage message, json[] data) returns error? {
     }
 
-    remote function onError(nats:Message message, nats:Error err) returns nats:Error? {
+    remote function onError(nats:AnydataMessage message, nats:Error err) returns nats:Error? {
     }
 }
 
@@ -209,11 +209,11 @@ service nats:Service on subscription {
 }
 service nats:Service on subscription {
 
-    remote function onRequest(readonly & nats:Message message, readonly & xml[] data) returns int|error? {
+    remote function onRequest(readonly & nats:AnydataMessage message, readonly & xml[] data) returns int|error? {
         return ();
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }
 
@@ -224,10 +224,10 @@ service nats:Service on subscription {
     private final string var1 = "Service";
     private final int var2 = 54;
 
-    remote function onRequest(readonly & nats:Message message, readonly & anydata[] data) returns anydata {
+    remote function onRequest(readonly & nats:AnydataMessage message, readonly & anydata[] data) returns anydata {
         return 0;
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
     }
 }

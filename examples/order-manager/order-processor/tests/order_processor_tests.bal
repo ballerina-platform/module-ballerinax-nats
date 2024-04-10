@@ -66,7 +66,7 @@ nats:Service consumerService =
     subject: PUBLISH_SUBJECT
 }
 service object {
-    remote function onMessage(nats:Message msg) {
+    remote function onMessage(nats:BytesMessage msg) {
         byte[] messageContent = <@untainted> msg.content;
 
         string|error message = string:fromBytes(messageContent);

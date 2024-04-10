@@ -17,7 +17,7 @@
 import ballerinax/nats;
 
 listener nats:Listener subscription = new(nats:DEFAULT_URL);
-type Foo nats:Message;
+type Foo nats:AnydataMessage;
 
 @nats:ServiceConfig {
     subject: "demo.bbe.*"

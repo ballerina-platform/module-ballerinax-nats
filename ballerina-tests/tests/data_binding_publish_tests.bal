@@ -619,7 +619,7 @@ service nats:Service on new nats:Listener(DATA_BINDING_URL) {
     remote function onMessage(XmlMessage msg) {
     }
 
-    remote function onError(nats:Message message, nats:Error err) {
+    remote function onError(nats:AnydataMessage message, nats:Error err) {
         log:printInfo("Error Received: " + err.message());
         setOnErrorReceived(true);
         setOnErrorMessage(err.message());

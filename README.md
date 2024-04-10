@@ -53,7 +53,7 @@ nats:Error? result =
 2. Publish as a request that expects a reply:
 ```ballerina
 string message = "hello world";
-nats:Message|nats:Error reqReply = 
+nats:AnydataMessage|nats:Error reqReply = 
     natsClient->requestMessage({ content: message.toBytes(), subject: "demo.nats.basic"}, 5);
 ```
 
@@ -76,7 +76,7 @@ nats:Error? result = natsClient->publish({ content: message.toBytes(), subject: 
 }
 service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
-    remote function onMessage(nats:Message message) {
+    remote function onMessage(nats:AnydataMessage message) {
     }
 }
 ```
@@ -90,7 +90,7 @@ service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
     // The returned message will be published to the replyTo subject of the consumed message
-    remote function onRequest(nats:Message message) returns string? {
+    remote function onRequest(nats:AnydataMessage message) returns string? {
         return "Reply Message";
     }
 }

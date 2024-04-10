@@ -21,10 +21,10 @@ import ballerinax/nats;
 }
 service nats:Service on new nats:Listener(nats:DEFAULT_URL) {
 
-    remote function onMessage(nats:Message message) {
+    remote function onMessage(nats:AnydataMessage message) {
     }
 
-    remote function onRequest(nats:Message message) returns string {
+    remote function onRequest(nats:AnydataMessage message) returns string {
         return "Hello";
     }
 }

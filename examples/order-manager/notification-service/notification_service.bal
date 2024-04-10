@@ -27,7 +27,7 @@ configurable string LISTENING_SUBJECT = ?;
 service "notificationService" on new nats:Listener(nats:DEFAULT_URL) {
 
     // Listens to NATS subject for any successful orders
-    remote function onMessage(nats:Message message) returns error? {
+    remote function onMessage(nats:BytesMessage message) returns error? {
 
         // Convert the byte values in the NATS Message to type Order
         string messageContent = check string:fromBytes(message.content);
