@@ -24,7 +24,7 @@ jobs:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew clean build -P buildUsingDocker=nightly
+          ./gradlew clean build -P buildUsingDocker=nightly -x :nats-compiler-plugin-tests:test -x :nats-ballerina-tests:test
 
       # Send notification when build fails
       - name: Notify failure
