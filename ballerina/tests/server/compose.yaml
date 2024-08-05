@@ -1,4 +1,3 @@
-version: "3"
 services:
     nats-1:
         image: nats:latest

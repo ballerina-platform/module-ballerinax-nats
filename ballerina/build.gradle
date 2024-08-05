@@ -115,7 +115,7 @@ task startNatsServers() {
             if (!stdOut.toString().contains("server_nats-tls_1")) {
                 println "Starting NATS Basic server."
                 exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml up -d"
+                    commandLine 'sh', '-c', "docker compose -f tests/server/compose.yaml up -d"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
@@ -138,7 +138,7 @@ task stopNatsServers() {
             if (stdOut.toString().contains("server_nats-tls_1")) {
                 println "Stopping NATS server."
                 exec {
-                    commandLine 'sh', '-c', "docker-compose -f tests/server/docker-compose.yaml rm -svf"
+                    commandLine 'sh', '-c', "docker compose -f tests/server/compose.yaml rm -svf"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
