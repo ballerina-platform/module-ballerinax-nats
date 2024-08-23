@@ -5,12 +5,12 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.9.0"
+distribution-version = "2201.10.0"
 
 [[package]]
 org = "ballerina"
 name = "crypto"
-version = "2.7.0"
+version = "2.7.2"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
@@ -20,7 +20,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "io"
-version = "1.6.0"
+version = "1.6.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
@@ -114,7 +114,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "log"
-version = "2.9.0"
+version = "2.10.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "io"},
@@ -129,7 +129,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "observe"
-version = "1.2.3"
+version = "1.3.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
@@ -171,7 +171,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "3.0.0"
+version = "3.1.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
@@ -185,7 +185,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats_tests"
-version = "3.0.0"
+version = "3.1.0"
 dependencies = [
 	{org = "ballerina", name = "lang.runtime"},
 	{org = "ballerina", name = "lang.string"},
