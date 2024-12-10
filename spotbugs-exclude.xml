@@ -45,7 +45,7 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler$DispatcherCallback" />
+        <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler" />
         <Bug pattern="DM_EXIT"/>
     </Match>
     <Match>
@@ -62,6 +62,10 @@
     </Match>
     <Match>
         <Class name="io.ballerina.stdlib.nats.jetstream.listener.StreamMessageHandler" />
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.observability.NatsMetricsReporter" />
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>

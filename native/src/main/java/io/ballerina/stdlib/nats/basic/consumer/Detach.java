@@ -56,7 +56,7 @@ public class Detach {
                 .getSubscriptionConfig(serviceType.getAnnotation(
                         StringUtils.fromString(Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                                 Utils.getModule().getName() + VERSION_SEPARATOR +
-                                Utils.getModule().getVersion() + ":" +
+                                Utils.getModule().getMajorVersion() + ":" +
                                 Constants.SUBSCRIPTION_CONFIG)));
         String serviceName = (String) service.getNativeData(Constants.SERVICE_NAME);
         String subject;

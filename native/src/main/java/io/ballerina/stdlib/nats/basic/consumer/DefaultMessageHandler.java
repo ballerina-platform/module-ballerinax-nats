@@ -18,18 +18,17 @@
 
 package io.ballerina.stdlib.nats.basic.consumer;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.PredefinedTypes;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -40,6 +39,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.stdlib.nats.Constants;
+import io.ballerina.stdlib.nats.Handler;
 import io.ballerina.stdlib.nats.Utils;
 import io.ballerina.stdlib.nats.observability.NatsMetricsReporter;
 import io.ballerina.stdlib.nats.observability.NatsObservabilityConstants;
@@ -51,17 +51,13 @@ import org.ballerinalang.langlib.value.CloneReadOnly;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
 
-import static io.ballerina.runtime.api.TypeTags.INTERSECTION_TAG;
-import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.INTERSECTION_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.stdlib.nats.Constants.CONSTRAINT_VALIDATION;
 import static io.ballerina.stdlib.nats.Constants.IS_ANYDATA_MESSAGE;
 import static io.ballerina.stdlib.nats.Constants.MESSAGE_CONTENT;
-import static io.ballerina.stdlib.nats.Constants.NATS;
-import static io.ballerina.stdlib.nats.Constants.ORG_NAME;
 import static io.ballerina.stdlib.nats.Constants.PARAM_ANNOTATION_PREFIX;
 import static io.ballerina.stdlib.nats.Constants.PARAM_PAYLOAD_ANNOTATION_NAME;
 import static io.ballerina.stdlib.nats.Constants.TYPE_CHECKER_OBJECT_NAME;
@@ -125,14 +121,12 @@ public class DefaultMessageHandler implements MessageHandler {
     private void dispatchOnRequest(String subject, String replyTo, byte[] data)
             throws InterruptedException {
         MethodType methodType = getAttachedFunctionType(this.serviceObject, Constants.ON_REQUEST_RESOURCE);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
             Object[] arguments = getResourceArguments(data, replyTo, subject, methodType);
-            executeOnRequestResource(countDownLatch, subject, replyTo, arguments);
-            countDownLatch.await();
+            executeOnRequestResource(subject, replyTo, arguments);
         } catch (BError bError) {
             if (getAttachedFunctionType(serviceObject, Constants.ON_ERROR_RESOURCE) != null) {
-                executeOnErrorResource(countDownLatch, subject, replyTo, data, bError);
+                executeOnErrorResource(subject, replyTo, data, bError);
             }
         }
     }
@@ -142,14 +136,12 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     private void dispatchOnMessage(String subject, String replyTo, byte[] data) throws InterruptedException {
         MethodType methodType = getAttachedFunctionType(this.serviceObject, Constants.ON_MESSAGE_RESOURCE);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
             Object[] arguments = getResourceArguments(data, replyTo, subject, methodType);
-            executeOnMessageResource(countDownLatch, subject, replyTo, arguments);
-            countDownLatch.await();
+            executeOnMessageResource(subject, replyTo, arguments);
         } catch (BError bError) {
             if (getAttachedFunctionType(serviceObject, Constants.ON_ERROR_RESOURCE) != null) {
-                executeOnErrorResource(countDownLatch, subject, replyTo, data, bError);
+                executeOnErrorResource(subject, replyTo, data, bError);
             }
         }
     }
@@ -167,16 +159,14 @@ public class DefaultMessageHandler implements MessageHandler {
         return function;
     }
 
-    private void executeOnRequestResource(CountDownLatch countDownLatch, String subject,
-                                          String replyTo, Object... args) {
-        StrandMetadata metadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
-                getModule().getVersion(), Constants.ON_REQUEST_RESOURCE);
-        executeResource(Constants.ON_REQUEST_RESOURCE, new ResponseCallback(countDownLatch, subject,
-                        natsMetricsReporter, replyTo, this.natsConnection), metadata, PredefinedTypes.TYPE_ANYDATA,
+    private void executeOnRequestResource(String subject, String replyTo,
+                                          Object... args) {
+        executeResource(Constants.ON_REQUEST_RESOURCE, new ResponseHandler(subject,
+                        natsMetricsReporter, replyTo, this.natsConnection), PredefinedTypes.TYPE_ANYDATA,
                 subject, args);
     }
 
-    private void executeOnErrorResource(CountDownLatch countDownLatch, String subject, String replyTo, byte[] data,
+    private void executeOnErrorResource(String subject, String replyTo, byte[] data,
                                         BError bError) {
         BMap<BString, Object> msgObj;
         BArray msgData = ValueCreator.createArrayValue(data);
@@ -188,48 +178,41 @@ public class DefaultMessageHandler implements MessageHandler {
         }
         msgObj = ValueCreator.createReadonlyRecordValue(getModule(),
                 Constants.NATS_MESSAGE_OBJ_NAME, valueMap);
-        StrandMetadata metadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
-                getModule().getVersion(), Constants.ON_ERROR_RESOURCE);
-        runtime.invokeMethodAsyncSequentially(serviceObject, Constants.ON_ERROR_RESOURCE, null, metadata,
-                new ResponseCallback(countDownLatch, subject, natsMetricsReporter), null,
-                PredefinedTypes.TYPE_NULL, msgObj, true, bError, true);
+        ResponseHandler handler = new ResponseHandler(subject, natsMetricsReporter);
+        try {
+            Object result = runtime.callMethod(serviceObject, Constants.ON_ERROR_RESOURCE, null,
+                    msgObj, bError);
+            handler.notifySuccess(result);
+        } catch (BError bError1) {
+            handler.notifyFailure(bError1);
+        }
     }
 
-    private void executeOnMessageResource(CountDownLatch countDownLatch, String subject,
+    private void executeOnMessageResource(String subject,
                                           String replyTo, Object... args) {
-        StrandMetadata metadata = new StrandMetadata(getModule().getOrg(), getModule().getName(),
-                getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
-        executeResource(Constants.ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch, subject,
-                        natsMetricsReporter), metadata, PredefinedTypes.TYPE_NULL,
+        executeResource(Constants.ON_MESSAGE_RESOURCE, new ResponseHandler(subject,
+                        natsMetricsReporter), PredefinedTypes.TYPE_NULL,
                 replyTo, args);
     }
 
-    private void executeResource(String function, Callback callback,
-                                 StrandMetadata metadata, Type returnType, String subject, Object... args) {
+    private void executeResource(String function, Handler callback, Type returnType, String subject, Object... args) {
         ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(serviceObject));
-        if (ObserveUtils.isTracingEnabled()) {
-            Map<String, Object> properties = new HashMap<>();
-            NatsObserverContext observerContext = new NatsObserverContext(
-                    NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl, subject);
-            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            if (objectType.isIsolated() &&
-                    objectType.isIsolated(function)) {
-                runtime.invokeMethodAsyncConcurrently(serviceObject, function, null, metadata,
-                        callback, properties, returnType, args);
-            } else {
-                runtime.invokeMethodAsyncSequentially(serviceObject, function, null, metadata,
-                        callback, properties, returnType, args);
+        Thread.startVirtualThread(() -> {
+            Map<String, Object> properties = Utils.getProperties(function);
+            if (ObserveUtils.isTracingEnabled()) {
+                NatsObserverContext observerContext = new NatsObserverContext(
+                        NatsObservabilityConstants.CONTEXT_CONSUMER, connectedUrl, subject);
+                properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             }
-        } else {
-            if (objectType.isIsolated() &&
-                    objectType.isIsolated(function)) {
-                runtime.invokeMethodAsyncConcurrently(serviceObject, function, null, metadata,
-                        callback, null, returnType, args);
-            } else {
-                runtime.invokeMethodAsyncSequentially(serviceObject, function, null, metadata,
-                        callback, null, returnType, args);
+            boolean isConcurrentSafe = objectType.isIsolated() && objectType.isIsolated(function);
+            try {
+                Object result = runtime.callMethod(serviceObject, function, new StrandMetadata(isConcurrentSafe,
+                        properties), args);
+                callback.notifySuccess(result);
+            } catch (BError bError) {
+                callback.notifyFailure(bError);
             }
-        }
+        });
     }
 
     private Object[] getResourceArguments(byte[] message, String replyTo, String subject, MethodType remoteFunction) {
@@ -237,7 +220,7 @@ public class DefaultMessageHandler implements MessageHandler {
         boolean messageExists = false;
         boolean payloadExists = false;
         boolean constraintValidation = (boolean) listenerObj.getNativeData(CONSTRAINT_VALIDATION);
-        Object[] arguments = new Object[parameters.length * 2];
+        Object[] arguments = new Object[parameters.length];
         int index = 0;
         for (Parameter parameter : parameters) {
             Type referredType = getReferredType(parameter.type);
@@ -267,7 +250,6 @@ public class DefaultMessageHandler implements MessageHandler {
                     arguments[index++] = value;
                     break;
             }
-            arguments[index++] = true;
         }
         return arguments;
     }
@@ -285,17 +267,13 @@ public class DefaultMessageHandler implements MessageHandler {
 
     private boolean invokeIsAnydataMessageTypeMethod(Type paramType) {
         BObject client = ValueCreator.createObjectValue(getModule(), TYPE_CHECKER_OBJECT_NAME);
-        Semaphore sem = new Semaphore(0);
-        NatsTypeCheckCallback messageTypeCheckCallback = new NatsTypeCheckCallback(sem);
-        StrandMetadata metadata = new StrandMetadata(ORG_NAME, NATS,
-                getModule().getVersion(), IS_ANYDATA_MESSAGE);
-        runtime.invokeMethodAsyncSequentially(client, IS_ANYDATA_MESSAGE, null, metadata,
-                messageTypeCheckCallback, null, PredefinedTypes.TYPE_BOOLEAN,
-                ValueCreator.createTypedescValue(paramType), true);
+        NatsTypeCheckHandler messageTypeCheckCallback = new NatsTypeCheckHandler();
         try {
-            sem.acquire();
-        } catch (InterruptedException e) {
-            throw Utils.createNatsError(e.getMessage());
+            Object result = runtime.callMethod(client, IS_ANYDATA_MESSAGE, null,
+                    ValueCreator.createTypedescValue(paramType));
+            messageTypeCheckCallback.notifySuccess(result);
+        } catch (BError bError) {
+            messageTypeCheckCallback.notifyFailure(bError);
         }
         return messageTypeCheckCallback.getIsMessageType();
     }
@@ -350,22 +328,19 @@ public class DefaultMessageHandler implements MessageHandler {
     /**
      * Represents the callback which will be triggered upon submitting to resource.
      */
-    public static class ResponseCallback implements Callback {
-        private final CountDownLatch countDownLatch;
+    public static class ResponseHandler implements Handler {
         private final String subject;
         private final NatsMetricsReporter natsMetricsReporter;
         private String replyTo;
         private Connection natsConnection;
 
-        ResponseCallback(CountDownLatch countDownLatch, String subject, NatsMetricsReporter natsMetricsReporter) {
-            this.countDownLatch = countDownLatch;
+        ResponseHandler(String subject, NatsMetricsReporter natsMetricsReporter) {
             this.subject = subject;
             this.natsMetricsReporter = natsMetricsReporter;
         }
 
-        ResponseCallback(CountDownLatch countDownLatch, String subject, NatsMetricsReporter natsMetricsReporter,
+        ResponseHandler(String subject, NatsMetricsReporter natsMetricsReporter,
                          String replyTo, Connection natsConnection) {
-            this.countDownLatch = countDownLatch;
             this.subject = subject;
             this.natsMetricsReporter = natsMetricsReporter;
             this.replyTo = replyTo;
@@ -383,7 +358,6 @@ public class DefaultMessageHandler implements MessageHandler {
                 natsConnection.publish(replyTo, Utils.convertDataIntoByteArray(obj, TypeUtils.getType(obj)));
             }
             natsMetricsReporter.reportDelivery(subject);
-            countDownLatch.countDown();
         }
 
         /**
@@ -393,12 +367,10 @@ public class DefaultMessageHandler implements MessageHandler {
         public void notifyFailure(BError error) {
             error.printStackTrace();
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
-            countDownLatch.countDown();
             // Service level `panic` is captured in this method.
             // Since, `panic` is due to a critical application bug or resource exhaustion
             // we need to exit the application.
             // Please refer: https://github.com/ballerina-platform/ballerina-standard-library/issues/2714
-            System.exit(1);
         }
     }
 
@@ -406,30 +378,21 @@ public class DefaultMessageHandler implements MessageHandler {
      * {@code NatsTypeCheckCallback} provides ability to check whether a given type is a subtype of
      * nats:AnydataMessage.
      */
-    public static class NatsTypeCheckCallback implements Callback {
-
-        private final Semaphore semaphore;
+    public static class NatsTypeCheckHandler implements Handler {
         private Boolean isMessageType = false;
-
-        NatsTypeCheckCallback(Semaphore semaphore) {
-            this.semaphore = semaphore;
-        }
 
         @Override
         public void notifySuccess(Object obj) {
             isMessageType = (Boolean) obj;
-            semaphore.release();
         }
 
         @Override
         public void notifyFailure(BError error) {
-            semaphore.release();
             error.printStackTrace();
             // Service level `panic` is captured in this method.
             // Since, `panic` is due to a critical application bug or resource exhaustion we need
             // to exit the application.
             // Please refer: https://github.com/ballerina-platform/ballerina-standard-library/issues/2714
-            System.exit(1);
         }
 
         public boolean getIsMessageType() {

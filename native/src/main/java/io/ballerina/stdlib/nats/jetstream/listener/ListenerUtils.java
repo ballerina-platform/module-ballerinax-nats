@@ -20,8 +20,8 @@ package io.ballerina.stdlib.nats.jetstream.listener;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
@@ -100,7 +100,7 @@ public class ListenerUtils {
                         .getAnnotation(StringUtils.fromString(
                                 Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                                         Utils.getModule().getName() + VERSION_SEPARATOR +
-                                        Utils.getModule().getVersion() + ":" +
+                                        Utils.getModule().getMajorVersion() + ":" +
                                         Constants.STREAM_SUBSCRIPTION_CONFIG)));
         String queueName = null;
         String subject;
@@ -158,7 +158,7 @@ public class ListenerUtils {
         BMap<BString, Object> subscriptionConfig = Utils.getSubscriptionConfig(((AnnotatableType)
                 TypeUtils.getType(service)).getAnnotation(StringUtils.fromString(Utils.getModule().getOrg()
                 + ORG_NAME_SEPARATOR + Utils.getModule().getName() + VERSION_SEPARATOR +
-                Utils.getModule().getVersion() + ":" + Constants.STREAM_SUBSCRIPTION_CONFIG)));
+                Utils.getModule().getMajorVersion() + ":" + Constants.STREAM_SUBSCRIPTION_CONFIG)));
         String serviceName = (String) service.getNativeData(Constants.SERVICE_NAME);
         String subject;
         if (subscriptionConfig == null) {
