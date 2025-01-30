@@ -19,13 +19,13 @@
 package io.ballerina.stdlib.nats.jetstream.listener;
 
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.concurrent.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -43,7 +43,6 @@ import io.nats.client.MessageHandler;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Handles incoming message for a given subscription.
@@ -81,26 +80,23 @@ public class StreamMessageHandler implements MessageHandler {
 
         MethodType onMessageResource = getAttachedFunctionType(service, "onMessage");
         Type returnType = onMessageResource.getReturnType();
-        Type[] parameterTypes = onMessageResource.getParameterTypes();
-        if (parameterTypes.length == 1) {
-            Object[] args1 = new Object[2];
-            if (parameterTypes[0].getTag() == TypeTags.INTERSECTION_TAG) {
+        Parameter[] parameters = onMessageResource.getParameters();
+        if (parameters.length == 1) {
+            Object[] args1 = new Object[1];
+            if (parameters[0].type.getTag() == TypeTags.INTERSECTION_TAG) {
                 args1[0] = getReadonlyMessage(msg);
             } else {
                 args1[0] = populatedMsgRecord;
             }
-            args1[1] = true;
             dispatch(args1, msg.getSubject(), returnType);
-        } else if (parameterTypes.length == 2) {
-            Object[] args2 = new Object[4];
-            if (parameterTypes[0].getTag() == TypeTags.INTERSECTION_TAG) {
+        } else if (parameters.length == 2) {
+            Object[] args2 = new Object[2];
+            if (parameters[0].type.getTag() == TypeTags.INTERSECTION_TAG) {
                 args2[0] = getReadonlyMessage(msg);
             } else {
                 args2[0] = populatedMsgRecord;
             }
-            args2[1] = true;
-            args2[2] = callerObj;
-            args2[3] = true;
+            args2[1] = callerObj;
             dispatch(args2, msg.getSubject(), returnType);
         } else {
             throw Utils.createNatsError("Invalid remote function signature.");
@@ -119,56 +115,28 @@ public class StreamMessageHandler implements MessageHandler {
     }
 
     private void executeResource(String subject, Object[] args, Type returnType) {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         ObjectType objectType = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(service));
-        StrandMetadata metadata = new StrandMetadata(Utils.getModule().getOrg(), Utils.getModule().getName(),
-                Utils.getModule().getVersion(), Constants.ON_MESSAGE_RESOURCE);
-        Map<String, Object> properties;
+        Map<String, Object> properties = null;
         if (ObserveUtils.isTracingEnabled()) {
             properties = new HashMap<>();
             NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_CONSUMER,
                     connectedUrl, subject);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
-        if (objectType.isIsolated() && objectType.isIsolated(Constants.ON_MESSAGE_RESOURCE)) {
-            runtime.invokeMethodAsyncConcurrently(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                    new DispatcherCallback(connectedUrl, subject, countDownLatch), null, returnType, args);
-        } else {
-            runtime.invokeMethodAsyncSequentially(service, Constants.ON_MESSAGE_RESOURCE, null, metadata,
-                    new DispatcherCallback(connectedUrl, subject, countDownLatch), null, returnType, args);
-        }
         try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw Utils.createNatsError("The current thread got interrupted.", e);
-        }
-    }
-
-    private static class DispatcherCallback implements Callback {
-        private final CountDownLatch countDownLatch;
-
-        public DispatcherCallback(String url, String subject, CountDownLatch countDownLatch) {
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void notifySuccess(Object obj) {
-            if (obj instanceof BError) {
-                ((BError) obj).printStackTrace();
+            boolean isConcurrentSafe = objectType.isIsolated() &&
+                    objectType.isIsolated(Constants.ON_MESSAGE_RESOURCE);
+            Object result = runtime.callMethod(service, Constants.ON_MESSAGE_RESOURCE,
+                    new StrandMetadata(isConcurrentSafe, properties), args);
+            if (result instanceof BError) {
+                ((BError) result).printStackTrace();
             }
-            countDownLatch.countDown();
-        }
-
-        @Override
-        public void notifyFailure(BError error) {
-            error.printStackTrace();
-            countDownLatch.countDown();
+        } catch (BError bError) {
+            bError.printStackTrace();
             // Service level `panic` is captured in this method.
             // Since, `panic` is due to a critical application bug or resource exhaustion
             // we need to exit the application.
             // Please refer: https://github.com/ballerina-platform/ballerina-standard-library/issues/2714
-            System.exit(1);
         }
     }
 

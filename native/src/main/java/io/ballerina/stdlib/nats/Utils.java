@@ -20,13 +20,13 @@ package io.ballerina.stdlib.nats;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -41,15 +41,17 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.constraint.Constraints;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
-import static io.ballerina.runtime.api.TypeTags.ANYDATA_TAG;
-import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
-import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
-import static io.ballerina.runtime.api.TypeTags.INTERSECTION_TAG;
-import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
-import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
-import static io.ballerina.runtime.api.TypeTags.UNION_TAG;
-import static io.ballerina.runtime.api.TypeTags.XML_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.ANYDATA_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.ARRAY_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.BYTE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.INTERSECTION_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.UNION_TAG;
+import static io.ballerina.runtime.api.types.TypeTags.XML_TAG;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.stdlib.nats.Constants.NATS_ERROR;
 import static io.ballerina.stdlib.nats.Constants.PAYLOAD_BINDING_ERROR;
@@ -189,5 +191,14 @@ public class Utils {
                     .getConstituentTypes().get(0)));
         }
         return ValueCreator.createTypedescValue((bTypeDesc.getDescribingType()));
+    }
+
+    public static Map<String, Object> getProperties(String resourceName) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("moduleOrg", getModule().getOrg());
+        properties.put("moduleName", getModule().getName());
+        properties.put("moduleVersion", getModule().getMajorVersion());
+        properties.put("parentFunctionName", resourceName);
+        return properties;
     }
 }

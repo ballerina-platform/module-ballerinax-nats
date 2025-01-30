@@ -19,7 +19,7 @@
 package io.ballerina.stdlib.nats.basic.client;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;

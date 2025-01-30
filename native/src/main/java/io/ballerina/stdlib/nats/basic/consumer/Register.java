@@ -20,8 +20,8 @@ package io.ballerina.stdlib.nats.basic.consumer;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.AnnotatableType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
@@ -61,7 +61,7 @@ public class Register {
                         .getAnnotation(StringUtils.fromString(
                                 Utils.getModule().getOrg() + ORG_NAME_SEPARATOR +
                                         Utils.getModule().getName() + VERSION_SEPARATOR +
-                                        Utils.getModule().getVersion() + ":" +
+                                        Utils.getModule().getMajorVersion() + ":" +
                                         Constants.SUBSCRIPTION_CONFIG)));
         String queueName = null;
         String subject;

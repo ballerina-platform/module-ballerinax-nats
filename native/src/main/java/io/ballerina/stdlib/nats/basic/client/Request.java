@@ -19,11 +19,11 @@
 package io.ballerina.stdlib.nats.basic.client;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -72,16 +72,23 @@ public class Request {
                 (NatsMetricsReporter) clientObj.getNativeData(Constants.NATS_METRIC_UTIL);
         byte[] byteContent = convertDataIntoByteArray(data, TypeUtils.getType(data));
         try {
-            Message reply;
-            Future<Message> incoming = natsConnection.request(subject, byteContent);
-            natsMetricsReporter.reportRequest(subject, byteContent.length);
-            if (TypeUtils.getType(duration).getTag() == TypeTags.DECIMAL_TAG) {
-                BigDecimal valueInSeconds = ((BDecimal) duration).decimalValue();
-                int valueInMilliSeconds = (valueInSeconds).multiply(MILLISECOND_MULTIPLIER).intValue();
-                reply = incoming.get(valueInMilliSeconds, TimeUnit.MILLISECONDS);
-            } else {
-                reply = incoming.get();
-            }
+            Message reply = environment.yieldAndRun(() -> {
+                Message replyVal;
+                Future<Message> incoming = natsConnection.request(subject, byteContent);
+                natsMetricsReporter.reportRequest(subject, byteContent.length);
+                try {
+                    if (TypeUtils.getType(duration).getTag() == TypeTags.DECIMAL_TAG) {
+                        BigDecimal valueInSeconds = ((BDecimal) duration).decimalValue();
+                        int valueInMilliSeconds = (valueInSeconds).multiply(MILLISECOND_MULTIPLIER).intValue();
+                        replyVal = incoming.get(valueInMilliSeconds, TimeUnit.MILLISECONDS);
+                    } else {
+                        replyVal = incoming.get();
+                    }
+                    return replyVal;
+                } catch (InterruptedException | TimeoutException | ExecutionException ex) {
+                    throw Utils.createNatsError("Error while requesting message to subject " + subject + ".", ex);
+                }
+            });
             RecordType recordType = Utils.getRecordType(bTypedesc);
 
             BMap<BString, Object> msgRecord = ValueCreator.createRecordValue(recordType);
@@ -96,8 +103,7 @@ public class Request {
             validateConstraints(populatedRecord, getElementTypeDescFromArrayTypeDesc(bTypedesc), constraintValidation);
             natsMetricsReporter.reportResponse(subject);
             return populatedRecord;
-        } catch (IllegalArgumentException | IllegalStateException | ExecutionException | InterruptedException |
-                TimeoutException ex) {
+        } catch (IllegalArgumentException | IllegalStateException ex) {
             natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return Utils.createNatsError("Error while requesting message to subject " + subject + ".", ex);
         } catch (BError bError) {
