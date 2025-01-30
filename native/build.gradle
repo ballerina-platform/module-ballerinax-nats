@@ -18,7 +18,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
-    id 'com.github.spotbugs-main'
+    id 'com.github.spotbugs'
 }
 
 description = 'Ballerina - NATS Java Utils'
