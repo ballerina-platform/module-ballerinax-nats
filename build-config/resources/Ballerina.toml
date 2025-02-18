@@ -7,7 +7,7 @@ keywords = ["service", "client", "messaging", "network", "pubsub"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-nats"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.11.0-20241117-133400-a3054b77"
+distribution = "2201.11.0"
 
 [platform.java21]
 graalvmCompatible = true
