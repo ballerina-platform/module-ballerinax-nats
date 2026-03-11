@@ -1,5 +1,4 @@
-Ballerina NATS Library
-===================
+# Overview
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-timestamped-master.yml)
 [![codecov](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerinax-nats)
@@ -7,9 +6,16 @@ Ballerina NATS Library
 [![GraalVM Check](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/actions/workflows/build-with-bal-test-graalvm.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-nats.svg)](https://github.com/ballerina-platform/module-ballerinax-nats/commits/master)
 
-This library provides the capability to send and receive messages by connecting to the NATS server.
+NATS is a cloud-native, open-source messaging system that provides a high-performance, lightweight, and scalable communication infrastructure for modern distributed systems. The Ballerina `ballerinax/nats` connector enables seamless integration with NATS, allowing you to build reactive and event-driven applications with ease. It supports various messaging patterns, including publish-subscribe, request-reply, and load-balanced queues, while also providing advanced features like JetStream for persistent messaging.
 
-NATS messaging enables the communication of data that is segmented into messages among computer applications and services. Data is encoded and framed as a message and sent by a publisher. The message is received, decoded, and processed by one or more subscribers. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.
+## Key Features
+
+- Support for core NATS messaging (Pub/Sub, Request-Reply)
+- Advanced persistent messaging with NATS JetStream
+- Simplified production and consumption of messages
+- Load-balanced message processing with queue groups
+- Secure communication with TLS and various authentication methods
+- GraalVM compatible for native image builds
 
 ### Basic usage
 
