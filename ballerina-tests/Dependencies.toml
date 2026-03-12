@@ -10,7 +10,7 @@ distribution-version = "2201.12.0"
 [[package]]
 org = "ballerina"
 name = "crypto"
-version = "2.9.0"
+version = "2.9.3"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
@@ -171,7 +171,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "nats"
-version = "3.3.0"
+version = "3.3.1"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
@@ -185,7 +185,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "nats_tests"
-version = "3.3.0"
+version = "3.3.1"
 dependencies = [
 	{org = "ballerina", name = "lang.runtime"},
 	{org = "ballerina", name = "lang.string"},

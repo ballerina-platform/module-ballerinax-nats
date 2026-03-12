@@ -1,8 +1,15 @@
-## Package Overview
+## Overview
 
-This package provides the capability to send and receive messages by connecting to the NATS server.
+NATS is a cloud-native, open-source messaging system that provides a high-performance, lightweight, and scalable communication infrastructure for modern distributed systems. The NATS connector enables seamless integration with NATS, making it easy to build reactive and event-driven applications. It supports various messaging patterns, including publish-subscribe, request-reply, and load-balanced queues, and provides advanced features such as JetStream for persistent messaging.
 
-NATS messaging enables the communication of data that is segmented into messages among computer applications and services. Data is encoded and framed as a message and sent by a publisher. The message is received, decoded, and processed by one or more subscribers. NATS makes it easy for programs to communicate across different environments, languages, cloud providers, and on-premise systems. Clients connect to the NATS system usually via a single URL and then subscribe or publish messages to a subject.
+### Key Features
+
+- Support for core NATS messaging (Pub/Sub, Request-Reply)
+- Advanced persistent messaging with NATS JetStream
+- Simplified production and consumption of messages
+- Load-balanced message processing with queue groups
+- Secure communication with TLS and various authentication methods
+- GraalVM compatible for native image builds
 
 ### Basic usage
 
