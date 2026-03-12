@@ -1,6 +1,6 @@
 ## Overview
 
-NATS is a cloud-native, open-source messaging system that provides a high-performance, lightweight, and scalable communication infrastructure for modern distributed systems. The Ballerina `ballerinax/nats` connector enables seamless integration with NATS, allowing you to build reactive and event-driven applications with ease. It supports various messaging patterns, including publish-subscribe, request-reply, and load-balanced queues, while also providing advanced features like JetStream for persistent messaging.
+NATS is a cloud-native, open-source messaging system that provides a high-performance, lightweight, and scalable communication infrastructure for modern distributed systems. The NATS connector enables seamless integration with NATS, making it easy to build reactive and event-driven applications. It supports various messaging patterns, including publish-subscribe, request-reply, and load-balanced queues, and provides advanced features such as JetStream for persistent messaging.
 
 ### Key Features
 
