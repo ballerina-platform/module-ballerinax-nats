@@ -66,6 +66,14 @@ allprojects {
 
 subprojects {
 
+    plugins.withId('java') {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(25)
+            }
+        }
+    }
+
     configurations {
         ballerinaStdLibs
         jbalTools
@@ -105,7 +113,7 @@ release {
     }
 }
 
-task build {
+tasks.named('build') {
     dependsOn('nats-ballerina:build')
     dependsOn('nats-ballerina-tests:test')
 }
