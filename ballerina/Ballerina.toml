@@ -1,27 +1,27 @@
 [package]
 org = "ballerinax"
 name = "nats"
-version = "3.3.1"
+version = "3.3.2"
 authors = ["Ballerina"]
 keywords = ["service", "client", "messaging", "network", "pubsub", "Vendor/NATS", "Area/Messaging", "Type/Connector", "Type/Trigger"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-nats"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.12.0"
+distribution = "2201.14.0-20260527-050400-74f7e6bf"
 
-[platform.java21]
+[platform.java25]
 graalvmCompatible = true
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 path = "./lib/jnats-2.20.4.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "nats-native"
-version = "3.3.1"
-path = "../native/build/libs/nats-native-3.3.1.jar"
+version = "3.3.2"
+path = "../native/build/libs/nats-native-3.3.2-SNAPSHOT.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "constraint-native"
 version = "1.7.0"
