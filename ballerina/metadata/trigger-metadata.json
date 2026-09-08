@@ -53,6 +53,39 @@
             "returns": { "id": "$service.onMessage.returns", "type": [{ "name": "error", "builtin": true }, { "name": "()", "builtin": true }] }
           },
           {
+            "id": "$service.onMessage.withPayload",
+            "name": "onMessage",
+            "kind": "remote",
+            "doc": "Invoked once per message delivered from the subscribed subject, providing both the message envelope and its bound payload.",
+            "presence": "optional",
+            "params": [
+              {
+                "id": "$service.onMessage.withPayload.message",
+                "name": "message",
+                "doc": "The delivered message envelope.",
+                "type": { "name": "AnydataMessage" },
+                "presence": "required"
+              },
+              {
+                "id": "$service.onMessage.withPayload.payload",
+                "name": "payload",
+                "doc": "The payload bound from the delivered message.",
+                "type": { "name": "anydata", "builtin": true },
+                "presence": "required",
+                "dataBinding": {
+                  "typedescs": [
+                    {
+                      "constraint": { "name": "anydata", "builtin": true },
+                      "excludes": [{ "name": "AnydataMessage" }],
+                      "shapes": [{ "form": "bare" }]
+                    }
+                  ]
+                }
+              }
+            ],
+            "returns": { "id": "$service.onMessage.withPayload.returns", "type": [{ "name": "error", "builtin": true }, { "name": "()", "builtin": true }] }
+          },
+          {
             "id": "$service.onRequest",
             "name": "onRequest",
             "kind": "remote",
@@ -82,6 +115,43 @@
             ],
             "returns": {
               "id": "$service.onRequest.returns",
+              "type": [{ "name": "anydata", "builtin": true }, { "name": "error", "builtin": true }],
+              "dataBinding": { "typedescs": [{ "constraint": { "name": "anydata", "builtin": true }, "shapes": [{ "form": "bare" }] }] }
+            }
+          },
+          {
+            "id": "$service.onRequest.withPayload",
+            "name": "onRequest",
+            "kind": "remote",
+            "doc": "Invoked once per request delivered from the subscribed subject, providing both the request envelope and its bound payload.",
+            "presence": "optional",
+            "params": [
+              {
+                "id": "$service.onRequest.withPayload.message",
+                "name": "message",
+                "doc": "The delivered request envelope.",
+                "type": { "name": "AnydataMessage" },
+                "presence": "required"
+              },
+              {
+                "id": "$service.onRequest.withPayload.payload",
+                "name": "payload",
+                "doc": "The payload bound from the delivered request.",
+                "type": { "name": "anydata", "builtin": true },
+                "presence": "required",
+                "dataBinding": {
+                  "typedescs": [
+                    {
+                      "constraint": { "name": "anydata", "builtin": true },
+                      "excludes": [{ "name": "AnydataMessage" }],
+                      "shapes": [{ "form": "bare" }]
+                    }
+                  ]
+                }
+              }
+            ],
+            "returns": {
+              "id": "$service.onRequest.withPayload.returns",
               "type": [{ "name": "anydata", "builtin": true }, { "name": "error", "builtin": true }],
               "dataBinding": { "typedescs": [{ "constraint": { "name": "anydata", "builtin": true }, "shapes": [{ "form": "bare" }] }] }
             }
