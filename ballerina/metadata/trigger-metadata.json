@@ -1,0 +1,129 @@
+{
+  "version": "v1.0",
+
+  "listeners": [
+    {
+      "id": "$listener",
+      "doc": "Consumes messages delivered from a subscribed NATS subject and dispatches each to the attached service.",
+      "type": { "name": "Listener" },
+      "services": ["$service"],
+      "multipleServicesAllowed": true
+    }
+  ],
+
+  "serviceTypes": [
+    {
+      "id": "$service",
+      "doc": "Consumes messages delivered from a subscribed NATS subject, either fire-and-forget or request-reply.",
+      "type": { "name": "Service" },
+      "concrete": false,
+      "multipleListenersAllowed": false,
+      "annotations": ["$serviceConfig"],
+      "handlers": {
+        "backedByConcreteType": false,
+        "options": [
+          {
+            "id": "$service.onMessage",
+            "name": "onMessage",
+            "kind": "remote",
+            "doc": "Invoked once per message delivered from the subscribed subject. Use this for consume-only workloads; use onRequest instead when the publisher expects a reply.",
+            "presence": "optional",
+            "params": [
+              {
+                "id": "$service.onMessage.message",
+                "name": "message",
+                "doc": "The delivered message. Declare a narrower type to project the payload, see the messagePayload data-binding rule.",
+                "type": [{ "name": "AnydataMessage" }, { "name": "BytesMessage" }],
+                "presence": "required",
+                "dataBinding": {
+                  "typedescs": [
+                    {
+                      "constraint": { "name": "anydata", "builtin": true },
+                      "excludes": [{ "name": "AnydataMessage" }],
+                      "shapes": [{ "form": "bare" }]
+                    },
+                    {
+                      "constraint": { "name": "anydata", "builtin": true },
+                      "shapes": [{ "form": "included", "envelope": { "name": "AnydataMessage" }, "bindableFields": ["content"] }]
+                    }
+                  ]
+                }
+              }
+            ],
+            "returns": { "id": "$service.onMessage.returns", "type": [{ "name": "error", "builtin": true }, { "name": "()", "builtin": true }] }
+          },
+          {
+            "id": "$service.onRequest",
+            "name": "onRequest",
+            "kind": "remote",
+            "doc": "Invoked once per message delivered from the subscribed subject, for request-reply consumers. Whatever the handler returns is published back to the message's reply-to subject, which is why it returns anydata rather than ().",
+            "presence": "optional",
+            "params": [
+              {
+                "id": "$service.onRequest.message",
+                "name": "message",
+                "doc": "The delivered request message. Declare a narrower type to project the payload, see the messagePayload data-binding rule.",
+                "type": [{ "name": "AnydataMessage" }, { "name": "BytesMessage" }],
+                "presence": "required",
+                "dataBinding": {
+                  "typedescs": [
+                    {
+                      "constraint": { "name": "anydata", "builtin": true },
+                      "excludes": [{ "name": "AnydataMessage" }],
+                      "shapes": [{ "form": "bare" }]
+                    },
+                    {
+                      "constraint": { "name": "anydata", "builtin": true },
+                      "shapes": [{ "form": "included", "envelope": { "name": "AnydataMessage" }, "bindableFields": ["content"] }]
+                    }
+                  ]
+                }
+              }
+            ],
+            "returns": {
+              "id": "$service.onRequest.returns",
+              "type": [{ "name": "anydata", "builtin": true }, { "name": "error", "builtin": true }],
+              "dataBinding": { "typedescs": [{ "constraint": { "name": "anydata", "builtin": true }, "shapes": [{ "form": "bare" }] }] }
+            }
+          },
+          {
+            "id": "$service.onError",
+            "name": "onError",
+            "kind": "remote",
+            "doc": "Invoked when a delivered message cannot be dispatched, most commonly when its payload fails to bind to the declared parameter type.",
+            "presence": "optional",
+            "params": [
+              {
+                "id": "$service.onError.message",
+                "name": "message",
+                "doc": "The message that could not be dispatched, in its unprojected form.",
+                "type": { "name": "AnydataMessage" },
+                "presence": "required"
+              },
+              {
+                "id": "$service.onError.err",
+                "name": "err",
+                "doc": "The failure that prevented dispatch.",
+                "type": { "name": "Error" },
+                "presence": "required"
+              }
+            ],
+            "returns": { "id": "$service.onError.returns", "type": [{ "name": "error", "builtin": true }, { "name": "()", "builtin": true }] }
+          }
+        ]
+      },
+      "rules": [
+        {
+          "id": "$messageHandlerChoice",
+          "rule": "structure.exactlyOne",
+          "message": "A NATS consumer must implement exactly one of onMessage or onRequest.",
+          "subjects": [{ "kind": "handler", "id": "$service.onMessage" }, { "kind": "handler", "id": "$service.onRequest" }]
+        }
+      ]
+    }
+  ],
+
+  "annotations": [
+    { "id": "$serviceConfig", "type": { "name": "ServiceConfig" }, "attachPoint": "service", "presence": "required" }
+  ]
+}
