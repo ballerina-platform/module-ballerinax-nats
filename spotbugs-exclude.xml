@@ -68,4 +68,8 @@
         <Class name="io.ballerina.stdlib.nats.observability.NatsMetricsReporter" />
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.stdlib.nats.connection.ConnectionUtils" />
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+    </Match>
 </FindBugsFilter>
