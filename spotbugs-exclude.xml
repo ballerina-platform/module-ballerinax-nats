@@ -68,6 +68,13 @@
         <Class name="io.ballerina.stdlib.nats.observability.NatsMetricsReporter" />
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
+    <!-- getTrustManagerFactory/getKeyManagerFactory/getKeyStore/buildSslContext declare a broad
+         "throws Exception": getTrustManagerFactory/getKeyManagerFactory raise `new Exception(...)`
+         directly for application-level certificate/key decode failures, while getKeyStore and
+         buildSslContext propagate several distinct JDK checked exceptions (KeyStoreException,
+         NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException) from
+         the KeyStore/TrustManagerFactory/KeyManagerFactory/SSLContext APIs. Narrowing this
+         pre-existing signature is out of scope for this Gradle-tooling upgrade. -->
     <Match>
         <Class name="io.ballerina.stdlib.nats.connection.ConnectionUtils" />
         <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
